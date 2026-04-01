@@ -450,6 +450,13 @@ export default function App() {
           animation: instaFloat var(--duration) linear forwards;
           will-change: transform, opacity;
         }
+        @keyframes typingDot {
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-3px); opacity: 1; }
+        }
+        .animate-typing-dot {
+          animation: typingDot 1.4s infinite ease-in-out both;
+        }
         body, html { 
           margin: 0; padding: 0; height: 100%; width: 100vw; max-width: 100vw; overflow-x: hidden; overflow-y: hidden; 
           background-color: #0a0a0c !important; overscroll-behavior: none; 
@@ -475,6 +482,9 @@ export default function App() {
   const [sentReqs, setSentReqs] = useState([]);
   const [receivedReqs, setReceivedReqs] = useState(initialReceivedRequests);
   const [blockedGroups, setBlockedGroups] = useState([]);
+  
+  // Typing State System { chatId: [userId1, userId2] }
+  const [typingIndicators, setTypingIndicators] = useState({});
   
   // Centralized Dynamic Chat System
   const [recentConversations, setRecentConversations] = useState(initialRecent);
@@ -531,6 +541,59 @@ export default function App() {
     cullExpired();
     const interval = setInterval(cullExpired, 60000);
     return () => clearInterval(interval);
+  }, []);
+
+  // MOCK: Simulate other users occasionally typing to demonstrate the feature
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (recentConversations.length === 0) return;
+      
+      // Randomly pick a chat
+      const randomChat = recentConversations[Math.floor(Math.random() * recentConversations.length)];
+      
+      let memberId;
+      if (randomChat.isGroup) {
+        const group = groups.find(g => g.id === randomChat.id);
+        if (!group) return;
+        const others = group.memberIds.filter(id => id !== currentUser.id);
+        if (others.length === 0) return;
+        memberId = others[Math.floor(Math.random() * others.length)];
+      } else {
+        memberId = randomChat.id;
+      }
+
+      // Start typing simulation
+      setTypingIndicators(prev => {
+        const current = prev[randomChat.id] || [];
+        if (current.includes(memberId)) return prev;
+        return { ...prev, [randomChat.id]: [...current, memberId] };
+      });
+
+      // Stop typing automatically after 2-5 seconds
+      setTimeout(() => {
+        setTypingIndicators(prev => {
+          const current = prev[randomChat.id] || [];
+          return { ...prev, [randomChat.id]: current.filter(id => id !== memberId) };
+        });
+      }, 2000 + Math.random() * 3000);
+
+    }, 8000); 
+
+    return () => clearInterval(interval);
+  }, [recentConversations, groups]);
+
+  const handleTypingGlobal = useCallback((chatId, isTyping) => {
+    setTypingIndicators(prev => {
+        const current = prev[chatId] || [];
+        const isCurrentlyTyping = current.includes(currentUser.id);
+        
+        if (isTyping && !isCurrentlyTyping) {
+            return { ...prev, [chatId]: [...current, currentUser.id] };
+        } else if (!isTyping && isCurrentlyTyping) {
+            return { ...prev, [chatId]: current.filter(id => id !== currentUser.id) };
+        }
+        return prev;
+    });
   }, []);
 
   const handleSendMessageGlobal = useCallback((userId, text) => {
@@ -832,12 +895,26 @@ export default function App() {
                        sentReqs.find(u => u.id === selectedChatId) || 
                        receivedReqs.find(u => u.id === selectedChatId);
     const existingChatDetails = chatDetails.find(c => c.id === selectedChatId);
+    const recentChat = recentConversations.find(c => c.id === selectedChatId);
     
-    const baseInfo = friend || group || globalUser || existingChatDetails;
+    const baseInfo = friend || group || globalUser || recentChat || existingChatDetails;
     
     if (baseInfo) {
+      // ACCURACY FIX: Resolve accurate online status across disparate mock data sources
+      let isOnline = false;
+      if (friend) {
+          isOnline = friend.isOnline;
+      } else if (globalUser) {
+          isOnline = globalUser.status === 'Online' || globalUser.status === 'online';
+      } else if (recentChat) {
+          isOnline = recentChat.status === 'online';
+      } else if (baseInfo.status) {
+          isOnline = baseInfo.status === 'online' || baseInfo.status === 'Online';
+      }
+
       activeChat = {
         ...baseInfo,
+        status: isOnline ? 'online' : 'offline',
         isConnected: !!friend || !!group,
         messages: existingChatDetails ? existingChatDetails.messages : []
       };
@@ -883,6 +960,7 @@ export default function App() {
               myStories={myStories}
               setMyStories={setMyStories}
               recentConversations={recentConversations}
+              typingIndicators={typingIndicators}
               chatDetails={chatDetails}
               onSendMessage={handleSendMessageGlobal}
               onOverlayChange={handleOverlayChange}
@@ -934,6 +1012,8 @@ export default function App() {
             onRejectReq={handleRejectReq}
             onSendMessage={handleSendMessageGlobal}
             friends={friends}
+            typingIndicators={typingIndicators}
+            onTyping={handleTypingGlobal}
             onLeaveGroup={handleLeaveGroup}
             onBlock={handleBlock}
             onReport={handleReport}
@@ -1566,7 +1646,7 @@ function CreateStoryModal({ onClose, onPost }) {
   );
 }
 
-function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithdrawReq, friends, setFriends, groups, receivedReqs, onAcceptReq, onRejectReq, myStories, setMyStories, recentConversations, chatDetails, onSendMessage, onOverlayChange }) {
+function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithdrawReq, friends, setFriends, groups, receivedReqs, onAcceptReq, onRejectReq, myStories, setMyStories, recentConversations, typingIndicators, chatDetails, onSendMessage, onOverlayChange }) {
   const [listTab, setListTab] = useState('conversations');
   const [expandedGroups, setExpandedGroups] = useState(false);
   const [expandedRecent, setExpandedRecent] = useState(false);
@@ -1762,47 +1842,80 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
     });
   }, [groups, chatDetails]);
   
-  const renderRecentCard = (chat) => (
-    <div 
-      key={`recent-${chat.id}`}
-      onClick={() => onSelectChat(chat.id)}
-      className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#1a1a1c] cursor-pointer transition-colors group"
-    >
-      <div className="flex items-center gap-4 flex-1 min-w-0">
-        {chat.isGroup ? (
-          <div className={`w-12 h-12 rounded-xl ${chat.icon || 'bg-indigo-500'} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
-            <Hash size={20} />
+  const renderRecentCard = (chat) => {
+    const activeTypers = (typingIndicators[chat.id] || []).filter(id => id !== currentUser.id);
+    const isTyping = activeTypers.length > 0;
+    
+    let typingText = 'Typing...';
+    if (chat.isGroup && activeTypers.length === 1) {
+      const typingUser = friends.find(f => f.id === activeTypers[0]) || globalUsers.find(u => u.id === activeTypers[0]);
+      if (typingUser) typingText = `${typingUser.name.split(' ')[0]} is typing...`;
+    }
+
+    // ACCURACY FIX: Derive real-time status dynamically for the recent chats list
+    const friendData = friends.find(f => f.id === chat.id);
+    const globalData = globalUsers.find(u => u.id === chat.id);
+    const isOnline = friendData ? friendData.isOnline : 
+                     globalData ? (globalData.status === 'Online' || globalData.status === 'online') : 
+                     (chat.status === 'online');
+
+    return (
+      <div 
+        key={`recent-${chat.id}`}
+        onClick={() => onSelectChat(chat.id)}
+        className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#1a1a1c] cursor-pointer transition-colors group"
+      >
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          {chat.isGroup ? (
+            <div className={`w-12 h-12 rounded-xl ${chat.icon || 'bg-indigo-500'} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
+              <Hash size={20} />
+            </div>
+          ) : (
+            <div className="relative flex-shrink-0">
+              <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full" />
+              {isOnline && (
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#121214] rounded-full" />
+              )}
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-medium text-white mb-0.5 truncate">{chat.name}</h3>
+            <p className={`text-sm truncate ${chat.unread > 0 || isTyping ? 'text-zinc-200 font-medium' : 'text-zinc-500'}`}>
+              {isTyping ? (
+                <span className="text-emerald-400 font-medium">{typingText}</span>
+              ) : (
+                chat.lastMessage
+              )}
+            </p>
           </div>
-        ) : (
-          <div className="relative flex-shrink-0">
-            <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full" />
-            {chat.status === 'online' && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#121214] rounded-full" />
-            )}
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium text-white mb-0.5 truncate">{chat.name}</h3>
-          <p className={`text-sm truncate ${chat.unread > 0 ? 'text-zinc-200 font-medium' : 'text-zinc-500'}`}>
-            {chat.lastMessage}
-          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-2">
+          <span className="text-xs text-zinc-500">{formatRecentChatTime(chat.timestamp)}</span>
+          {chat.unread > 0 ? (
+            <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+              {chat.unread}
+            </div>
+          ) : (
+            <ChevronRight size={16} className="text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+          )}
         </div>
       </div>
-      <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-2">
-        <span className="text-xs text-zinc-500">{formatRecentChatTime(chat.timestamp)}</span>
-        {chat.unread > 0 ? (
-          <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
-            {chat.unread}
-          </div>
-        ) : (
-          <ChevronRight size={16} className="text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-        )}
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderGroupCard = (group) => {
     const time = chatDetails.find(c => c.id === group.id)?.messages?.slice(-1)[0]?.timestamp || 0;
+    const activeTypers = (typingIndicators[group.id] || []).filter(id => id !== currentUser.id);
+    const isTyping = activeTypers.length > 0;
+    
+    let typingText = 'Typing...';
+    if (activeTypers.length === 1) {
+      const typingUser = friends.find(f => f.id === activeTypers[0]) || globalUsers.find(u => u.id === activeTypers[0]);
+      if (typingUser) typingText = `${typingUser.name.split(' ')[0]} is typing...`;
+    } else if (activeTypers.length > 1) {
+      typingText = `${activeTypers.length} typing...`;
+    }
+
     return (
       <div key={group.id} onClick={() => onSelectChat(group.id)} className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#1a1a1c] cursor-pointer transition-colors group">
         <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -1811,7 +1924,11 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-medium text-white mb-0.5 truncate">{group.name}</h3>
-            <p className="text-sm text-zinc-500 truncate">{group.members} members</p>
+            {isTyping ? (
+              <p className="text-sm truncate text-emerald-400 font-medium">{typingText}</p>
+            ) : (
+              <p className="text-sm text-zinc-500 truncate">{group.members} members</p>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-2">
@@ -2641,7 +2758,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         )}
 
         <div className={`absolute inset-0 z-[130] flex items-end md:items-center justify-center transition-opacity duration-200 ease-out ${showViewersList ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md transform-gpu" onClick={() => setShowViewersList(false)}></div>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md transform-gpu" style={{ willChange: 'opacity, backdrop-filter' }} onClick={() => setShowViewersList(false)}></div>
           <div className={`bg-[#1a1a1c] w-full h-[60vh] md:h-auto md:max-h-[70vh] md:max-w-sm rounded-t-3xl md:rounded-3xl flex flex-col shadow-2xl relative z-10 border border-white/10 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${showViewersList ? 'translate-y-0 md:scale-100' : 'translate-y-full md:translate-y-8 md:scale-95'}`}>
             <div className="p-5 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#1a1a1c] rounded-t-3xl md:rounded-3xl z-10">
               <h3 className="text-white font-semibold flex items-center gap-2">
@@ -2683,7 +2800,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, friends, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -2712,6 +2829,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
   const scrollContainerRef = useRef(null);
   const isInitialMount = useRef(true);
+  const typingTimeoutRef = useRef(null);
   const messages = chat.messages || [];
 
   const isReqSent = sentReqs?.some(r => r.id === chat.id);
@@ -2747,13 +2865,28 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       container.style.scrollBehavior = 'smooth';
       container.scrollTop = container.scrollHeight;
     }
-  }, [messages.length]);
+  }, [messages.length, typingIndicators]);
+
+  const handleInputChange = (e) => {
+    setInputText(e.target.value);
+    
+    if (chat.isConnected || chat.isGroup) {
+      onTyping(chat.id, true);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        onTyping(chat.id, false);
+      }, 2000);
+    }
+  };
 
   const handleSend = (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
     onSendMessage(chat.id, inputText);
     setInputText('');
+    
+    onTyping(chat.id, false);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
   };
 
   const handleSaveName = () => {
@@ -2823,6 +2956,28 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           return chat.memberIds.indexOf(a.id) - chat.memberIds.indexOf(b.id);
         });
   }, [chat.isGroup, chat.memberIds, chat.adminIds, friends]);
+
+  const onlineMembersCount = useMemo(() => {
+    if (!chat.isGroup) return 0;
+    // ACCURACY FIX: Exclude the current user from the online count calculation
+    return groupMembers.filter(m => m.id !== currentUser.id && m.isOnline).length;
+  }, [chat.isGroup, groupMembers]);
+
+  const activeTypers = useMemo(() => {
+    return (typingIndicators[chat.id] || []).filter(id => id !== currentUser.id);
+  }, [typingIndicators, chat.id]);
+
+  const renderTypingText = () => {
+    if (activeTypers.length === 0) return null;
+    const getFirstName = (id) => {
+      const f = friends.find(fr => fr.id === id);
+      return f ? f.name.split(' ')[0] : 'Someone';
+    };
+
+    if (activeTypers.length === 1) return `${getFirstName(activeTypers[0])} is typing...`;
+    if (activeTypers.length === 2) return `${getFirstName(activeTypers[0])} and ${getFirstName(activeTypers[1])} are typing...`;
+    return `${activeTypers.length} people are typing...`;
+  };
 
   return (
     <div className="absolute inset-0 flex flex-col bg-[#121214] md:rounded-3xl border border-white/[0.02] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 z-40">
@@ -2912,9 +3067,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-base font-medium text-white tracking-tight truncate">{chat.name}</h2>
+              <h2 className="text-base font-medium text-white tracking-tight truncate max-w-[160px] sm:max-w-xs md:max-w-md">{chat.name}</h2>
               <p className="text-xs text-zinc-400 truncate">
-                {chat.isGroup ? `${chat.members} members` : (chat.status === 'online' ? 'Active now' : 'Offline')}
+                {chat.isGroup ? `${onlineMembersCount} online` : (chat.status === 'online' ? 'Active now' : 'Offline')}
               </p>
             </div>
           </div>
@@ -3094,6 +3249,25 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </div>
           );
         })}
+
+        {activeTypers.length > 0 && (
+          <div className="flex items-end gap-2 group/msg mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="w-8">
+               {chat.isGroup && <img src={friends.find(f=>f.id===activeTypers[0])?.avatar || chat.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />}
+            </div>
+            <div className="flex flex-col items-start max-w-[75%] lg:max-w-[60%]">
+              <div className="bg-[#1e1e24] border border-white/[0.02] px-3.5 py-2.5 rounded-2xl rounded-bl-sm flex items-center gap-1 shadow-sm">
+                <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-typing-dot" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-typing-dot" style={{ animationDelay: '200ms' }} />
+                <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-typing-dot" style={{ animationDelay: '400ms' }} />
+              </div>
+              <span className="text-[10px] text-zinc-500 mt-1 px-1 font-medium">
+                {renderTypingText()}
+              </span>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {(chat.isGroup || chat.isConnected) && (
@@ -3112,7 +3286,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <input 
               type="text" 
               value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Message..." 
               className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
             />
@@ -3196,7 +3370,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   </div>
                 </div>
               ) : (
-                <div className="mt-3 relative inline-flex items-start max-w-[80%] group/desc">
+                <div className="mt-3 relative inline-flex items-start justify-center max-w-[80%] group/desc mx-auto">
                   <div className="w-full">
                     {chat.description ? (
                       <p className="text-sm text-zinc-300 text-center leading-relaxed break-words">{chat.description}</p>
