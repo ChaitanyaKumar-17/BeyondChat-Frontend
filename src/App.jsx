@@ -34,7 +34,8 @@ import {
   Ban,
   LogOut,
   Pencil,
-  MoreVertical
+  MoreVertical,
+  Reply
 } from 'lucide-react';
 
 // --- TIME FORMATTING HELPERS ---
@@ -110,6 +111,17 @@ const gradients = [
   'bg-gradient-to-br from-rose-500 to-orange-400',
   'bg-gradient-to-bl from-zinc-800 via-zinc-900 to-black',
 ];
+
+const EMOJI_CATEGORIES = [
+  { id: 'smileys', icon: '😀', name: 'Smileys & People', emojis: ['😀','😂','🥰','😎','🤔','😭','😡','👍','🙏','🔥','✨','💯','🙌','👏','💖','🙃','🙄','😴'] },
+  { id: 'animals', icon: '🐶', name: 'Animals & Nature', emojis: ['🐶','🐱','🦊','🐼','🦁','🐯','🐸','🐵','🐔','🐧','🐦','🐤','🐴','🦄','🐝','🦋','🌸','🌍'] },
+  { id: 'food', icon: '🍎', name: 'Food & Drink', emojis: ['🍎','🍔','🍕','🌮','🍣','🍩','☕','🍺','🥑','🥦','🥨','🥩','🥞','🧇','🍟','🍷','🍹','🍉'] },
+  { id: 'activities', icon: '⚽', name: 'Activities', emojis: ['⚽','🏀','🏈','🎾','🎮','🎸','🎵','🎨','🧩','🎳','🥊','🏓','🏸','🥋','🥅','🎿','🏂','🏆'] },
+  { id: 'travel', icon: '🚗', name: 'Travel & Places', emojis: ['🚗','🚕','✈️','🚀','🚢','🏖️','🗽','🗼','🚂','🚁','🛶','⛵','🛳️','🎡','🎢','🏔️','🏕️','🗺️'] },
+  { id: 'objects', icon: '💡', name: 'Objects', emojis: ['⌚','📱','💻','📷','💡','📚','🎁','🎈','💎','🕰️','📺','📻','📀','📼','🔋','🛍️','🪄','🛒'] },
+];
+
+const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
 const generateStories = (name, count) => {
   return Array.from({ length: count }).map((_, i) => ({
@@ -430,7 +442,6 @@ const initialChats = [
 ];
 
 export default function App() {
-  // FIX: Inject global styles synchronously to prevent Flash of Unstyled Content (FOUC)
   useLayoutEffect(() => {
     if (!document.getElementById('dashboard-global-styles')) {
       const style = document.createElement('style');
@@ -474,7 +485,6 @@ export default function App() {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [appToast, setAppToast] = useState('');
   
-  // Global State
   const [friends, setFriends] = useState(initialFriends);
   const [groups, setGroups] = useState(initialGroups);
   const [myStories, setMyStories] = useState(initialMyStories);
@@ -483,15 +493,10 @@ export default function App() {
   const [receivedReqs, setReceivedReqs] = useState(initialReceivedRequests);
   const [blockedGroups, setBlockedGroups] = useState([]);
   
-  // Typing State System { chatId: [userId1, userId2] }
   const [typingIndicators, setTypingIndicators] = useState({});
-  
-  // Centralized Dynamic Chat System
   const [recentConversations, setRecentConversations] = useState(initialRecent);
   const [chatDetails, setChatDetails] = useState(initialChats);
-
   const [showNewChatModal, setShowNewChatModal] = useState(false);
-  
   const [overlayStates, setOverlayStates] = useState({ home: false, calls: false });
   
   const handleOverlayChange = useCallback((source, isActive) => {
@@ -507,14 +512,9 @@ export default function App() {
 
   const handleSelectChat = useCallback((chatId) => {
     setSelectedChatId(chatId);
-    
     if (chatId) {
-      setRecentConversations(prev => 
-        prev.map(c => c.id === chatId ? { ...c, unread: 0 } : c)
-      );
-      setGroups(prev => 
-        prev.map(g => g.id === chatId ? { ...g, unread: 0 } : g)
-      );
+      setRecentConversations(prev => prev.map(c => c.id === chatId ? { ...c, unread: 0 } : c));
+      setGroups(prev => prev.map(g => g.id === chatId ? { ...g, unread: 0 } : g));
     }
   }, []);
 
@@ -522,7 +522,6 @@ export default function App() {
     const cullExpired = () => {
       const now = Date.now();
       const isExpired = (s) => (now - s.timestamp) >= 24 * HOUR;
-      
       setMyStories(prev => prev.filter(s => !isExpired(s)));
       setFriends(prev => {
         let changed = false;
@@ -537,18 +536,14 @@ export default function App() {
         return changed ? next : prev;
       });
     };
-    
     cullExpired();
     const interval = setInterval(cullExpired, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // MOCK: Simulate other users occasionally typing to demonstrate the feature
   useEffect(() => {
     const interval = setInterval(() => {
       if (recentConversations.length === 0) return;
-      
-      // Randomly pick a chat
       const randomChat = recentConversations[Math.floor(Math.random() * recentConversations.length)];
       
       let memberId;
@@ -562,14 +557,12 @@ export default function App() {
         memberId = randomChat.id;
       }
 
-      // Start typing simulation
       setTypingIndicators(prev => {
         const current = prev[randomChat.id] || [];
         if (current.includes(memberId)) return prev;
         return { ...prev, [randomChat.id]: [...current, memberId] };
       });
 
-      // Stop typing automatically after 2-5 seconds
       setTimeout(() => {
         setTypingIndicators(prev => {
           const current = prev[randomChat.id] || [];
@@ -578,7 +571,6 @@ export default function App() {
       }, 2000 + Math.random() * 3000);
 
     }, 8000); 
-
     return () => clearInterval(interval);
   }, [recentConversations, groups]);
 
@@ -586,7 +578,6 @@ export default function App() {
     setTypingIndicators(prev => {
         const current = prev[chatId] || [];
         const isCurrentlyTyping = current.includes(currentUser.id);
-        
         if (isTyping && !isCurrentlyTyping) {
             return { ...prev, [chatId]: [...current, currentUser.id] };
         } else if (!isTyping && isCurrentlyTyping) {
@@ -596,12 +587,39 @@ export default function App() {
     });
   }, []);
 
-  const handleSendMessageGlobal = useCallback((userId, text) => {
+  const handleReactToMessageGlobal = useCallback((chatId, messageId, emoji) => {
+    setChatDetails(prev => prev.map(c => {
+      if (c.id !== chatId) return c;
+      return {
+        ...c,
+        messages: c.messages.map(m => {
+          if (m.id !== messageId) return m;
+          const currentReactions = m.reactions || [];
+          const existingUserReactionIndex = currentReactions.findIndex(r => r.userId === currentUser.id);
+
+          let newReactions = [...currentReactions];
+          if (existingUserReactionIndex >= 0) {
+            if (newReactions[existingUserReactionIndex].emoji === emoji) {
+              newReactions.splice(existingUserReactionIndex, 1);
+            } else {
+              newReactions[existingUserReactionIndex] = { userId: currentUser.id, emoji };
+            }
+          } else {
+            newReactions.push({ userId: currentUser.id, emoji });
+          }
+          return { ...m, reactions: newReactions };
+        })
+      };
+    }));
+  }, []);
+
+  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null) => {
     const newMessage = {
       id: Date.now(),
       senderId: currentUser.id,
       text: text,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      replyTo: replyTo
     };
 
     setChatDetails(prev => {
@@ -609,10 +627,7 @@ export default function App() {
       if (existingChat) {
         return prev.map(c => c.id === userId ? { ...c, messages: [...c.messages, newMessage] } : c);
       } else {
-        return [...prev, {
-          id: userId,
-          messages: [newMessage]
-        }];
+        return [...prev, { id: userId, messages: [newMessage] }];
       }
     });
 
@@ -635,33 +650,19 @@ export default function App() {
 
       const filtered = prev.filter(c => c.id !== userId);
       const newRecent = {
-        id: userId,
-        name,
-        avatar,
-        status,
-        isGroup,
-        icon,
-        lastMessage: text,
-        timestamp: Date.now(),
-        unread: 0
+        id: userId, name, avatar, status, isGroup, icon, lastMessage: text, timestamp: Date.now(), unread: 0
       };
-      
       return [newRecent, ...filtered];
     });
   }, [friends, groups, globalUsers]);
 
   const appendSystemMessage = useCallback((chatId, text, actorId = currentUser.id) => {
     const sysMsg = { id: Date.now() + Math.random(), type: 'system', text, actorId, timestamp: Date.now() };
-
     setChatDetails(prev => {
       const existingChat = prev.find(c => c.id === chatId);
-      if (existingChat) {
-        return prev.map(c => c.id === chatId ? { ...c, messages: [...c.messages, sysMsg] } : c);
-      } else {
-        return [...prev, { id: chatId, messages: [sysMsg] }];
-      }
+      if (existingChat) return prev.map(c => c.id === chatId ? { ...c, messages: [...c.messages, sysMsg] } : c);
+      return [...prev, { id: chatId, messages: [sysMsg] }];
     });
-
     setRecentConversations(prev => {
       const existing = prev.find(rc => rc.id === chatId);
       if (existing) {
@@ -695,12 +696,8 @@ export default function App() {
           else if (lastMsg.isDeleted) newLastMessageText = lastMsg.deletedByAdmin ? '🚫 This message was deleted by an admin' : '🚫 You deleted this message';
           else newLastMessageText = lastMsg.text;
         }
-
-        setRecentConversations(rcPrev => rcPrev.map(rc => 
-          rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc
-        ));
+        setRecentConversations(rcPrev => rcPrev.map(rc => rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc));
       }
-
       return nextDetails;
     });
   }, []);
@@ -716,40 +713,25 @@ export default function App() {
       return;
     }
     const newGroup = {
-      id: Date.now(),
-      name: name,
-      description: 'A new group created by you.',
-      members: memberIds.length + 1,
-      memberIds: [currentUser.id, ...memberIds],
-      adminIds: [currentUser.id],
-      unread: 0,
-      icon: gradients[Math.floor(Math.random() * gradients.length)],
-      isGroup: true
+      id: Date.now(), name: name, description: 'A new group created by you.', members: memberIds.length + 1,
+      memberIds: [currentUser.id, ...memberIds], adminIds: [currentUser.id], unread: 0,
+      icon: gradients[Math.floor(Math.random() * gradients.length)], isGroup: true
     };
     setGroups(prev => [newGroup, ...prev]);
     setShowNewChatModal(false);
     handleSelectChat(newGroup.id);
-
     appendSystemMessage(newGroup.id, 'created the group', currentUser.id);
     
     if (memberIds.length > 0) {
       const addedNames = memberIds.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
-      if (addedNames) {
-        setTimeout(() => {
-          appendSystemMessage(newGroup.id, `added ${addedNames}`, currentUser.id);
-        }, 10);
-      }
+      if (addedNames) setTimeout(() => appendSystemMessage(newGroup.id, `added ${addedNames}`, currentUser.id), 10);
     }
   };
 
   const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
     const group = groups.find(g => g.id === groupId);
-    if (group && group.name !== newName) {
-      appendSystemMessage(groupId, `changed the group name from "${group.name}" to "${newName}"`, currentUser.id);
-    }
-    if (group && group.description !== newDesc) {
-      appendSystemMessage(groupId, `changed the group description`, currentUser.id);
-    }
+    if (group && group.name !== newName) appendSystemMessage(groupId, `changed the group name from "${group.name}" to "${newName}"`, currentUser.id);
+    if (group && group.description !== newDesc) appendSystemMessage(groupId, `changed the group description`, currentUser.id);
 
     setGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: newName, description: newDesc } : g));
     setRecentConversations(prev => prev.map(c => c.id === groupId ? { ...c, name: newName } : c));
@@ -760,7 +742,6 @@ export default function App() {
   const handleAddMembers = useCallback((groupId, newMemberIds) => {
     const addedNames = newMemberIds.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
     appendSystemMessage(groupId, `added ${addedNames}`, currentUser.id);
-
     setGroups(prev => prev.map(g => {
       if (g.id === groupId) {
         const updatedIds = [...new Set([...g.memberIds, ...newMemberIds])];
@@ -774,7 +755,6 @@ export default function App() {
   const handleRemoveMembers = useCallback((groupId, memberIdsToRemove) => {
     const removedNames = memberIdsToRemove.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
     appendSystemMessage(groupId, `removed ${removedNames}`, currentUser.id);
-
     setGroups(prev => prev.map(g => {
       if (g.id === groupId) {
         const updatedIds = g.memberIds.filter(id => !memberIdsToRemove.includes(id));
@@ -789,63 +769,34 @@ export default function App() {
   const handleToggleAdmin = useCallback((groupId, memberId) => {
     const group = groups.find(g => g.id === groupId);
     const memberName = friends.find(f => f.id === memberId)?.name;
-    
     if (group && memberName) {
       const isAdmin = group.adminIds.includes(memberId);
-      if (isAdmin) {
-         appendSystemMessage(groupId, `removed Admin privileges from ${memberName}`, currentUser.id);
-      } else {
-         appendSystemMessage(groupId, `made ${memberName} an Admin`, currentUser.id);
-      }
+      if (isAdmin) appendSystemMessage(groupId, `removed Admin privileges from ${memberName}`, currentUser.id);
+      else appendSystemMessage(groupId, `made ${memberName} an Admin`, currentUser.id);
     }
-
     setGroups(prev => prev.map(g => {
       if (g.id === groupId) {
         const isAdmin = g.adminIds.includes(memberId);
-        return {
-          ...g,
-          adminIds: isAdmin ? g.adminIds.filter(id => id !== memberId) : [...g.adminIds, memberId]
-        };
+        return { ...g, adminIds: isAdmin ? g.adminIds.filter(id => id !== memberId) : [...g.adminIds, memberId] };
       }
       return g;
     }));
     showGlobalToast('Admin roles updated.');
   }, [groups, friends, appendSystemMessage]);
 
-  const handleSendReq = (user) => {
-    if (!sentReqs.find(r => r.id === user.id)) {
-      setSentReqs(prev => [...prev, user]);
-    }
-  };
-
-  const handleWithdrawReq = (userId) => {
-    setSentReqs(prev => prev.filter(r => r.id !== userId));
-  };
-
+  const handleSendReq = (user) => { if (!sentReqs.find(r => r.id === user.id)) setSentReqs(prev => [...prev, user]); };
+  const handleWithdrawReq = (userId) => setSentReqs(prev => prev.filter(r => r.id !== userId));
   const handleAcceptReq = (userId) => {
     const acceptedUser = receivedReqs.find(r => r.id === userId);
     if (acceptedUser) {
       setReceivedReqs(prev => prev.filter(r => r.id !== userId));
-      setFriends(prev => [...prev, {
-        id: acceptedUser.id,
-        name: acceptedUser.name,
-        handle: acceptedUser.handle,
-        avatar: acceptedUser.avatar,
-        storyType: 'none',
-        isOnline: acceptedUser.status === 'Online',
-        storyViewed: false,
-        stories: []
-      }]);
+      setFriends(prev => [...prev, { id: acceptedUser.id, name: acceptedUser.name, handle: acceptedUser.handle, avatar: acceptedUser.avatar, storyType: 'none', isOnline: acceptedUser.status === 'Online', storyViewed: false, stories: [] }]);
     }
   };
-
-  const handleRejectReq = (userId) => {
-    setReceivedReqs(prev => prev.filter(r => r.id !== userId));
-  };
+  const handleRejectReq = (userId) => setReceivedReqs(prev => prev.filter(r => r.id !== userId));
 
   const handleLeaveGroup = (groupId) => {
     appendSystemMessage(groupId, 'left', currentUser.id);
-
     setGroups(prev => prev.filter(g => g.id !== groupId));
     setRecentConversations(prev => prev.filter(c => c.id !== groupId));
     setChatDetails(prev => prev.filter(c => c.id !== groupId));
@@ -891,26 +842,18 @@ export default function App() {
   if (selectedChatId) {
     const friend = friends.find(f => f.id === selectedChatId);
     const group = groups.find(g => g.id === selectedChatId);
-    const globalUser = globalUsers.find(u => u.id === selectedChatId) || 
-                       sentReqs.find(u => u.id === selectedChatId) || 
-                       receivedReqs.find(u => u.id === selectedChatId);
+    const globalUser = globalUsers.find(u => u.id === selectedChatId) || sentReqs.find(u => u.id === selectedChatId) || receivedReqs.find(u => u.id === selectedChatId);
     const existingChatDetails = chatDetails.find(c => c.id === selectedChatId);
     const recentChat = recentConversations.find(c => c.id === selectedChatId);
     
     const baseInfo = friend || group || globalUser || recentChat || existingChatDetails;
     
     if (baseInfo) {
-      // ACCURACY FIX: Resolve accurate online status across disparate mock data sources
       let isOnline = false;
-      if (friend) {
-          isOnline = friend.isOnline;
-      } else if (globalUser) {
-          isOnline = globalUser.status === 'Online' || globalUser.status === 'online';
-      } else if (recentChat) {
-          isOnline = recentChat.status === 'online';
-      } else if (baseInfo.status) {
-          isOnline = baseInfo.status === 'online' || baseInfo.status === 'Online';
-      }
+      if (friend) isOnline = friend.isOnline;
+      else if (globalUser) isOnline = globalUser.status === 'Online' || globalUser.status === 'online';
+      else if (recentChat) isOnline = recentChat.status === 'online';
+      else if (baseInfo.status) isOnline = baseInfo.status === 'online' || baseInfo.status === 'Online';
 
       activeChat = {
         ...baseInfo,
@@ -1011,6 +954,7 @@ export default function App() {
             onAcceptReq={handleAcceptReq}
             onRejectReq={handleRejectReq}
             onSendMessage={handleSendMessageGlobal}
+            onReactToMessage={handleReactToMessageGlobal}
             friends={friends}
             typingIndicators={typingIndicators}
             onTyping={handleTypingGlobal}
@@ -1852,7 +1796,6 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
       if (typingUser) typingText = `${typingUser.name.split(' ')[0]} is typing...`;
     }
 
-    // ACCURACY FIX: Derive real-time status dynamically for the recent chats list
     const friendData = friends.find(f => f.id === chat.id);
     const globalData = globalUsers.find(u => u.id === chat.id);
     const isOnline = friendData ? friendData.isOnline : 
@@ -2800,7 +2743,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -2827,9 +2770,15 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [showRemoveMembersPanel, setShowRemoveMembersPanel] = useState(false);
   const [removeMemberSelections, setRemoveMemberSelections] = useState([]);
 
+  // New States for requested features
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null); // { id, text, senderId }
+  const [reactionPopupId, setReactionPopupId] = useState(null);
+
   const scrollContainerRef = useRef(null);
   const isInitialMount = useRef(true);
   const typingTimeoutRef = useRef(null);
+  const inputRef = useRef(null);
   const messages = chat.messages || [];
 
   const isReqSent = sentReqs?.some(r => r.id === chat.id);
@@ -2880,10 +2829,13 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   };
 
   const handleSend = (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (!inputText.trim()) return;
-    onSendMessage(chat.id, inputText);
+    
+    onSendMessage(chat.id, inputText, replyingTo);
     setInputText('');
+    setReplyingTo(null);
+    setShowEmojiPicker(false);
     
     onTyping(chat.id, false);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -2982,6 +2934,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   return (
     <div className="absolute inset-0 flex flex-col bg-[#121214] md:rounded-3xl border border-white/[0.02] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 z-40">
       
+      {/* Click outside overlay for popup menus like reactions */}
+      {reactionPopupId && (
+        <div className="absolute inset-0 z-40" onClick={() => setReactionPopupId(null)}></div>
+      )}
+
       {confirmAction && (
         <div className="absolute inset-0 z-[160] bg-black/60 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-200">
            <div className="bg-[#1a1a1c] border border-white/10 rounded-2xl p-6 shadow-2xl w-80 flex flex-col gap-4 animate-in zoom-in-95 duration-300">
@@ -3180,9 +3137,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
           const msg = item;
           const isMe = msg.senderId === currentUser.id;
+          const hasReactions = msg.reactions && msg.reactions.length > 0;
 
           return (
-            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg`}>
+            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'}`}>
               {!isMe && (
                 <div className="w-8">
                   {msg.showAvatar && <img src={chat.isGroup ? (friends.find(f=>f.id===msg.senderId)?.avatar || chat.avatar) : chat.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />}
@@ -3190,56 +3148,97 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               )}
               
               <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%] lg:max-w-[60%]`}>
-                <div className="flex items-center gap-2 group/msgwrap relative">
+                <div className={`flex items-center gap-2 group/msgwrap relative ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                   
-                  {/* Left-side Delete Button (for my own messages) */}
-                  {isMe && !msg.isDeleted && (
-                    <button 
-                      onClick={() => {
-                        const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
-                        const canDeleteForEveryone = isAdmin || !isPersonalTimeExpired;
-                        setConfirmAction({
-                          type: 'delete_msg',
-                          payload: msg.id,
-                          title: 'Delete Message',
-                          canDeleteForEveryone,
-                        });
-                      }} 
-                      className="opacity-0 group-hover/msgwrap:opacity-100 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 p-1.5 rounded-full transition-all"
-                      title="Delete Message"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  {/* Message Actions (Reply, React, Delete) */}
+                  {!msg.isDeleted && (
+                    <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/msgwrap:opacity-100 transition-opacity z-10 ${isMe ? 'right-full mr-2' : 'left-full ml-2'}`}>
+                      <button 
+                        onClick={() => setReactionPopupId(msg.id)} 
+                        className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
+                        title="React"
+                      >
+                        <Smile size={14} />
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setReplyingTo({ id: msg.id, text: msg.text, senderId: msg.senderId });
+                          inputRef.current?.focus();
+                        }} 
+                        className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
+                        title="Reply"
+                      >
+                        <Reply size={14} />
+                      </button>
+                      {(isMe || isAdmin) && (
+                        <button 
+                          onClick={() => {
+                            const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
+                            const canDeleteForEveryone = isAdmin || (!isPersonalTimeExpired && isMe);
+                            setConfirmAction({
+                              type: 'delete_msg',
+                              payload: msg.id,
+                              title: 'Delete Message',
+                              canDeleteForEveryone,
+                            });
+                          }} 
+                          className="p-1.5 bg-[#1a1a1c] hover:bg-red-500/10 rounded-full text-zinc-400 hover:text-red-400 shadow-sm border border-white/5 transition-colors"
+                          title="Delete Message"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
                   )}
 
+                  {/* Reaction Quick-Select Popup */}
+                  {reactionPopupId === msg.id && (
+                    <div className={`absolute top-full mt-1 ${isMe ? 'right-0' : 'left-0'} bg-[#1a1a1c] border border-white/10 rounded-full px-2 py-1.5 flex gap-2 shadow-2xl z-[60] animate-in zoom-in-95`}>
+                      {QUICK_REACTIONS.map(emoji => (
+                        <button 
+                          key={emoji} 
+                          onClick={() => { 
+                            onReactToMessage(chat.id, msg.id, emoji); 
+                            setReactionPopupId(null); 
+                          }} 
+                          className="hover:scale-125 transition-transform text-lg"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* The Message Bubble itself */}
                   {msg.isDeleted ? (
-                    <div className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
+                    <div className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
                       🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}
                     </div>
                   ) : (
-                    <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
-                      {msg.text}
+                    <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
+                      
+                      {/* Replied-To Snippet inside the bubble */}
+                      {msg.replyTo && (
+                        <div className="bg-black/20 border-l-4 border-indigo-400 rounded p-2 mb-1.5 max-w-full overflow-hidden">
+                           <span className="text-[10px] text-indigo-300 font-bold block mb-0.5 tracking-wide">
+                             {msg.replyTo.senderId === currentUser.id ? 'You' : (friends.find(f=>f.id===msg.replyTo.senderId)?.name || 'Someone')}
+                           </span>
+                           <p className="text-xs text-white/80 truncate">{msg.replyTo.text}</p>
+                        </div>
+                      )}
+
+                      <span>{msg.text}</span>
+
+                      {/* Display active reactions overlapping the bubble */}
+                      {hasReactions && (
+                        <div className={`absolute bottom-[-12px] ${isMe ? 'right-2' : 'left-2'} bg-[#1a1a1c] border border-white/10 rounded-full px-1.5 py-0.5 text-xs flex items-center gap-0.5 shadow-sm`}>
+                          {Array.from(new Set(msg.reactions.map(r => r.emoji))).slice(0, 3).map(e => <span key={e}>{e}</span>)}
+                          {msg.reactions.length > 1 && <span className="text-zinc-400 text-[10px] pr-0.5 ml-0.5 font-medium">{msg.reactions.length}</span>}
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* Right-side Delete Button (for anyone deleting someone else's message) */}
-                  {!isMe && !msg.isDeleted && (
-                    <button 
-                      onClick={() => {
-                        const canDeleteForEveryone = isAdmin;
-                        setConfirmAction({
-                          type: 'delete_msg',
-                          payload: msg.id,
-                          title: 'Delete Message',
-                          canDeleteForEveryone, // True only if admin
-                        });
-                      }} 
-                      className="opacity-0 group-hover/msgwrap:opacity-100 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 p-1.5 rounded-full transition-all"
-                      title="Delete Message"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
                 </div>
                 <span className="text-[10px] text-zinc-500 mt-1 px-1">
                   {chat.isGroup && !isMe && msg.showAvatar && <span className="font-medium mr-2">{friends.find(f=>f.id===msg.senderId)?.name.split(' ')[0]}</span>}
@@ -3271,12 +3270,96 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       </div>
 
       {(chat.isGroup || chat.isConnected) && (
-        <div className="px-6 pb-6 pt-2 flex-none z-10 bg-[#121214]">
+        <div className="px-6 pb-6 pt-0 flex-none z-50 bg-transparent flex flex-col relative">
+          
+          {/* Active Reply Banner */}
+          {replyingTo && (
+            <div className="w-full bg-[#1a1a1c] border-t border-x border-white/5 p-3 flex justify-between items-center rounded-t-2xl -mb-4 pt-3 pb-6 relative shadow-2xl animate-in slide-in-from-bottom-2">
+              <div className="flex-1 bg-black/40 border-l-4 border-indigo-500 rounded p-2 overflow-hidden relative">
+                <span className="text-[11px] text-indigo-400 font-bold block tracking-wide">
+                  Replying to {replyingTo.senderId === currentUser.id ? 'Yourself' : (friends.find(f=>f.id===replyingTo.senderId)?.name || 'Someone')}
+                </span>
+                <span className="text-xs text-zinc-400 truncate block mt-0.5">{replyingTo.text}</span>
+              </div>
+              <button type="button" onClick={() => setReplyingTo(null)} className="p-1.5 ml-3 text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-full">
+                <X size={14}/>
+              </button>
+            </div>
+          )}
+
+          {/* EMOJI TRAY */}
+          {showEmojiPicker && (
+            <div className="absolute bottom-[100%] left-0 w-full md:w-[350px] md:left-6 h-80 mb-2 bg-[#1a1a1c]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col z-[70] overflow-hidden animate-in slide-in-from-bottom-4">
+               {/* ACCURACY FIX: Added explicit close button header */}
+               <div className="flex items-center justify-between p-3 bg-black/20 border-b border-white/5">
+                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider pl-1">Emojis</span>
+                 <button 
+                   type="button" 
+                   onClick={() => setShowEmojiPicker(false)} 
+                   className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                   title="Close Emojis"
+                 >
+                   <X size={16} />
+                 </button>
+               </div>
+               <div className="flex-1 overflow-y-auto p-4 scroll-smooth relative [&::-webkit-scrollbar]:hidden" id="emoji-scroll-container">
+                 {EMOJI_CATEGORIES.map(cat => (
+                    <div key={cat.id} id={`emoji-cat-${cat.id}`} className="mb-6">
+                      <h4 className="text-[10px] text-zinc-400 font-bold mb-3 uppercase tracking-wider sticky top-0 bg-[#1a1a1c]/95 py-1 z-10 backdrop-blur-md">{cat.name}</h4>
+                      <div className="grid grid-cols-7 gap-2">
+                         {cat.emojis.map(emoji => (
+                           <button 
+                             type="button" 
+                             key={emoji} 
+                             onClick={() => {
+                               setInputText(prev => prev + emoji);
+                               inputRef.current?.focus();
+                             }} 
+                             className="text-2xl hover:bg-white/10 rounded-lg p-1 transition-colors flex items-center justify-center hover:scale-110 active:scale-95"
+                           >
+                             {emoji}
+                           </button>
+                         ))}
+                      </div>
+                    </div>
+                 ))}
+               </div>
+               <div className="flex justify-around p-2 bg-black/40 border-t border-white/5">
+                  {EMOJI_CATEGORIES.map(cat => (
+                     <button 
+                       type="button" 
+                       key={`tab-${cat.id}`} 
+                       onClick={(e) => {
+                         e.preventDefault();
+                         const container = document.getElementById('emoji-scroll-container');
+                         const target = document.getElementById(`emoji-cat-${cat.id}`);
+                         if (container && target) {
+                           container.scrollTo({
+                             top: target.offsetTop,
+                             behavior: 'smooth'
+                           });
+                         }
+                       }} 
+                       className="text-xl p-1.5 opacity-50 hover:opacity-100 transition-opacity hover:bg-white/5 rounded-lg"
+                       title={cat.name}
+                     >
+                       {cat.icon}
+                     </button>
+                  ))}
+               </div>
+            </div>
+          )}
+
+          {/* Form Input */}
           <form 
             onSubmit={handleSend}
-            className="flex items-center gap-2 bg-[#1e1e24]/90 backdrop-blur-xl border border-white/[0.05] p-2 rounded-full shadow-2xl"
+            className="flex items-center gap-2 bg-[#1e1e24] border border-white/[0.05] p-2 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10"
           >
-            <button type="button" className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]">
+            <button 
+              type="button" 
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className={`p-2 transition-colors rounded-full ${showEmojiPicker ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'}`}
+            >
               <Smile size={20} />
             </button>
             <button type="button" className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]">
@@ -3284,15 +3367,17 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </button>
             
             <input 
+              ref={inputRef}
               type="text" 
               value={inputText}
               onChange={handleInputChange}
+              /* ACCURACY FIX: Removed onFocus={() => setShowEmojiPicker(false)} so it doesn't close when clicking emojis */
               placeholder="Message..." 
               className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
             />
             
-            {inputText.trim() ? (
-              <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20">
+            {inputText.trim() || replyingTo ? (
+              <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95">
                 <Send size={18} className="translate-x-[1px] translate-y-[1px]" />
               </button>
             ) : (
