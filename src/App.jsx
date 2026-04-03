@@ -119,16 +119,18 @@ const gradients = [
   'bg-gradient-to-bl from-zinc-800 via-zinc-900 to-black',
 ];
 
+const E = (hex) => String.fromCodePoint(parseInt(hex, 16));
+
 const EMOJI_CATEGORIES = [
-  { id: 'smileys', icon: 'ðŸ˜€', name: 'Smileys & People', emojis: ['ðŸ˜€','ðŸ˜‚','ðŸ¥°','ðŸ˜Ž','ðŸ¤”','ðŸ˜­','ðŸ˜¡','ðŸ‘','ðŸ™','ðŸ”¥','âœ¨','ðŸ’¯','ðŸ™Œ','ðŸ‘','ðŸ’–','ðŸ™ƒ','ðŸ™„','ðŸ˜´'] },
-  { id: 'animals', icon: 'ðŸ¶', name: 'Animals & Nature', emojis: ['ðŸ¶','ðŸ±','ðŸ¦Š','ðŸ¼','ðŸ¦','ðŸ¯','ðŸ¸','ðŸµ','ðŸ”','ðŸ§','ðŸ¦','ðŸ¤','ðŸ´','ðŸ¦„','ðŸ','ðŸ¦‹','ðŸŒ¸','ðŸŒ'] },
-  { id: 'food', icon: 'ðŸŽ', name: 'Food & Drink', emojis: ['ðŸŽ','ðŸ”','ðŸ•','ðŸŒ®','ðŸ£','ðŸ©','â˜•','ðŸº','ðŸ¥‘','ðŸ¥¦','ðŸ¥¨','ðŸ¥©','ðŸ¥ž','ðŸ§‡','ðŸŸ','ðŸ·','ðŸ¹','ðŸ‰'] },
-  { id: 'activities', icon: 'âš½', name: 'Activities', emojis: ['âš½','ðŸ€','ðŸˆ','ðŸŽ¾','ðŸŽ®','ðŸŽ¸','ðŸŽµ','ðŸŽ¨','ðŸ§©','ðŸŽ³','ðŸ¥Š','ðŸ“','ðŸ¸','ðŸ¥‹','ðŸ¥…','ðŸŽ¿','ðŸ‚','ðŸ†'] },
-  { id: 'travel', icon: 'ðŸš—', name: 'Travel & Places', emojis: ['ðŸš—','ðŸš•','âœˆï¸','ðŸš€','ðŸš¢','ðŸ–ï¸','ðŸ—½','ðŸ—¼','ðŸš‚','ðŸš','ðŸ›¶','â›µ','ðŸ›³ï¸','ðŸŽ¡','ðŸŽ¢','ðŸ”ï¸','ðŸ•ï¸','ðŸ—ºï¸'] },
-  { id: 'objects', icon: 'ðŸ’¡', name: 'Objects', emojis: ['âŒš','ðŸ“±','ðŸ’»','ðŸ“·','ðŸ’¡','ðŸ“š','ðŸŽ','ðŸŽˆ','ðŸ’Ž','ðŸ•°ï¸','ðŸ“º','ðŸ“»','ðŸ“€','ðŸ“¼','ðŸ”‹','ðŸ›ï¸','ðŸª„','ðŸ›’'] },
+  { id: 'smileys', icon: E('1F600'), name: 'Smileys & People', emojis: [E('1F600'),E('1F602'),E('1F970'),E('1F60E'),E('1F913'),E('1F62D'),E('1F621'),E('1F44D'),E('1F64F'),E('1F525'),E('2728'),E('1F4AF'),E('1F64C'),E('1F44F'),E('1F496'),E('1F643'),E('1F644'),E('1F634')] },
+  { id: 'animals', icon: E('1F436'), name: 'Animals & Nature', emojis: [E('1F436'),E('1F431'),E('1F98A'),E('1F43C'),E('1F981'),E('1F42F'),E('1F438'),E('1F435'),E('1F414'),E('1F427'),E('1F985'),E('1F424'),E('1F434'),E('1F984'),E('1F40D'),E('1F98B'),E('1F338'),E('1F31F')] },
+  { id: 'food', icon: E('1F34E'), name: 'Food & Drink', emojis: [E('1F34E'),E('1F354'),E('1F355'),E('1F32E'),E('1F363'),E('1F369'),E('2615'),E('1F37A'),E('1F951'),E('1F966'),E('1F968'),E('1F969'),E('1F95E'),E('1F9C7'),E('1F35F'),E('1F377'),E('1F379'),E('1F349')] },
+  { id: 'activities', icon: E('26BD'), name: 'Activities', emojis: [E('26BD'),E('1F3C0'),E('1F3C8'),E('1F3BE'),E('1F3AE'),E('1F3B8'),E('1F3B5'),E('1F3A8'),E('1F9E9'),E('1F3B3'),E('1F94A'),E('1F3D2'),E('1F3F8'),E('1F94B'),E('1F945'),E('1F3BF'),E('1F3C2'),E('1F3C6')] },
+  { id: 'travel', icon: E('1F697'), name: 'Travel & Places', emojis: [E('1F697'),E('1F695'),E('2708'),E('1F680'),E('1F6A2'),E('1F3D6'),E('1F5FD'),E('1F5FC'),E('1F682'),E('1F68D'),E('1F6F6'),E('26F5'),E('1F6F3'),E('1F3A1'),E('1F3A2'),E('1F3D4'),E('1F3D5'),E('1F5FA')] },
+  { id: 'objects', icon: E('1F4A1'), name: 'Objects', emojis: [E('231A'),E('1F4F1'),E('1F4BB'),E('1F4F7'),E('1F4A1'),E('1F4DA'),E('1F381'),E('1F388'),E('1F48E'),E('1F570'),E('1F4FA'),E('1F4FB'),E('1F4C0'),E('1F4FC'),E('1F50B'),E('1F6D2'),E('1FA84'),E('1F6D2')] },
 ];
 
-const QUICK_REACTIONS = ['ðŸ‘', 'â¤ï¸', 'ðŸ˜‚', 'ðŸ˜®', 'ðŸ˜¢', 'ðŸ™'];
+const QUICK_REACTIONS = [E('1F44D'), E('2764'), E('1F602'), E('1F62E'), E('1F622'), E('1F64F')];
 
 const generateStories = (name, count) => {
   return Array.from({ length: count }).map((_, i) => ({
@@ -704,7 +706,7 @@ export default function App() {
         if (chat.messages.length > 0) {
           const lastM = chat.messages[chat.messages.length - 1];
           if (lastM.isDeleted) {
-            newLastMessageText = '🚫 This message was deleted';
+            newLastMessageText = E('1F6AB') + ' This message was deleted';
           } else if (lastM.type === 'system') {
             newLastMessageText = lastM.text;
           } else {
@@ -2633,7 +2635,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
 
         <div className="absolute bottom-[80px] right-2 md:right-4 w-32 pointer-events-none z-50 flex justify-center">
           {floatingIcons.map(icon => {
-            const emoji = icon.type === 'laugh' ? 'ðŸ˜‚' : icon.type === 'love' ? 'â¤ï¸' : 'ðŸ”¥';
+            const emoji = icon.type === 'laugh' ? E('1F602') : icon.type === 'love' ? E('2764') : E('1F525');
             return (
               <div 
                 key={icon.id} 
@@ -2780,19 +2782,19 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                 onClick={() => handleReaction('laugh')} 
                 className={`text-3xl md:text-2xl active:scale-95 transition-all duration-300 ${activeReaction === 'laugh' ? 'scale-125 drop-shadow-[0_0_12px_rgba(250,204,21,0.8)] opacity-100 grayscale-0' : 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100'}`}
               >
-                ðŸ˜‚
+                {E('1F602')}
               </button>
               <button 
                 onClick={() => handleReaction('love')} 
                 className={`text-3xl md:text-2xl active:scale-95 transition-all duration-300 ${activeReaction === 'love' ? 'scale-125 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] opacity-100 grayscale-0' : 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100'}`}
               >
-                â¤ï¸
+                {E('2764')}
               </button>
               <button 
                 onClick={() => handleReaction('fire')} 
                 className={`text-3xl md:text-2xl active:scale-95 transition-all duration-300 ${activeReaction === 'fire' ? 'scale-125 drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] opacity-100 grayscale-0' : 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100'}`}
               >
-                ðŸ”¥
+                {E('1F525')}
               </button>
             </div>
           </div>
@@ -2831,7 +2833,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                     {viewer.reaction && (
                       <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
                         <span className="text-xl drop-shadow-md">
-                          {viewer.reaction === 'laugh' ? 'ðŸ˜‚' : viewer.reaction === 'love' ? 'â¤ï¸' : 'ðŸ”¥'}
+                          {viewer.reaction === 'laugh' ? E('1F602') : viewer.reaction === 'love' ? E('2764') : E('1F525')}
                         </span>
                       </div>
                     )}
@@ -2839,7 +2841,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                 ))
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-zinc-500 text-sm py-10 space-y-3">
-                  <span className="text-4xl opacity-50">ðŸ‘€</span>
+                  <span className="text-4xl opacity-50">{E('1F440')}</span>
                   <p>No views yet</p>
                 </div>
               )}
@@ -3376,7 +3378,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   {/* The Message Bubble itself */}
                   {msg.isDeleted ? (
                     <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative flex gap-2 items-center transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
-                      <span>🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
+                      <span>{E('1F6AB')} {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
                       {msg.isStarred && <Star size={12} className="text-yellow-500/50 fill-current shrink-0" />}
                     </div>
                   ) : (
