@@ -3016,7 +3016,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   }, [messages]);
 
   return (
-    <div className="absolute inset-0 flex flex-col bg-[#121214] md:rounded-3xl border border-white/[0.02] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 z-40">
+    <div className="absolute inset-0 flex flex-col bg-[#121214] md:rounded-3xl border border-white/[0.02] shadow-2xl overflow-hidden z-40">
       
       {/* Click outside overlay for popup menus like reactions */}
       {reactionPopupId && (
@@ -3338,12 +3338,12 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
                   {/* The Message Bubble itself */}
                   {msg.isDeleted ? (
-                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative flex gap-2 items-center transition-all duration-500 ease-out transform-gpu ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
+                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative flex gap-2 items-center transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
                       <span>🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
                       {msg.isStarred && <Star size={12} className="text-yellow-500/50 fill-current shrink-0" />}
                     </div>
                   ) : (
-                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-all duration-500 ease-out transform-gpu ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
+                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
                       
                       {/* Replied-To Snippet inside the bubble */}
                       {msg.replyTo && (
