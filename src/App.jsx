@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
 import { 
   Home, 
   Users, 
@@ -40,6 +40,8 @@ import {
   Pin,
   Star
 } from 'lucide-react';
+
+
 
 // --- TIME FORMATTING HELPERS ---
 const nowMs = Date.now();
@@ -116,15 +118,15 @@ const gradients = [
 ];
 
 const EMOJI_CATEGORIES = [
-  { id: 'smileys', icon: '😀', name: 'Smileys & People', emojis: ['😀','😂','🥰','😎','🤔','😭','😡','👍','🙏','🔥','✨','💯','🙌','👏','💖','🙃','🙄','😴'] },
-  { id: 'animals', icon: '🐶', name: 'Animals & Nature', emojis: ['🐶','🐱','🦊','🐼','🦁','🐯','🐸','🐵','🐔','🐧','🐦','🐤','🐴','🦄','🐝','🦋','🌸','🌍'] },
-  { id: 'food', icon: '🍎', name: 'Food & Drink', emojis: ['🍎','🍔','🍕','🌮','🍣','🍩','☕','🍺','🥑','🥦','🥨','🥩','🥞','🧇','🍟','🍷','🍹','🍉'] },
-  { id: 'activities', icon: '⚽', name: 'Activities', emojis: ['⚽','🏀','🏈','🎾','🎮','🎸','🎵','🎨','🧩','🎳','🥊','🏓','🏸','🥋','🥅','🎿','🏂','🏆'] },
-  { id: 'travel', icon: '🚗', name: 'Travel & Places', emojis: ['🚗','🚕','✈️','🚀','🚢','🏖️','🗽','🗼','🚂','🚁','🛶','⛵','🛳️','🎡','🎢','🏔️','🏕️','🗺️'] },
-  { id: 'objects', icon: '💡', name: 'Objects', emojis: ['⌚','📱','💻','📷','💡','📚','🎁','🎈','💎','🕰️','📺','📻','📀','📼','🔋','🛍️','🪄','🛒'] },
+  { id: 'smileys', icon: 'ðŸ˜€', name: 'Smileys & People', emojis: ['ðŸ˜€','ðŸ˜‚','ðŸ¥°','ðŸ˜Ž','ðŸ¤”','ðŸ˜­','ðŸ˜¡','ðŸ‘','ðŸ™','ðŸ”¥','âœ¨','ðŸ’¯','ðŸ™Œ','ðŸ‘','ðŸ’–','ðŸ™ƒ','ðŸ™„','ðŸ˜´'] },
+  { id: 'animals', icon: 'ðŸ¶', name: 'Animals & Nature', emojis: ['ðŸ¶','ðŸ±','ðŸ¦Š','ðŸ¼','ðŸ¦','ðŸ¯','ðŸ¸','ðŸµ','ðŸ”','ðŸ§','ðŸ¦','ðŸ¤','ðŸ´','ðŸ¦„','ðŸ','ðŸ¦‹','ðŸŒ¸','ðŸŒ'] },
+  { id: 'food', icon: 'ðŸŽ', name: 'Food & Drink', emojis: ['ðŸŽ','ðŸ”','ðŸ•','ðŸŒ®','ðŸ£','ðŸ©','â˜•','ðŸº','ðŸ¥‘','ðŸ¥¦','ðŸ¥¨','ðŸ¥©','ðŸ¥ž','ðŸ§‡','ðŸŸ','ðŸ·','ðŸ¹','ðŸ‰'] },
+  { id: 'activities', icon: 'âš½', name: 'Activities', emojis: ['âš½','ðŸ€','ðŸˆ','ðŸŽ¾','ðŸŽ®','ðŸŽ¸','ðŸŽµ','ðŸŽ¨','ðŸ§©','ðŸŽ³','ðŸ¥Š','ðŸ“','ðŸ¸','ðŸ¥‹','ðŸ¥…','ðŸŽ¿','ðŸ‚','ðŸ†'] },
+  { id: 'travel', icon: 'ðŸš—', name: 'Travel & Places', emojis: ['ðŸš—','ðŸš•','âœˆï¸','ðŸš€','ðŸš¢','ðŸ–ï¸','ðŸ—½','ðŸ—¼','ðŸš‚','ðŸš','ðŸ›¶','â›µ','ðŸ›³ï¸','ðŸŽ¡','ðŸŽ¢','ðŸ”ï¸','ðŸ•ï¸','ðŸ—ºï¸'] },
+  { id: 'objects', icon: 'ðŸ’¡', name: 'Objects', emojis: ['âŒš','ðŸ“±','ðŸ’»','ðŸ“·','ðŸ’¡','ðŸ“š','ðŸŽ','ðŸŽˆ','ðŸ’Ž','ðŸ•°ï¸','ðŸ“º','ðŸ“»','ðŸ“€','ðŸ“¼','ðŸ”‹','ðŸ›ï¸','ðŸª„','ðŸ›’'] },
 ];
 
-const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
+const QUICK_REACTIONS = ['ðŸ‘', 'â¤ï¸', 'ðŸ˜‚', 'ðŸ˜®', 'ðŸ˜¢', 'ðŸ™'];
 
 const generateStories = (name, count) => {
   return Array.from({ length: count }).map((_, i) => ({
@@ -141,7 +143,7 @@ const generateStories = (name, count) => {
 const initialMyStories = [
   {
     id: 'my-story-mock-1',
-    text: 'Just finished a great workout! 💪',
+    text: 'Just finished a great workout! ðŸ’ª',
     bgClass: gradients[2],
     viewed: false,
     animationPlayed: false,
@@ -491,10 +493,10 @@ export default function App() {
   const [friends, setFriends] = useState(initialFriends);
   const [groups, setGroups] = useState(initialGroups);
   const [myStories, setMyStories] = useState(initialMyStories);
-  const [globalUsers, setGlobalUsers] = useState(initialGlobalUsers);
+  const [globalUsers] = useState(initialGlobalUsers);
   const [sentReqs, setSentReqs] = useState([]);
   const [receivedReqs, setReceivedReqs] = useState(initialReceivedRequests);
-  const [blockedGroups, setBlockedGroups] = useState([]);
+  
   
   const [typingIndicators, setTypingIndicators] = useState({});
   const [recentConversations, setRecentConversations] = useState(initialRecent);
@@ -829,7 +831,7 @@ export default function App() {
   };
 
   const handleBlock = (id, isGroup) => {
-    setBlockedGroups(prev => [...prev, id]);
+  
     if (isGroup) {
       setGroups(prev => prev.filter(g => g.id !== id));
       showGlobalToast('Group blocked. You cannot be added back.');
@@ -842,8 +844,8 @@ export default function App() {
     setSelectedChatId(null);
   };
 
-  const handleReport = (id, isGroup, category, description) => {
-    setBlockedGroups(prev => [...prev, id]);
+  const handleReport = (id, isGroup, category, _description) => {
+  
     if (isGroup) {
       setGroups(prev => prev.filter(g => g.id !== id));
       showGlobalToast(`Group reported for ${category}.`);
@@ -2566,7 +2568,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
 
         <div className="absolute bottom-[80px] right-2 md:right-4 w-32 pointer-events-none z-50 flex justify-center">
           {floatingIcons.map(icon => {
-            const emoji = icon.type === 'laugh' ? '😂' : icon.type === 'love' ? '❤️' : '🔥';
+            const emoji = icon.type === 'laugh' ? 'ðŸ˜‚' : icon.type === 'love' ? 'â¤ï¸' : 'ðŸ”¥';
             return (
               <div 
                 key={icon.id} 
@@ -2713,19 +2715,19 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                 onClick={() => handleReaction('laugh')} 
                 className={`text-3xl md:text-2xl active:scale-95 transition-all duration-300 ${activeReaction === 'laugh' ? 'scale-125 drop-shadow-[0_0_12px_rgba(250,204,21,0.8)] opacity-100 grayscale-0' : 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100'}`}
               >
-                😂
+                ðŸ˜‚
               </button>
               <button 
                 onClick={() => handleReaction('love')} 
                 className={`text-3xl md:text-2xl active:scale-95 transition-all duration-300 ${activeReaction === 'love' ? 'scale-125 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] opacity-100 grayscale-0' : 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100'}`}
               >
-                ❤️
+                â¤ï¸
               </button>
               <button 
                 onClick={() => handleReaction('fire')} 
                 className={`text-3xl md:text-2xl active:scale-95 transition-all duration-300 ${activeReaction === 'fire' ? 'scale-125 drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] opacity-100 grayscale-0' : 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100'}`}
               >
-                🔥
+                ðŸ”¥
               </button>
             </div>
           </div>
@@ -2764,7 +2766,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                     {viewer.reaction && (
                       <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
                         <span className="text-xl drop-shadow-md">
-                          {viewer.reaction === 'laugh' ? '😂' : viewer.reaction === 'love' ? '❤️' : '🔥'}
+                          {viewer.reaction === 'laugh' ? 'ðŸ˜‚' : viewer.reaction === 'love' ? 'â¤ï¸' : 'ðŸ”¥'}
                         </span>
                       </div>
                     )}
@@ -2772,7 +2774,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                 ))
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-zinc-500 text-sm py-10 space-y-3">
-                  <span className="text-4xl opacity-50">👀</span>
+                  <span className="text-4xl opacity-50">ðŸ‘€</span>
                   <p>No views yet</p>
                 </div>
               )}
@@ -3216,7 +3218,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
            </div>
         )}
 
-        {groupedMessages.map((item) => {
+        {groupedMessages.map((item, idx) => {
           if (item.type === 'divider') {
             return (
               <div key={item.id} className="text-center my-6">
@@ -3239,9 +3241,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           const msg = item;
           const isMe = msg.senderId === currentUser.id;
           const hasReactions = msg.reactions && msg.reactions.length > 0;
+          const isNearBottom = idx >= groupedMessages.length - 3;
 
           return (
-            <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'}`}>
+            <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'} ${activeMsgId === msg.id ? 'relative z-50' : 'relative z-10'}`}>
               {!isMe && (
                 <div className="w-8">
                   {msg.showAvatar && <img src={chat.isGroup ? (friends.find(f=>f.id===msg.senderId)?.avatar || chat.avatar) : chat.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />}
@@ -3251,69 +3254,35 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%] lg:max-w-[60%]`}>
                 <div 
                   className={`flex items-center gap-2 group/msgwrap relative ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveMsgId(activeMsgId === msg.id ? null : msg.id);
-                  }}
                 >
                   
-                  {/* Message Actions (Reply, React, Delete) */}
-                  {!msg.isDeleted && (
-                    <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 transition-all z-10 ${activeMsgId === msg.id ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none sm:group-hover/msgwrap:opacity-100 sm:group-hover/msgwrap:pointer-events-auto'} ${isMe ? 'right-full mr-2' : 'left-full ml-2'}`}>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onToggleStarMessage(chat.id, msg.id); setActiveMsgId(null); }} 
-                        className={`p-1.5 rounded-full shadow-sm border transition-colors ${msg.isStarred ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-[#1a1a1c] hover:bg-yellow-500/10 text-zinc-400 hover:text-yellow-400 border-white/5'}`}
-                        title={msg.isStarred ? "Unstar Message" : "Star Message"}
-                      >
-                        <Star size={14} className={msg.isStarred ? "fill-current" : ""} />
+                  {/* Message Actions Dropdown */}
+                  {!msg.isDeleted && activeMsgId === msg.id && (
+                    <div className={`absolute ${isNearBottom ? 'bottom-[105%]' : 'top-[105%]'} ${isMe ? 'right-0' : 'left-0'} bg-[#1a1a1c] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] animate-in fade-in zoom-in-95 flex flex-col py-1.5 min-w-[160px]`}>
+                      <button onClick={(e) => { e.stopPropagation(); onToggleStarMessage(chat.id, msg.id); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                        <Star size={16} className={msg.isStarred ? 'text-yellow-400 fill-yellow-400' : ''}/> {msg.isStarred ? 'Unstar Message' : 'Star Message'}
                       </button>
                       {!isMe && (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setReactionPopupId(msg.id); setActiveMsgId(null); }} 
-                          className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
-                          title="React"
-                        >
-                          <Smile size={14} />
+                        <button onClick={(e) => { e.stopPropagation(); setReactionPopupId(msg.id); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                          <Smile size={16}/> React
                         </button>
                       )}
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setReplyingTo({ id: msg.id, text: msg.text, senderId: msg.senderId });
-                          inputRef.current?.focus();
-                          setActiveMsgId(null);
-                        }} 
-                        className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
-                        title="Reply"
-                      >
-                        <Reply size={14} />
+                      <button onClick={(e) => { e.stopPropagation(); setReplyingTo({ id: msg.id, text: msg.text, senderId: msg.senderId }); inputRef.current?.focus(); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                        <Reply size={16}/> Reply
                       </button>
-                      {isAdmin && chat.isGroup && !msg.isDeleted && (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} 
-                          className={`p-1.5 rounded-full shadow-sm border transition-colors ${chat.pinnedMessage?.id === msg.id ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-[#1a1a1c] hover:bg-indigo-500/10 text-zinc-400 hover:text-indigo-400 border-white/5'}`}
-                          title={chat.pinnedMessage?.id === msg.id ? "Unpin Message" : "Pin Message"}
-                        >
-                          <Pin size={14} className={chat.pinnedMessage?.id === msg.id ? "fill-current" : ""} />
+                      {isAdmin && chat.isGroup && (
+                        <button onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                          <Pin size={16} className={chat.pinnedMessage?.id === msg.id ? 'text-indigo-400 fill-indigo-400' : ''}/> {chat.pinnedMessage?.id === msg.id ? 'Unpin Message' : 'Pin Message'}
                         </button>
                       )}
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
-                          const canDeleteForEveryone = isAdmin || (!isPersonalTimeExpired && isMe);
-                          setConfirmAction({
-                            type: 'delete_msg',
-                            payload: msg.id,
-                            title: 'Delete Message',
-                            canDeleteForEveryone,
-                          });
-                          setActiveMsgId(null);
-                        }} 
-                        className="p-1.5 bg-[#1a1a1c] hover:bg-red-500/10 rounded-full text-zinc-400 hover:text-red-400 shadow-sm border border-white/5 transition-colors"
-                        title="Delete Message"
-                      >
-                        <Trash2 size={14} />
+                      <button onClick={(e) => {
+                        e.stopPropagation();
+                        const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
+                        const canDeleteForEveryone = isAdmin || (!isPersonalTimeExpired && isMe);
+                        setConfirmAction({ type: 'delete_msg', payload: msg.id, title: 'Delete Message', canDeleteForEveryone });
+                        setActiveMsgId(null);
+                      }} className="flex items-center gap-3 px-4 py-2 hover:bg-red-500/10 text-sm text-red-500 hover:text-red-400 transition-colors border-t border-white/[0.04] mt-1.5 pt-2">
+                        <Trash2 size={16}/> Delete Message
                       </button>
                     </div>
                   )}
@@ -3339,11 +3308,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   {/* The Message Bubble itself */}
                   {msg.isDeleted ? (
                     <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative flex gap-2 items-center transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
-                      <span>🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
+                      <span>ðŸš« {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
                       {msg.isStarred && <Star size={12} className="text-yellow-500/50 fill-current shrink-0" />}
                     </div>
                   ) : (
-                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
+                    <div id={`bubble-${msg.id}`} className={`group/bubble px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
                       
                       {/* Replied-To Snippet inside the bubble */}
                       {msg.replyTo && (
@@ -3355,9 +3324,23 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         </div>
                       )}
 
-                      <div className="flex items-end gap-2">
-                        <span>{msg.text}</span>
-                        {msg.isStarred && <Star size={12} className="text-yellow-400 fill-current shrink-0 mb-0.5 opacity-80" />}
+                      <div className="pr-5 mt-0.5">
+                        <span className="break-words leading-relaxed">{msg.text}</span>
+                        {msg.isStarred && <Star size={12} className="inline-block text-yellow-400 fill-current opacity-80 shrink-0 ml-1.5 mb-[2px]" />}
+                      </div>
+
+                      <div className="absolute top-1 right-1.5 flex items-center">
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setActiveMsgId(activeMsgId === msg.id ? null : msg.id); 
+                          }}
+                          className={`p-0.5 rounded-full bg-black/10 hover:bg-black/20 text-white/70 transition-colors opacity-100 md:opacity-0 md:group-hover/bubble:opacity-100 ${activeMsgId === msg.id ? '!opacity-100 bg-black/30' : ''}`}
+                          style={{ WebkitTapHighlightColor: 'transparent' }}
+                          title="Message Options"
+                        >
+                          <ChevronDown size={14} className={`transition-transform ${activeMsgId === msg.id ? 'rotate-180' : ''}`} />
+                        </button>
                       </div>
 
                       {/* Display active reactions overlapping the bubble */}
@@ -3647,7 +3630,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               )}
             </div>
 
-            <section className="relative z-20">
+            <section className={`relative transition-all duration-300 ${memberMenuOpen ? 'z-40' : 'z-20'}`}>
               <div className="flex items-center justify-between mb-3 px-1">
                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{chat.members} Members</h3>
                  {isAdmin && (
@@ -3672,7 +3655,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     onClick={() => {
                       if (member.id !== currentUser.id) onStartChat(member.id);
                     }}
-                    className={`flex items-center gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer ${idx !== 0 ? 'border-t border-white/[0.02]' : ''} ${idx === 0 ? 'rounded-t-3xl' : ''} ${(idx === arr.length - 1 && chat.members <= 5) ? 'rounded-b-3xl' : ''}`}
+                    className={`flex items-center gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer ${idx !== 0 ? 'border-t border-white/[0.02]' : ''} ${idx === 0 ? 'rounded-t-3xl' : ''} ${(idx === arr.length - 1 && chat.members <= 5) ? 'rounded-b-3xl' : ''} ${memberMenuOpen === member.id ? 'relative z-50 bg-white/5' : 'relative z-10'}`}
                   >
                     <img src={member.avatar} alt={member.name} className="w-10 h-10 rounded-full" />
                     <div className="flex-1 min-w-0">
@@ -3692,7 +3675,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                           <MoreVertical size={16} />
                         </button>
                         {memberMenuOpen === member.id && (
-                          <div className="absolute right-0 top-8 bg-[#2a2a2c] border border-white/10 rounded-xl shadow-2xl w-40 z-[120] animate-in fade-in zoom-in-95 overflow-hidden flex flex-col py-1">
+                          <div className="absolute right-0 top-10 bg-[#2a2a2c] border border-white/10 rounded-xl shadow-2xl w-40 z-[100] animate-in fade-in zoom-in-95 overflow-hidden flex flex-col py-1">
                              <button 
                                onClick={(e) => { 
                                  e.stopPropagation();
