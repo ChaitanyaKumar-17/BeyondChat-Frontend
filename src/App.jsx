@@ -388,7 +388,9 @@ const initialChats = [
       { id: 1020, type: 'system', actorId: 6, text: 'created the group', timestamp: nowMs - 10 * DAY },
       { id: 1021, type: 'system', actorId: 6, text: 'added you and Emma', timestamp: nowMs - 10 * DAY + 2 * MIN },
       { id: 1022, senderId: 6, text: 'Welcome to the guild!', timestamp: nowMs - 10 * DAY + 5 * MIN },
-      { id: 1023, senderId: 9, text: 'Glad to be here!', timestamp: nowMs - 10 * DAY + 10 * MIN }
+      { id: 1023, senderId: 9, text: 'Glad to be here!', timestamp: nowMs - 10 * DAY + 10 * MIN },
+      { id: 1024, senderId: 9, text: 'Have you guys seen this new React compiler update?', timestamp: nowMs - 10 * DAY + 15 * MIN, forwardCount: 3 },
+      { id: 1025, senderId: 9, text: 'CONGRATULATIONS YOU WON A $1000 GIFTCARD CLICK THIS RUMOUR SPAM LINK', timestamp: nowMs - 10 * DAY + 25 * MIN, forwardCount: 15 }
     ]
   },
   {
@@ -1048,12 +1050,10 @@ export default function App() {
             <div className="p-4 max-h-[60vh] overflow-y-auto">
                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Forward To</h3>
                <div className="space-y-1">
-                 {recentConversations.map(chat => {
-                    const info = friends.find(f=>f.id===chat.id) || groups.find(g=>g.id===chat.id);
-                    if (!info) return null;
+                 {[...friends, ...groups].map(info => {
                     return (
-                      <button key={chat.id} onClick={() => {
-                        handleSendMessageGlobal(chat.id, forwardingMsg.text, null, {
+                      <button key={info.id} onClick={() => {
+                        handleSendMessageGlobal(info.id, forwardingMsg.text, null, {
                            ...forwardingMsg,
                            id: Date.now(),
                            senderId: currentUser.id,
@@ -1065,7 +1065,7 @@ export default function App() {
                         });
                         setForwardingMsg(null);
                         showGlobalToast('Message forwarded');
-                        handleStartChat(chat.id);
+                        handleStartChat(info.id);
                       }} className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-2xl transition-colors text-left group/fwd">
                         <div className="relative">
                           {info.icon ? (
