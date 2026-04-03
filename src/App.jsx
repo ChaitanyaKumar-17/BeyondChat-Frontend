@@ -38,7 +38,9 @@ import {
   MoreVertical,
   Reply,
   Pin,
-  Star
+  Star,
+  Forward,
+  AlertTriangle
 } from 'lucide-react';
 
 
@@ -502,6 +504,7 @@ export default function App() {
   const [recentConversations, setRecentConversations] = useState(initialRecent);
   const [chatDetails, setChatDetails] = useState(initialChats);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [forwardingMsg, setForwardingMsg] = useState(null);
   const [overlayStates, setOverlayStates] = useState({ home: false, calls: false });
   
   const handleOverlayChange = useCallback((source, isActive) => {
@@ -618,8 +621,8 @@ export default function App() {
     }));
   }, []);
 
-  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null) => {
-    const newMessage = {
+  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null) => {
+    const newMessage = customPayload || {
       id: Date.now(),
       senderId: currentUser.id,
       text: text,
@@ -696,14 +699,20 @@ export default function App() {
 
       if (isLastMsg) {
         let newLastMessageText = '';
-        for (let i = chat.messages.length - 1; i >= 0; i--) {
-          const m = chat.messages[i];
-          if (!m.isDeleted) {
-            newLastMessageText = m.text;
-            break;
+        if (chat.messages.length > 0) {
+          const lastM = chat.messages[chat.messages.length - 1];
+          if (lastM.isDeleted) {
+            newLastMessageText = '🚫 This message was deleted';
+          } else if (lastM.type === 'system') {
+            newLastMessageText = lastM.text;
+          } else {
+            newLastMessageText = lastM.text;
           }
         }
-        setRecentConversations(rcPrev => rcPrev.map(rc => rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc));
+        // Use timeout to avoid exact StrictMode double-invocation warnings for state side-effects.
+        setTimeout(() => {
+          setRecentConversations(rcPrev => rcPrev.map(rc => rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc));
+        }, 0);
       }
       return nextDetails;
     });
@@ -859,20 +868,23 @@ export default function App() {
   };
 
   const handlePinMessage = useCallback((groupId, message) => {
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+    const isAlreadyPinned = group.pinnedMessage?.id === message.id;
+    appendSystemMessage(groupId, isAlreadyPinned ? 'unpinned a message' : 'pinned a message', currentUser.id);
+
     setGroups(prev => prev.map(g => {
       if (g.id === groupId) {
-        const isAlreadyPinned = g.pinnedMessage?.id === message.id;
-        appendSystemMessage(groupId, isAlreadyPinned ? 'unpinned a message' : 'pinned a message', currentUser.id);
         return { ...g, pinnedMessage: isAlreadyPinned ? null : message };
       }
       return g;
     }));
-  }, [appendSystemMessage]);
+  }, [groups, appendSystemMessage]);
 
   const handleToggleAdminMessaging = useCallback((groupId, value) => {
+    appendSystemMessage(groupId, value ? 'changed group settings to allow only admins to send messages' : 'changed group settings to allow all members to send messages', currentUser.id);
     setGroups(prev => prev.map(g => {
       if (g.id === groupId) {
-        appendSystemMessage(groupId, value ? 'changed group settings to allow only admins to send messages' : 'changed group settings to allow all members to send messages', currentUser.id);
         return { ...g, onlyAdminsCanMessage: value };
       }
       return g;
@@ -1012,6 +1024,7 @@ export default function App() {
             onPinMessage={handlePinMessage}
             onToggleAdminMessaging={handleToggleAdminMessaging}
             onToggleStarMessage={handleToggleStarMessage}
+            onForwardMessage={setForwardingMsg}
           />
         )}
       </main>
@@ -1024,8 +1037,60 @@ export default function App() {
         onCreateGroup={handleCreateGroup}
       />
 
+      {forwardingMsg && (
+        <div className="absolute inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-white/[0.05] flex items-center justify-between sticky top-0 bg-[#121214] z-10 rounded-t-3xl">
+              <h2 className="text-lg font-bold text-white tracking-tight">Forward Message</h2>
+              <button type="button" onClick={() => setForwardingMsg(null)} className="p-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"><X size={20}/></button>
+            </div>
+            
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+               <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Forward To</h3>
+               <div className="space-y-1">
+                 {recentConversations.map(chat => {
+                    const info = friends.find(f=>f.id===chat.id) || groups.find(g=>g.id===chat.id);
+                    if (!info) return null;
+                    return (
+                      <button key={chat.id} onClick={() => {
+                        handleSendMessageGlobal(chat.id, forwardingMsg.text, null, {
+                           ...forwardingMsg,
+                           id: Date.now(),
+                           senderId: currentUser.id,
+                           timestamp: Date.now(),
+                           replyTo: null,
+                           isStarred: false,
+                           isDeleted: false,
+                           forwardCount: (forwardingMsg.forwardCount || 0) + 1
+                        });
+                        setForwardingMsg(null);
+                        showGlobalToast('Message forwarded');
+                        handleStartChat(chat.id);
+                      }} className="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-2xl transition-colors text-left group/fwd">
+                        <div className="relative">
+                          {info.icon ? (
+                            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white shrink-0"><Hash size={16}/></div>
+                          ) : (
+                            <img src={info.avatar} alt="" className="w-10 h-10 rounded-full shrink-0"/>
+                          )}
+                        </div>
+                        <div className="flex-[1] min-w-0">
+                           <h4 className="text-sm font-medium text-white truncate">{info.name}</h4>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center opacity-0 group-hover/fwd:opacity-100 transition-opacity shrink-0">
+                           <Send size={14} className="ml-0.5"/>
+                        </div>
+                      </button>
+                    )
+                 })}
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#121214]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-2 flex items-center shadow-2xl z-50 w-auto max-w-[95vw] overflow-x-auto ring-1 ring-white/[0.02] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-        (selectedChatId || isGlobalOverlayActive || showNewChatModal) 
+        (selectedChatId || isGlobalOverlayActive || showNewChatModal || forwardingMsg) 
           ? 'opacity-0 pointer-events-none translate-y-4 scale-95' 
           : 'opacity-100 pointer-events-auto translate-y-0 scale-100'
       }`}>
@@ -2787,7 +2852,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -3270,6 +3335,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       <button onClick={(e) => { e.stopPropagation(); setReplyingTo({ id: msg.id, text: msg.text, senderId: msg.senderId }); inputRef.current?.focus(); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                         <Reply size={16}/> Reply
                       </button>
+                      <button onClick={(e) => { e.stopPropagation(); onForwardMessage(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                        <Forward size={16}/> Forward
+                      </button>
                       {isAdmin && chat.isGroup && (
                         <button onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                           <Pin size={16} className={chat.pinnedMessage?.id === msg.id ? 'text-indigo-400 fill-indigo-400' : ''}/> {chat.pinnedMessage?.id === msg.id ? 'Unpin Message' : 'Pin Message'}
@@ -3308,12 +3376,23 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   {/* The Message Bubble itself */}
                   {msg.isDeleted ? (
                     <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative flex gap-2 items-center transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
-                      <span>ðŸš« {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
+                      <span>🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
                       {msg.isStarred && <Star size={12} className="text-yellow-500/50 fill-current shrink-0" />}
                     </div>
                   ) : (
                     <div id={`bubble-${msg.id}`} className={`group/bubble px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
                       
+                      {/* Forwarded Status */}
+                      {msg.forwardCount > 0 && (
+                        <div className="flex items-center gap-1 mb-1 text-[10px] text-white/50 font-medium tracking-wide">
+                           {msg.forwardCount > 10 ? (
+                             <><AlertTriangle size={12} className="text-yellow-500/80" /> <span className="text-yellow-500/80">Forwarded many times (Potential spam)</span></>
+                           ) : (
+                             <><Forward size={12} /> Forwarded</>
+                           )}
+                        </div>
+                      )}
+
                       {/* Replied-To Snippet inside the bubble */}
                       {msg.replyTo && (
                         <div className="bg-black/20 border-l-4 border-indigo-400 rounded p-2 mb-1.5 max-w-full overflow-hidden">
