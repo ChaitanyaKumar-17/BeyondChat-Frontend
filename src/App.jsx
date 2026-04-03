@@ -6,7 +6,8 @@ import {
   Search, 
   Plus, 
   ChevronRight,
-  ChevronLeft, 
+  ChevronLeft,
+  ChevronDown,
   Hash, 
   ArrowLeft,
   Phone,
@@ -36,7 +37,8 @@ import {
   Pencil,
   MoreVertical,
   Reply,
-  Pin
+  Pin,
+  Star
 } from 'lucide-react';
 
 // --- TIME FORMATTING HELPERS ---
@@ -441,6 +443,640 @@ const initialChats = [
     ]
   }
 ];
+
+export default function App() {
+  useLayoutEffect(() => {
+    if (!document.getElementById('dashboard-global-styles')) {
+      const style = document.createElement('style');
+      style.id = 'dashboard-global-styles';
+      style.innerHTML = `
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { display: none; }
+        @keyframes instaFloat {
+          0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 0; }
+          5% { transform: translate(0, -5vh) scale(1.2) rotate(calc(var(--rot) * 0.2)); opacity: 1; }
+          10% { transform: translate(calc(var(--sway) * 0.2), -10vh) scale(1) rotate(calc(var(--rot) * 0.5)); opacity: 1; }
+          33% { transform: translate(var(--sway), -35vh) scale(1) rotate(var(--rot)); opacity: 1; }
+          66% { transform: translate(calc(var(--sway) * -0.5), -70vh) scale(0.9) rotate(calc(var(--rot) * -0.5)); opacity: 0.8; }
+          100% { transform: translate(calc(var(--sway) * 0.3), -100vh) scale(0.7) rotate(calc(var(--rot) * 0.5)); opacity: 0; }
+        }
+        .animate-burst {
+          animation: instaFloat var(--duration) linear forwards;
+          will-change: transform, opacity;
+        }
+        @keyframes typingDot {
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-3px); opacity: 1; }
+        }
+        .animate-typing-dot {
+          animation: typingDot 1.4s infinite ease-in-out both;
+        }
+        body, html { 
+          margin: 0; padding: 0; height: 100%; width: 100vw; max-width: 100vw; overflow-x: hidden; overflow-y: hidden; 
+          background-color: #0a0a0c !important; overscroll-behavior: none; 
+          cursor: default; 
+        }
+        button, a, [role="button"] { cursor: pointer; }
+        button:disabled { cursor: default; }
+        input, textarea { cursor: text; }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  const [activeNav, setActiveNav] = useState('home');
+  const [selectedChatId, setSelectedChatId] = useState(null);
+  const [appToast, setAppToast] = useState('');
+  
+  const [friends, setFriends] = useState(initialFriends);
+  const [groups, setGroups] = useState(initialGroups);
+  const [myStories, setMyStories] = useState(initialMyStories);
+  const [globalUsers, setGlobalUsers] = useState(initialGlobalUsers);
+  const [sentReqs, setSentReqs] = useState([]);
+  const [receivedReqs, setReceivedReqs] = useState(initialReceivedRequests);
+  const [blockedGroups, setBlockedGroups] = useState([]);
+  
+  const [typingIndicators, setTypingIndicators] = useState({});
+  const [recentConversations, setRecentConversations] = useState(initialRecent);
+  const [chatDetails, setChatDetails] = useState(initialChats);
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [overlayStates, setOverlayStates] = useState({ home: false, calls: false });
+  
+  const handleOverlayChange = useCallback((source, isActive) => {
+    setOverlayStates(prev => ({ ...prev, [source]: isActive }));
+  }, []);
+
+  const isGlobalOverlayActive = overlayStates.home || overlayStates.calls;
+
+  const showGlobalToast = (msg) => {
+    setAppToast(msg);
+    setTimeout(() => setAppToast(''), 3000);
+  };
+
+  const handleSelectChat = useCallback((chatId) => {
+    setSelectedChatId(chatId);
+    if (chatId) {
+      setRecentConversations(prev => prev.map(c => c.id === chatId ? { ...c, unread: 0 } : c));
+      setGroups(prev => prev.map(g => g.id === chatId ? { ...g, unread: 0 } : g));
+    }
+  }, []);
+
+  useEffect(() => {
+    const cullExpired = () => {
+      const now = Date.now();
+      const isExpired = (s) => (now - s.timestamp) >= 24 * HOUR;
+      setMyStories(prev => prev.filter(s => !isExpired(s)));
+      setFriends(prev => {
+        let changed = false;
+        const next = prev.map(f => {
+          const validStories = f.stories.filter(s => !isExpired(s));
+          if (validStories.length !== f.stories.length) {
+            changed = true;
+            return { ...f, stories: validStories, storyViewed: validStories.length > 0 ? validStories.every(s => s.viewed) : false };
+          }
+          return f;
+        });
+        return changed ? next : prev;
+      });
+    };
+    cullExpired();
+    const interval = setInterval(cullExpired, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (recentConversations.length === 0) return;
+      const randomChat = recentConversations[Math.floor(Math.random() * recentConversations.length)];
+      
+      let memberId;
+      if (randomChat.isGroup) {
+        const group = groups.find(g => g.id === randomChat.id);
+        if (!group) return;
+        const others = group.memberIds.filter(id => id !== currentUser.id);
+        if (others.length === 0) return;
+        memberId = others[Math.floor(Math.random() * others.length)];
+      } else {
+        memberId = randomChat.id;
+      }
+
+      setTypingIndicators(prev => {
+        const current = prev[randomChat.id] || [];
+        if (current.includes(memberId)) return prev;
+        return { ...prev, [randomChat.id]: [...current, memberId] };
+      });
+
+      setTimeout(() => {
+        setTypingIndicators(prev => {
+          const current = prev[randomChat.id] || [];
+          return { ...prev, [randomChat.id]: current.filter(id => id !== memberId) };
+        });
+      }, 2000 + Math.random() * 3000);
+
+    }, 8000); 
+    return () => clearInterval(interval);
+  }, [recentConversations, groups]);
+
+  const handleTypingGlobal = useCallback((chatId, isTyping) => {
+    setTypingIndicators(prev => {
+        const current = prev[chatId] || [];
+        const isCurrentlyTyping = current.includes(currentUser.id);
+        if (isTyping && !isCurrentlyTyping) {
+            return { ...prev, [chatId]: [...current, currentUser.id] };
+        } else if (!isTyping && isCurrentlyTyping) {
+            return { ...prev, [chatId]: current.filter(id => id !== currentUser.id) };
+        }
+        return prev;
+    });
+  }, []);
+
+  const handleReactToMessageGlobal = useCallback((chatId, messageId, emoji) => {
+    setChatDetails(prev => prev.map(c => {
+      if (c.id !== chatId) return c;
+      return {
+        ...c,
+        messages: c.messages.map(m => {
+          if (m.id !== messageId) return m;
+          const currentReactions = m.reactions || [];
+          const existingUserReactionIndex = currentReactions.findIndex(r => r.userId === currentUser.id);
+
+          let newReactions = [...currentReactions];
+          if (existingUserReactionIndex >= 0) {
+            if (newReactions[existingUserReactionIndex].emoji === emoji) {
+              newReactions.splice(existingUserReactionIndex, 1);
+            } else {
+              newReactions[existingUserReactionIndex] = { userId: currentUser.id, emoji };
+            }
+          } else {
+            newReactions.push({ userId: currentUser.id, emoji });
+          }
+          return { ...m, reactions: newReactions };
+        })
+      };
+    }));
+  }, []);
+
+  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null) => {
+    const newMessage = {
+      id: Date.now(),
+      senderId: currentUser.id,
+      text: text,
+      timestamp: Date.now(),
+      replyTo: replyTo,
+      isStarred: false
+    };
+
+    setChatDetails(prev => {
+      const existingChat = prev.find(c => c.id === userId);
+      if (existingChat) {
+        return prev.map(c => c.id === userId ? { ...c, messages: [...c.messages, newMessage] } : c);
+      } else {
+        return [...prev, { id: userId, messages: [newMessage] }];
+      }
+    });
+
+    setRecentConversations(prev => {
+      const existingRecent = prev.find(c => c.id === userId);
+      if (existingRecent) {
+        const filtered = prev.filter(c => c.id !== userId);
+        return [{ ...existingRecent, lastMessage: text, timestamp: Date.now(), unread: 0 }, ...filtered];
+      }
+
+      const friend = friends.find(f => f.id === userId);
+      const group = groups.find(g => g.id === userId);
+      const globalUser = globalUsers.find(u => u.id === userId);
+      
+      let name = friend?.name || group?.name || globalUser?.name || 'Unknown';
+      let avatar = friend?.avatar || globalUser?.avatar || '';
+      let status = existingRecent?.status || (friend?.isOnline ? 'online' : (globalUser?.status?.toLowerCase() || 'offline'));
+      let isGroup = existingRecent?.isGroup || !!group || false;
+      let icon = existingRecent?.icon || group?.icon || '';
+
+      const filtered = prev.filter(c => c.id !== userId);
+      const newRecent = {
+        id: userId, name, avatar, status, isGroup, icon, lastMessage: text, timestamp: Date.now(), unread: 0
+      };
+      return [newRecent, ...filtered];
+    });
+  }, [friends, groups, globalUsers]);
+
+  const appendSystemMessage = useCallback((chatId, text, actorId = currentUser.id) => {
+    const sysMsg = { id: Date.now() + Math.random(), type: 'system', text, actorId, timestamp: Date.now() };
+    setChatDetails(prev => {
+      const existingChat = prev.find(c => c.id === chatId);
+      if (existingChat) return prev.map(c => c.id === chatId ? { ...c, messages: [...c.messages, sysMsg] } : c);
+      return [...prev, { id: chatId, messages: [sysMsg] }];
+    });
+    setRecentConversations(prev => {
+      const existing = prev.find(rc => rc.id === chatId);
+      if (existing) {
+        const filtered = prev.filter(c => c.id !== chatId);
+        return [{ ...existing, timestamp: Date.now() }, ...filtered];
+      }
+      return prev;
+    });
+  }, []);
+
+  const handleDeleteMessage = useCallback((chatId, messageId, deleteType, isSelf) => {
+    setChatDetails(prev => {
+      const chatIndex = prev.findIndex(c => c.id === chatId);
+      if (chatIndex === -1) return prev;
+      
+      const nextDetails = [...prev];
+      const chat = { ...nextDetails[chatIndex] };
+      const isLastMsg = chat.messages.length > 0 && chat.messages[chat.messages.length - 1].id === messageId;
+      
+      chat.messages = deleteType === 'for_me' 
+          ? chat.messages.filter(m => m.id !== messageId) 
+          : chat.messages.map(m => m.id === messageId ? { ...m, isDeleted: true, deletedByAdmin: !isSelf } : m);
+          
+      nextDetails[chatIndex] = chat;
+
+      if (isLastMsg) {
+        let newLastMessageText = '';
+        for (let i = chat.messages.length - 1; i >= 0; i--) {
+          const m = chat.messages[i];
+          if (!m.isDeleted) {
+            newLastMessageText = m.text;
+            break;
+          }
+        }
+        setRecentConversations(rcPrev => rcPrev.map(rc => rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc));
+      }
+      return nextDetails;
+    });
+  }, []);
+
+  const handleToggleStarMessage = useCallback((chatId, messageId) => {
+    setChatDetails(prev => prev.map(c => {
+      if (c.id !== chatId) return c;
+      return {
+        ...c,
+        messages: c.messages.map(m => {
+          if (m.id !== messageId) return m;
+          return { ...m, isStarred: !m.isStarred };
+        })
+      };
+    }));
+  }, []);
+
+  const handleStartChat = (userId) => {
+    setShowNewChatModal(false);
+    handleSelectChat(userId);
+  };
+
+  const handleCreateGroup = (name, memberIds) => {
+    if (memberIds.length + 1 > 1024) {
+      showGlobalToast("A group can have a maximum of 1024 members.");
+      return;
+    }
+    const newGroup = {
+      id: Date.now(), name: name, description: 'A new group created by you.', members: memberIds.length + 1,
+      memberIds: [currentUser.id, ...memberIds], adminIds: [currentUser.id], unread: 0,
+      icon: gradients[Math.floor(Math.random() * gradients.length)], isGroup: true
+    };
+    setGroups(prev => [newGroup, ...prev]);
+    setShowNewChatModal(false);
+    handleSelectChat(newGroup.id);
+    appendSystemMessage(newGroup.id, 'created the group', currentUser.id);
+    
+    if (memberIds.length > 0) {
+      const addedNames = memberIds.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
+      if (addedNames) setTimeout(() => appendSystemMessage(newGroup.id, `added ${addedNames}`, currentUser.id), 10);
+    }
+  };
+
+  const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
+    const group = groups.find(g => g.id === groupId);
+    if (group && group.name !== newName) appendSystemMessage(groupId, `changed the group name from "${group.name}" to "${newName}"`, currentUser.id);
+    if (group && group.description !== newDesc) appendSystemMessage(groupId, `changed the group description`, currentUser.id);
+
+    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: newName, description: newDesc } : g));
+    setRecentConversations(prev => prev.map(c => c.id === groupId ? { ...c, name: newName } : c));
+    setChatDetails(prev => prev.map(c => c.id === groupId ? { ...c, name: newName } : c));
+    showGlobalToast('Group info updated.');
+  }, [groups, appendSystemMessage]);
+
+  const handleAddMembers = useCallback((groupId, newMemberIds) => {
+    const addedNames = newMemberIds.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
+    appendSystemMessage(groupId, `added ${addedNames}`, currentUser.id);
+    setGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        const updatedIds = [...new Set([...g.memberIds, ...newMemberIds])];
+        return { ...g, memberIds: updatedIds, members: updatedIds.length };
+      }
+      return g;
+    }));
+    showGlobalToast(`${newMemberIds.length} member(s) added.`);
+  }, [friends, appendSystemMessage]);
+
+  const handleRemoveMembers = useCallback((groupId, memberIdsToRemove) => {
+    const removedNames = memberIdsToRemove.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
+    appendSystemMessage(groupId, `removed ${removedNames}`, currentUser.id);
+    setGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        const updatedIds = g.memberIds.filter(id => !memberIdsToRemove.includes(id));
+        const updatedAdmins = g.adminIds.filter(id => !memberIdsToRemove.includes(id));
+        return { ...g, memberIds: updatedIds, adminIds: updatedAdmins, members: updatedIds.length };
+      }
+      return g;
+    }));
+    showGlobalToast(`${memberIdsToRemove.length} member(s) removed.`);
+  }, [friends, appendSystemMessage]);
+
+  const handleToggleAdmin = useCallback((groupId, memberId) => {
+    const group = groups.find(g => g.id === groupId);
+    const memberName = friends.find(f => f.id === memberId)?.name;
+    if (group && memberName) {
+      const isAdmin = group.adminIds.includes(memberId);
+      if (isAdmin) appendSystemMessage(groupId, `removed Admin privileges from ${memberName}`, currentUser.id);
+      else appendSystemMessage(groupId, `made ${memberName} an Admin`, currentUser.id);
+    }
+    setGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        const isAdmin = g.adminIds.includes(memberId);
+        return { ...g, adminIds: isAdmin ? g.adminIds.filter(id => id !== memberId) : [...g.adminIds, memberId] };
+      }
+      return g;
+    }));
+    showGlobalToast('Admin roles updated.');
+  }, [groups, friends, appendSystemMessage]);
+
+  const handleSendReq = (user) => { if (!sentReqs.find(r => r.id === user.id)) setSentReqs(prev => [...prev, user]); };
+  const handleWithdrawReq = (userId) => setSentReqs(prev => prev.filter(r => r.id !== userId));
+  const handleAcceptReq = (userId) => {
+    const acceptedUser = receivedReqs.find(r => r.id === userId);
+    if (acceptedUser) {
+      setReceivedReqs(prev => prev.filter(r => r.id !== userId));
+      setFriends(prev => [...prev, { id: acceptedUser.id, name: acceptedUser.name, handle: acceptedUser.handle, avatar: acceptedUser.avatar, storyType: 'none', isOnline: acceptedUser.status === 'Online', storyViewed: false, stories: [] }]);
+    }
+  };
+  const handleRejectReq = (userId) => setReceivedReqs(prev => prev.filter(r => r.id !== userId));
+
+  const handleLeaveGroup = (groupId) => {
+    appendSystemMessage(groupId, 'left', currentUser.id);
+    setGroups(prev => prev.filter(g => g.id !== groupId));
+    setRecentConversations(prev => prev.filter(c => c.id !== groupId));
+    setChatDetails(prev => prev.filter(c => c.id !== groupId));
+    setSelectedChatId(null);
+    showGlobalToast('You left the group.');
+  };
+  
+  const handleDisconnect = (userId) => {
+    setFriends(prev => prev.filter(f => f.id !== userId));
+    setSelectedChatId(null);
+    showGlobalToast('Connection removed.');
+  };
+
+  const handleBlock = (id, isGroup) => {
+    setBlockedGroups(prev => [...prev, id]);
+    if (isGroup) {
+      setGroups(prev => prev.filter(g => g.id !== id));
+      showGlobalToast('Group blocked. You cannot be added back.');
+    } else {
+      setFriends(prev => prev.filter(f => f.id !== id));
+      showGlobalToast('User blocked.');
+    }
+    setRecentConversations(prev => prev.filter(c => c.id !== id));
+    setChatDetails(prev => prev.filter(c => c.id !== id));
+    setSelectedChatId(null);
+  };
+
+  const handleReport = (id, isGroup, category, description) => {
+    setBlockedGroups(prev => [...prev, id]);
+    if (isGroup) {
+      setGroups(prev => prev.filter(g => g.id !== id));
+      showGlobalToast(`Group reported for ${category}.`);
+    } else {
+      setFriends(prev => prev.filter(f => f.id !== id));
+      showGlobalToast(`User reported for ${category}.`);
+    }
+    setRecentConversations(prev => prev.filter(c => c.id !== id));
+    setChatDetails(prev => prev.filter(c => c.id !== id));
+    setSelectedChatId(null);
+  };
+
+  const handlePinMessage = useCallback((groupId, message) => {
+    setGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        const isAlreadyPinned = g.pinnedMessage?.id === message.id;
+        appendSystemMessage(groupId, isAlreadyPinned ? 'unpinned a message' : 'pinned a message', currentUser.id);
+        return { ...g, pinnedMessage: isAlreadyPinned ? null : message };
+      }
+      return g;
+    }));
+  }, [appendSystemMessage]);
+
+  const handleToggleAdminMessaging = useCallback((groupId, value) => {
+    setGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        appendSystemMessage(groupId, value ? 'changed group settings to allow only admins to send messages' : 'changed group settings to allow all members to send messages', currentUser.id);
+        return { ...g, onlyAdminsCanMessage: value };
+      }
+      return g;
+    }));
+  }, [appendSystemMessage]);
+
+  let activeChat = null;
+  if (selectedChatId) {
+    const friend = friends.find(f => f.id === selectedChatId);
+    const group = groups.find(g => g.id === selectedChatId);
+    const globalUser = globalUsers.find(u => u.id === selectedChatId) || sentReqs.find(u => u.id === selectedChatId) || receivedReqs.find(u => u.id === selectedChatId);
+    const existingChatDetails = chatDetails.find(c => c.id === selectedChatId);
+    const recentChat = recentConversations.find(c => c.id === selectedChatId);
+    
+    const baseInfo = friend || group || globalUser || recentChat || existingChatDetails;
+    
+    if (baseInfo) {
+      let isOnline = false;
+      if (friend) isOnline = friend.isOnline;
+      else if (globalUser) isOnline = globalUser.status === 'Online' || globalUser.status === 'online';
+      else if (recentChat) isOnline = recentChat.status === 'online';
+      else if (baseInfo.status) isOnline = baseInfo.status === 'online' || baseInfo.status === 'Online';
+
+      activeChat = {
+        ...baseInfo,
+        status: isOnline ? 'online' : 'offline',
+        isConnected: !!friend || !!group,
+        messages: existingChatDetails ? existingChatDetails.messages : []
+      };
+    }
+  }
+
+  const unreadChatIds = new Set([
+    ...recentConversations.filter(c => c.unread > 0).map(c => c.id),
+    ...groups.filter(g => g.unread > 0).map(g => g.id)
+  ]);
+  const totalUnreadCount = unreadChatIds.size;
+
+  return (
+    <div className="fixed inset-0 flex flex-col bg-[#0a0a0c] text-zinc-200 font-sans md:p-4 overflow-hidden selection:bg-indigo-500/30 cursor-default w-full max-w-[100vw]">
+      
+      {/* Tailwind JIT FOUC Preloader - Forces compilation of story styles on load */}
+      <div style={{ display: 'none' }} className="bg-gradient-to-tr from-purple-600 via-pink-500 to-orange-500 bg-gradient-to-br from-blue-600 to-cyan-400 bg-gradient-to-tr from-emerald-400 to-cyan-500 bg-gradient-to-br from-rose-500 to-orange-400 bg-gradient-to-bl from-zinc-800 via-zinc-900 to-black drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] drop-shadow-[0_0_12px_rgba(250,204,21,0.8)] drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] zoom-in-[0.98] bg-black/60 bg-black/80 bg-black/40 bg-gradient-to-t from-black/80 via-black/40 blur-3xl opacity-30 transform-gpu scale-110"></div>
+      
+      {appToast && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[150] bg-zinc-900/90 backdrop-blur-xl border border-white/10 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl animate-in fade-in slide-in-from-top-4 zoom-in-95 duration-300">
+          {appToast}
+        </div>
+      )}
+
+      <main className="flex-1 flex flex-col overflow-hidden relative w-full h-full max-w-7xl mx-auto min-h-0">
+        <div className="absolute inset-0" style={{ display: selectedChatId ? 'none' : 'block' }}>
+          
+          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+            (activeNav === 'home' || activeNav === 'chats') ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+          }`}>
+            <HomeDashboard 
+              onSelectChat={handleSelectChat} 
+              globalUsers={globalUsers}
+              sentReqs={sentReqs}
+              onSendReq={handleSendReq}
+              onWithdrawReq={handleWithdrawReq}
+              friends={friends}
+              setFriends={setFriends}
+              groups={groups}
+              receivedReqs={receivedReqs}
+              onAcceptReq={handleAcceptReq}
+              onRejectReq={handleRejectReq}
+              myStories={myStories}
+              setMyStories={setMyStories}
+              recentConversations={recentConversations}
+              typingIndicators={typingIndicators}
+              chatDetails={chatDetails}
+              onSendMessage={handleSendMessageGlobal}
+              onOverlayChange={handleOverlayChange}
+            />
+          </div>
+          
+          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+            activeNav === 'teams' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+          }`}>
+            <RequestsView 
+              sentReqs={sentReqs}
+              receivedReqs={receivedReqs}
+              onAccept={handleAcceptReq}
+              onReject={handleRejectReq}
+              onWithdraw={handleWithdrawReq}
+            />
+          </div>
+
+          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+            activeNav === 'calls' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+          }`}>
+            <CallsView 
+              callLogs={mockCallLogs} 
+              friends={friends} 
+              groups={groups} 
+              onOverlayChange={handleOverlayChange} 
+              isActive={activeNav === 'calls'}
+            />
+          </div>
+
+          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center justify-center text-zinc-500 pb-32 ${
+            activeNav === 'settings' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+          }`}>
+            Building the settings module...
+        </div>
+
+      </div>
+        
+      {selectedChatId && activeChat && (
+        <ChatView 
+          key={activeChat.id}
+          chat={activeChat} 
+          onBack={() => setSelectedChatId(null)} 
+          sentReqs={sentReqs}
+            onSendReq={handleSendReq}
+            onWithdrawReq={handleWithdrawReq}
+            receivedReqs={receivedReqs}
+            onAcceptReq={handleAcceptReq}
+            onRejectReq={handleRejectReq}
+            onSendMessage={handleSendMessageGlobal}
+            onReactToMessage={handleReactToMessageGlobal}
+            friends={friends}
+            typingIndicators={typingIndicators}
+            onTyping={handleTypingGlobal}
+            onLeaveGroup={handleLeaveGroup}
+            onBlock={handleBlock}
+            onReport={handleReport}
+            onDisconnect={handleDisconnect}
+            onUpdateGroupInfo={handleUpdateGroupInfo}
+            onRemoveMembers={handleRemoveMembers}
+            onToggleAdmin={handleToggleAdmin}
+            onAddMembers={handleAddMembers}
+            onDeleteMessage={handleDeleteMessage}
+            onStartChat={handleStartChat}
+            onPinMessage={handlePinMessage}
+            onToggleAdminMessaging={handleToggleAdminMessaging}
+            onToggleStarMessage={handleToggleStarMessage}
+          />
+        )}
+      </main>
+
+      <NewChatModal 
+        isOpen={showNewChatModal} 
+        onClose={() => setShowNewChatModal(false)} 
+        friends={friends}
+        onStartChat={handleStartChat}
+        onCreateGroup={handleCreateGroup}
+      />
+
+      <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#121214]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-2 flex items-center shadow-2xl z-50 w-auto max-w-[95vw] overflow-x-auto ring-1 ring-white/[0.02] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+        (selectedChatId || isGlobalOverlayActive || showNewChatModal) 
+          ? 'opacity-0 pointer-events-none translate-y-4 scale-95' 
+          : 'opacity-100 pointer-events-auto translate-y-0 scale-100'
+      }`}>
+        <div className="flex items-center gap-1 md:gap-2 px-1">
+          <NavButton 
+            icon={<Settings size={22} />} 
+            active={activeNav === 'settings'} 
+            onClick={() => setActiveNav('settings')} 
+          />
+        </div>
+
+        <div className="w-[1px] h-8 bg-white/[0.1] mx-2 md:mx-4 flex-shrink-0 rounded-full"></div>
+
+        <div className="flex items-center gap-1 md:gap-2 px-1">
+          <NavButton 
+            icon={<Home size={22} />} 
+            active={activeNav === 'home'} 
+            onClick={() => {setActiveNav('home'); setSelectedChatId(null);}} 
+            badgeCount={totalUnreadCount > 0 ? totalUnreadCount : null}
+          />
+          <NavButton 
+            icon={<Globe size={22} />} 
+            active={activeNav === 'chats'} 
+            onClick={() => setActiveNav('chats')} 
+          />
+          <NavButton 
+            icon={<Users size={22} />} 
+            active={activeNav === 'teams'} 
+            onClick={() => setActiveNav('teams')} 
+            badgeCount={receivedReqs.length > 0 ? receivedReqs.length : null} 
+          />
+          <NavButton 
+            icon={<Phone size={22} />} 
+            active={activeNav === 'calls'} 
+            onClick={() => setActiveNav('calls')} 
+          />
+        </div>
+        
+        <div className="w-[1px] h-8 bg-white/[0.1] mx-2 md:mx-4 flex-shrink-0 rounded-full"></div>
+        
+        <div className="flex items-center px-1">
+          <button 
+            onClick={() => setShowNewChatModal(true)}
+            className="w-11 h-11 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 cursor-pointer"
+            title="New Chat or Group"
+          >
+            <Plus size={24} />
+          </button>
+        </div>
+      </nav>
+    </div>
+  );
+}
 
 // --- VIEWS ---
 
@@ -2149,7 +2785,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -2180,9 +2816,15 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null); // { id, text, senderId }
   const [reactionPopupId, setReactionPopupId] = useState(null);
+  const [activeMsgId, setActiveMsgId] = useState(null);
+  
+  const [isScrolledUp, setIsScrolledUp] = useState(false);
+  const [newMsgCount, setNewMsgCount] = useState(0);
+  const [firstUnreadMsgId, setFirstUnreadMsgId] = useState(null);
 
   const scrollContainerRef = useRef(null);
   const isInitialMount = useRef(true);
+  const prevMsgCountRef = useRef(chat.messages?.length || 0);
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
   const messages = chat.messages || [];
@@ -2206,21 +2848,52 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     setIsEditingDesc(false);
   }, [chat.id, chat.name, chat.description]);
 
+  const handleChatScroll = useCallback((e) => {
+    const target = e.target;
+    const nearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 100;
+    setIsScrolledUp(!nearBottom);
+    
+    if (nearBottom) {
+      setNewMsgCount(0);
+      setFirstUnreadMsgId(null);
+    }
+  }, []);
+
   useLayoutEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
+    const currentMsgCount = messages.length;
+    const prevMsgCount = prevMsgCountRef.current;
+    const addedCount = currentMsgCount - prevMsgCount;
+    const isNewMessage = addedCount > 0;
+
     if (isInitialMount.current) {
       container.style.scrollBehavior = 'auto';
       container.scrollTop = container.scrollHeight;
-      requestAnimationFrame(() => {
-        if (container) container.scrollTop = container.scrollHeight;
-      });
       isInitialMount.current = false;
-    } else {
-      container.style.scrollBehavior = 'smooth';
-      container.scrollTop = container.scrollHeight;
+    } else if (isNewMessage) {
+      const lastMsg = messages[currentMsgCount - 1];
+      const isMe = lastMsg && lastMsg.senderId === currentUser.id;
+
+      if (!isScrolledUp || isMe) {
+        container.style.scrollBehavior = 'smooth';
+        container.scrollTop = container.scrollHeight;
+      } else {
+        setNewMsgCount((prev) => prev + addedCount);
+        if (!firstUnreadMsgId) {
+          const firstNew = messages[prevMsgCount];
+          if (firstNew) setFirstUnreadMsgId(firstNew.id);
+        }
+      }
+    } else if (addedCount <= 0 || typingIndicators) {
+      if (!isScrolledUp) {
+        container.style.scrollBehavior = 'smooth';
+        container.scrollTop = container.scrollHeight;
+      }
     }
+    
+    prevMsgCountRef.current = currentMsgCount;
   }, [messages.length, typingIndicators]);
 
   const handleInputChange = (e) => {
@@ -2337,6 +3010,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     if (activeTypers.length === 2) return `${getFirstName(activeTypers[0])} and ${getFirstName(activeTypers[1])} are typing...`;
     return `${activeTypers.length} people are typing...`;
   };
+
+  const starredMessages = useMemo(() => {
+    return messages.filter(m => m.isStarred && !m.isDeleted && m.type !== 'system');
+  }, [messages]);
 
   return (
     <div className="absolute inset-0 flex flex-col bg-[#121214] md:rounded-3xl border border-white/[0.02] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300 z-40">
@@ -2493,7 +3170,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:hidden p-6 space-y-6 relative" style={{ scrollBehavior: 'auto' }}>
+      <div ref={scrollContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:hidden p-6 space-y-6 relative" style={{ scrollBehavior: 'auto' }} onClick={() => setActiveMsgId(null)}>
         
         {messages.length === 0 && chat.isConnected === false && (
           <div className="flex flex-col items-center justify-center h-full text-zinc-500 pb-10">
@@ -2564,7 +3241,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           const hasReactions = msg.reactions && msg.reactions.length > 0;
 
           return (
-            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'}`}>
+            <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'}`}>
               {!isMe && (
                 <div className="w-8">
                   {msg.showAvatar && <img src={chat.isGroup ? (friends.find(f=>f.id===msg.senderId)?.avatar || chat.avatar) : chat.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />}
@@ -2572,22 +3249,39 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               )}
               
               <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%] lg:max-w-[60%]`}>
-                <div className={`flex items-center gap-2 group/msgwrap relative ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div 
+                  className={`flex items-center gap-2 group/msgwrap relative ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveMsgId(activeMsgId === msg.id ? null : msg.id);
+                  }}
+                >
                   
                   {/* Message Actions (Reply, React, Delete) */}
                   {!msg.isDeleted && (
-                    <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/msgwrap:opacity-100 transition-opacity z-10 ${isMe ? 'right-full mr-2' : 'left-full ml-2'}`}>
+                    <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 transition-all z-10 ${activeMsgId === msg.id ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none sm:group-hover/msgwrap:opacity-100 sm:group-hover/msgwrap:pointer-events-auto'} ${isMe ? 'right-full mr-2' : 'left-full ml-2'}`}>
                       <button 
-                        onClick={() => setReactionPopupId(msg.id)} 
-                        className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
-                        title="React"
+                        onClick={(e) => { e.stopPropagation(); onToggleStarMessage(chat.id, msg.id); setActiveMsgId(null); }} 
+                        className={`p-1.5 rounded-full shadow-sm border transition-colors ${msg.isStarred ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-[#1a1a1c] hover:bg-yellow-500/10 text-zinc-400 hover:text-yellow-400 border-white/5'}`}
+                        title={msg.isStarred ? "Unstar Message" : "Star Message"}
                       >
-                        <Smile size={14} />
+                        <Star size={14} className={msg.isStarred ? "fill-current" : ""} />
                       </button>
+                      {!isMe && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setReactionPopupId(msg.id); setActiveMsgId(null); }} 
+                          className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
+                          title="React"
+                        >
+                          <Smile size={14} />
+                        </button>
+                      )}
                       <button 
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setReplyingTo({ id: msg.id, text: msg.text, senderId: msg.senderId });
                           inputRef.current?.focus();
+                          setActiveMsgId(null);
                         }} 
                         className="p-1.5 bg-[#1a1a1c] hover:bg-white/10 rounded-full text-zinc-400 hover:text-white shadow-sm border border-white/5 transition-colors"
                         title="Reply"
@@ -2596,31 +3290,31 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       </button>
                       {isAdmin && chat.isGroup && !msg.isDeleted && (
                         <button 
-                          onClick={() => onPinMessage(chat.id, msg)} 
+                          onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} 
                           className={`p-1.5 rounded-full shadow-sm border transition-colors ${chat.pinnedMessage?.id === msg.id ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-[#1a1a1c] hover:bg-indigo-500/10 text-zinc-400 hover:text-indigo-400 border-white/5'}`}
                           title={chat.pinnedMessage?.id === msg.id ? "Unpin Message" : "Pin Message"}
                         >
                           <Pin size={14} className={chat.pinnedMessage?.id === msg.id ? "fill-current" : ""} />
                         </button>
                       )}
-                      {(isMe || isAdmin) && (
-                        <button 
-                          onClick={() => {
-                            const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
-                            const canDeleteForEveryone = isAdmin || (!isPersonalTimeExpired && isMe);
-                            setConfirmAction({
-                              type: 'delete_msg',
-                              payload: msg.id,
-                              title: 'Delete Message',
-                              canDeleteForEveryone,
-                            });
-                          }} 
-                          className="p-1.5 bg-[#1a1a1c] hover:bg-red-500/10 rounded-full text-zinc-400 hover:text-red-400 shadow-sm border border-white/5 transition-colors"
-                          title="Delete Message"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
+                          const canDeleteForEveryone = isAdmin || (!isPersonalTimeExpired && isMe);
+                          setConfirmAction({
+                            type: 'delete_msg',
+                            payload: msg.id,
+                            title: 'Delete Message',
+                            canDeleteForEveryone,
+                          });
+                          setActiveMsgId(null);
+                        }} 
+                        className="p-1.5 bg-[#1a1a1c] hover:bg-red-500/10 rounded-full text-zinc-400 hover:text-red-400 shadow-sm border border-white/5 transition-colors"
+                        title="Delete Message"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   )}
 
@@ -2644,11 +3338,12 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
                   {/* The Message Bubble itself */}
                   {msg.isDeleted ? (
-                    <div className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
-                      🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}
+                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm italic border border-white/[0.02] relative flex gap-2 items-center transition-all duration-500 ease-out transform-gpu ${isMe ? 'bg-indigo-600/30 text-white/50 rounded-br-sm' : 'bg-[#1e1e24]/50 text-zinc-500 rounded-bl-sm'}`}>
+                      <span>🚫 {msg.deletedByAdmin ? 'This message was deleted by an admin' : 'You deleted this message'}</span>
+                      {msg.isStarred && <Star size={12} className="text-yellow-500/50 fill-current shrink-0" />}
                     </div>
                   ) : (
-                    <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
+                    <div id={`bubble-${msg.id}`} className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-all duration-500 ease-out transform-gpu ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`}>
                       
                       {/* Replied-To Snippet inside the bubble */}
                       {msg.replyTo && (
@@ -2660,7 +3355,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         </div>
                       )}
 
-                      <span>{msg.text}</span>
+                      <div className="flex items-end gap-2">
+                        <span>{msg.text}</span>
+                        {msg.isStarred && <Star size={12} className="text-yellow-400 fill-current shrink-0 mb-0.5 opacity-80" />}
+                      </div>
 
                       {/* Display active reactions overlapping the bubble */}
                       {hasReactions && (
@@ -2701,6 +3399,42 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         )}
 
       </div>
+
+      {isScrolledUp && (
+        <div className="absolute bottom-[80px] right-6 z-[60] animate-in fade-in slide-in-from-bottom-2">
+          <button
+            onClick={() => {
+              const container = scrollContainerRef.current;
+              if (firstUnreadMsgId) {
+                const el = document.getElementById(`message-${firstUnreadMsgId}`);
+                if (el && container) {
+                  container.style.scrollBehavior = 'auto';
+                  const containerHalf = container.clientHeight / 2;
+                  const elHalf = el.clientHeight / 2;
+                  container.scrollTop = el.offsetTop - containerHalf + elHalf;
+                  requestAnimationFrame(() => {
+                    container.style.scrollBehavior = 'smooth';
+                  });
+                } else if (container) {
+                  container.style.scrollBehavior = 'smooth';
+                  container.scrollTop = container.scrollHeight;
+                }
+              } else if (container) {
+                container.style.scrollBehavior = 'smooth';
+                container.scrollTop = container.scrollHeight;
+              }
+            }}
+            className="w-10 h-10 bg-[#1a1a1c] border border-white/10 rounded-full flex items-center justify-center text-white shadow-[0_4px_12px_rgba(0,0,0,0.5)] hover:bg-white/10 transition-colors"
+          >
+            <ChevronDown size={20} />
+            {newMsgCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-indigo-500 text-white text-[10px] font-bold min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full border-2 border-[#1a1a1c]">
+                {newMsgCount > 99 ? '99+' : newMsgCount}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
 
       {(chat.isGroup || chat.isConnected) && (
         <div className="px-6 pb-6 pt-0 flex-none z-50 bg-transparent flex flex-col relative">
@@ -3018,6 +3752,54 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 )}
               </div>
             </section>
+
+            {starredMessages.length > 0 && (
+              <section className="relative z-20">
+                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Starred Messages</h3>
+                <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] flex flex-col overflow-hidden">
+                  {starredMessages.map((msg, idx) => (
+                    <div 
+                      key={msg.id} 
+                      onClick={() => {
+                        setShowDetails(false);
+                        setTimeout(() => {
+                          const el = document.getElementById(`message-${msg.id}`);
+                          const bubble = document.getElementById(`bubble-${msg.id}`);
+                          const container = scrollContainerRef.current;
+                          
+                          if (el && container) {
+                            container.style.scrollBehavior = 'auto';
+                            const containerHalf = container.clientHeight / 2;
+                            const elHalf = el.clientHeight / 2;
+                            container.scrollTop = el.offsetTop - containerHalf + elHalf;
+                            
+                            requestAnimationFrame(() => {
+                               container.style.scrollBehavior = 'smooth';
+                            });
+                          }
+                          
+                          if (bubble) {
+                            bubble.classList.add('ring-4', 'ring-indigo-500/50', 'scale-[1.02]', 'shadow-[0_0_20px_rgba(99,102,241,0.4)]');
+                            setTimeout(() => { 
+                              bubble.classList.remove('ring-4', 'ring-indigo-500/50', 'scale-[1.02]', 'shadow-[0_0_20px_rgba(99,102,241,0.4)]'); 
+                            }, 2000);
+                          }
+                        }, 100);
+                      }}
+                      className={`p-4 flex flex-col gap-1.5 hover:bg-white/5 transition-colors cursor-pointer ${idx !== 0 ? 'border-t border-white/[0.02]' : ''}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-white">
+                          {msg.senderId === currentUser.id ? 'You' : (friends.find(f => f.id === msg.senderId)?.name || 'Someone')}
+                        </span>
+                        <span className="text-xs text-zinc-500">{formatMessageTime(msg.timestamp)}</span>
+                      </div>
+                      <p className="text-sm text-zinc-300 line-clamp-3">{msg.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {isAdmin && (
               <section className="relative z-20 mb-6">
@@ -3337,623 +4119,5 @@ function NavButton({ icon, active, onClick, hasBadge, badgeCount }) {
         </span>
       )}
     </button>
-  );
-}
-
-export default function App() {
-  useLayoutEffect(() => {
-    if (!document.getElementById('dashboard-global-styles')) {
-      const style = document.createElement('style');
-      style.id = 'dashboard-global-styles';
-      style.innerHTML = `
-        * { scrollbar-width: none; -ms-overflow-style: none; }
-        *::-webkit-scrollbar { display: none; }
-        @keyframes instaFloat {
-          0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 0; }
-          5% { transform: translate(0, -5vh) scale(1.2) rotate(calc(var(--rot) * 0.2)); opacity: 1; }
-          10% { transform: translate(calc(var(--sway) * 0.2), -10vh) scale(1) rotate(calc(var(--rot) * 0.5)); opacity: 1; }
-          33% { transform: translate(var(--sway), -35vh) scale(1) rotate(var(--rot)); opacity: 1; }
-          66% { transform: translate(calc(var(--sway) * -0.5), -70vh) scale(0.9) rotate(calc(var(--rot) * -0.5)); opacity: 0.8; }
-          100% { transform: translate(calc(var(--sway) * 0.3), -100vh) scale(0.7) rotate(calc(var(--rot) * 0.5)); opacity: 0; }
-        }
-        .animate-burst {
-          animation: instaFloat var(--duration) linear forwards;
-          will-change: transform, opacity;
-        }
-        @keyframes typingDot {
-          0%, 100% { transform: translateY(0); opacity: 0.4; }
-          50% { transform: translateY(-3px); opacity: 1; }
-        }
-        .animate-typing-dot {
-          animation: typingDot 1.4s infinite ease-in-out both;
-        }
-        body, html { 
-          margin: 0; padding: 0; height: 100%; width: 100vw; max-width: 100vw; overflow-x: hidden; overflow-y: hidden; 
-          background-color: #0a0a0c !important; overscroll-behavior: none; 
-          cursor: default; 
-        }
-        button, a, [role="button"] { cursor: pointer; }
-        button:disabled { cursor: default; }
-        input, textarea { cursor: text; }
-      `;
-      document.head.appendChild(style);
-    }
-  }, []);
-
-  const [activeNav, setActiveNav] = useState('home');
-  const [selectedChatId, setSelectedChatId] = useState(null);
-  const [appToast, setAppToast] = useState('');
-  
-  const [friends, setFriends] = useState(initialFriends);
-  const [groups, setGroups] = useState(initialGroups);
-  const [myStories, setMyStories] = useState(initialMyStories);
-  const [globalUsers, setGlobalUsers] = useState(initialGlobalUsers);
-  const [sentReqs, setSentReqs] = useState([]);
-  const [receivedReqs, setReceivedReqs] = useState(initialReceivedRequests);
-  const [blockedGroups, setBlockedGroups] = useState([]);
-  
-  const [typingIndicators, setTypingIndicators] = useState({});
-  const [recentConversations, setRecentConversations] = useState(initialRecent);
-  const [chatDetails, setChatDetails] = useState(initialChats);
-  const [showNewChatModal, setShowNewChatModal] = useState(false);
-  const [overlayStates, setOverlayStates] = useState({ home: false, calls: false });
-  
-  const handleOverlayChange = useCallback((source, isActive) => {
-    setOverlayStates(prev => ({ ...prev, [source]: isActive }));
-  }, []);
-
-  const isGlobalOverlayActive = overlayStates.home || overlayStates.calls;
-
-  const showGlobalToast = (msg) => {
-    setAppToast(msg);
-    setTimeout(() => setAppToast(''), 3000);
-  };
-
-  const handleSelectChat = useCallback((chatId) => {
-    setSelectedChatId(chatId);
-    if (chatId) {
-      setRecentConversations(prev => prev.map(c => c.id === chatId ? { ...c, unread: 0 } : c));
-      setGroups(prev => prev.map(g => g.id === chatId ? { ...g, unread: 0 } : g));
-    }
-  }, []);
-
-  useEffect(() => {
-    const cullExpired = () => {
-      const now = Date.now();
-      const isExpired = (s) => (now - s.timestamp) >= 24 * HOUR;
-      setMyStories(prev => prev.filter(s => !isExpired(s)));
-      setFriends(prev => {
-        let changed = false;
-        const next = prev.map(f => {
-          const validStories = f.stories.filter(s => !isExpired(s));
-          if (validStories.length !== f.stories.length) {
-            changed = true;
-            return { ...f, stories: validStories, storyViewed: validStories.length > 0 ? validStories.every(s => s.viewed) : false };
-          }
-          return f;
-        });
-        return changed ? next : prev;
-      });
-    };
-    cullExpired();
-    const interval = setInterval(cullExpired, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (recentConversations.length === 0) return;
-      const randomChat = recentConversations[Math.floor(Math.random() * recentConversations.length)];
-      
-      let memberId;
-      if (randomChat.isGroup) {
-        const group = groups.find(g => g.id === randomChat.id);
-        if (!group) return;
-        const others = group.memberIds.filter(id => id !== currentUser.id);
-        if (others.length === 0) return;
-        memberId = others[Math.floor(Math.random() * others.length)];
-      } else {
-        memberId = randomChat.id;
-      }
-
-      setTypingIndicators(prev => {
-        const current = prev[randomChat.id] || [];
-        if (current.includes(memberId)) return prev;
-        return { ...prev, [randomChat.id]: [...current, memberId] };
-      });
-
-      setTimeout(() => {
-        setTypingIndicators(prev => {
-          const current = prev[randomChat.id] || [];
-          return { ...prev, [randomChat.id]: current.filter(id => id !== memberId) };
-        });
-      }, 2000 + Math.random() * 3000);
-
-    }, 8000); 
-    return () => clearInterval(interval);
-  }, [recentConversations, groups]);
-
-  const handleTypingGlobal = useCallback((chatId, isTyping) => {
-    setTypingIndicators(prev => {
-        const current = prev[chatId] || [];
-        const isCurrentlyTyping = current.includes(currentUser.id);
-        if (isTyping && !isCurrentlyTyping) {
-            return { ...prev, [chatId]: [...current, currentUser.id] };
-        } else if (!isTyping && isCurrentlyTyping) {
-            return { ...prev, [chatId]: current.filter(id => id !== currentUser.id) };
-        }
-        return prev;
-    });
-  }, []);
-
-  const handleReactToMessageGlobal = useCallback((chatId, messageId, emoji) => {
-    setChatDetails(prev => prev.map(c => {
-      if (c.id !== chatId) return c;
-      return {
-        ...c,
-        messages: c.messages.map(m => {
-          if (m.id !== messageId) return m;
-          const currentReactions = m.reactions || [];
-          const existingUserReactionIndex = currentReactions.findIndex(r => r.userId === currentUser.id);
-
-          let newReactions = [...currentReactions];
-          if (existingUserReactionIndex >= 0) {
-            if (newReactions[existingUserReactionIndex].emoji === emoji) {
-              newReactions.splice(existingUserReactionIndex, 1);
-            } else {
-              newReactions[existingUserReactionIndex] = { userId: currentUser.id, emoji };
-            }
-          } else {
-            newReactions.push({ userId: currentUser.id, emoji });
-          }
-          return { ...m, reactions: newReactions };
-        })
-      };
-    }));
-  }, []);
-
-  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null) => {
-    const newMessage = {
-      id: Date.now(),
-      senderId: currentUser.id,
-      text: text,
-      timestamp: Date.now(),
-      replyTo: replyTo
-    };
-
-    setChatDetails(prev => {
-      const existingChat = prev.find(c => c.id === userId);
-      if (existingChat) {
-        return prev.map(c => c.id === userId ? { ...c, messages: [...c.messages, newMessage] } : c);
-      } else {
-        return [...prev, { id: userId, messages: [newMessage] }];
-      }
-    });
-
-    setRecentConversations(prev => {
-      const existingRecent = prev.find(c => c.id === userId);
-      if (existingRecent) {
-        const filtered = prev.filter(c => c.id !== userId);
-        return [{ ...existingRecent, lastMessage: text, timestamp: Date.now(), unread: 0 }, ...filtered];
-      }
-
-      const friend = friends.find(f => f.id === userId);
-      const group = groups.find(g => g.id === userId);
-      const globalUser = globalUsers.find(u => u.id === userId);
-      
-      let name = friend?.name || group?.name || globalUser?.name || 'Unknown';
-      let avatar = friend?.avatar || globalUser?.avatar || '';
-      let status = existingRecent?.status || (friend?.isOnline ? 'online' : (globalUser?.status?.toLowerCase() || 'offline'));
-      let isGroup = existingRecent?.isGroup || !!group || false;
-      let icon = existingRecent?.icon || group?.icon || '';
-
-      const filtered = prev.filter(c => c.id !== userId);
-      const newRecent = {
-        id: userId, name, avatar, status, isGroup, icon, lastMessage: text, timestamp: Date.now(), unread: 0
-      };
-      return [newRecent, ...filtered];
-    });
-  }, [friends, groups, globalUsers]);
-
-  const appendSystemMessage = useCallback((chatId, text, actorId = currentUser.id) => {
-    const sysMsg = { id: Date.now() + Math.random(), type: 'system', text, actorId, timestamp: Date.now() };
-    setChatDetails(prev => {
-      const existingChat = prev.find(c => c.id === chatId);
-      if (existingChat) return prev.map(c => c.id === chatId ? { ...c, messages: [...c.messages, sysMsg] } : c);
-      return [...prev, { id: chatId, messages: [sysMsg] }];
-    });
-    setRecentConversations(prev => {
-      const existing = prev.find(rc => rc.id === chatId);
-      if (existing) {
-        const filtered = prev.filter(c => c.id !== chatId);
-        return [{ ...existing, timestamp: Date.now() }, ...filtered];
-      }
-      return prev;
-    });
-  }, []);
-
-  const handleDeleteMessage = useCallback((chatId, messageId, deleteType, isSelf) => {
-    setChatDetails(prev => {
-      const chatIndex = prev.findIndex(c => c.id === chatId);
-      if (chatIndex === -1) return prev;
-      
-      const nextDetails = [...prev];
-      const chat = { ...nextDetails[chatIndex] };
-      const isLastMsg = chat.messages.length > 0 && chat.messages[chat.messages.length - 1].id === messageId;
-      
-      chat.messages = deleteType === 'for_me' 
-          ? chat.messages.filter(m => m.id !== messageId) 
-          : chat.messages.map(m => m.id === messageId ? { ...m, isDeleted: true, deletedByAdmin: !isSelf } : m);
-          
-      nextDetails[chatIndex] = chat;
-
-      if (isLastMsg) {
-        let newLastMessageText = '';
-        if (chat.messages.length > 0) {
-          const lastMsg = chat.messages[chat.messages.length - 1];
-          if (lastMsg.type === 'system') newLastMessageText = lastMsg.text;
-          else if (lastMsg.isDeleted) newLastMessageText = lastMsg.deletedByAdmin ? '🚫 This message was deleted by an admin' : '🚫 You deleted this message';
-          else newLastMessageText = lastMsg.text;
-        }
-        setRecentConversations(rcPrev => rcPrev.map(rc => rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc));
-      }
-      return nextDetails;
-    });
-  }, []);
-
-  const handleStartChat = (userId) => {
-    setShowNewChatModal(false);
-    handleSelectChat(userId);
-  };
-
-  const handleCreateGroup = (name, memberIds) => {
-    if (memberIds.length + 1 > 1024) {
-      showGlobalToast("A group can have a maximum of 1024 members.");
-      return;
-    }
-    const newGroup = {
-      id: Date.now(), name: name, description: 'A new group created by you.', members: memberIds.length + 1,
-      memberIds: [currentUser.id, ...memberIds], adminIds: [currentUser.id], unread: 0,
-      icon: gradients[Math.floor(Math.random() * gradients.length)], isGroup: true
-    };
-    setGroups(prev => [newGroup, ...prev]);
-    setShowNewChatModal(false);
-    handleSelectChat(newGroup.id);
-    appendSystemMessage(newGroup.id, 'created the group', currentUser.id);
-    
-    if (memberIds.length > 0) {
-      const addedNames = memberIds.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
-      if (addedNames) setTimeout(() => appendSystemMessage(newGroup.id, `added ${addedNames}`, currentUser.id), 10);
-    }
-  };
-
-  const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
-    const group = groups.find(g => g.id === groupId);
-    if (group && group.name !== newName) appendSystemMessage(groupId, `changed the group name from "${group.name}" to "${newName}"`, currentUser.id);
-    if (group && group.description !== newDesc) appendSystemMessage(groupId, `changed the group description`, currentUser.id);
-
-    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: newName, description: newDesc } : g));
-    setRecentConversations(prev => prev.map(c => c.id === groupId ? { ...c, name: newName } : c));
-    setChatDetails(prev => prev.map(c => c.id === groupId ? { ...c, name: newName } : c));
-    showGlobalToast('Group info updated.');
-  }, [groups, appendSystemMessage]);
-
-  const handleAddMembers = useCallback((groupId, newMemberIds) => {
-    const addedNames = newMemberIds.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
-    appendSystemMessage(groupId, `added ${addedNames}`, currentUser.id);
-    setGroups(prev => prev.map(g => {
-      if (g.id === groupId) {
-        const updatedIds = [...new Set([...g.memberIds, ...newMemberIds])];
-        return { ...g, memberIds: updatedIds, members: updatedIds.length };
-      }
-      return g;
-    }));
-    showGlobalToast(`${newMemberIds.length} member(s) added.`);
-  }, [friends, appendSystemMessage]);
-
-  const handleRemoveMembers = useCallback((groupId, memberIdsToRemove) => {
-    const removedNames = memberIdsToRemove.map(id => friends.find(f => f.id === id)?.name).filter(Boolean).join(', ');
-    appendSystemMessage(groupId, `removed ${removedNames}`, currentUser.id);
-    setGroups(prev => prev.map(g => {
-      if (g.id === groupId) {
-        const updatedIds = g.memberIds.filter(id => !memberIdsToRemove.includes(id));
-        const updatedAdmins = g.adminIds.filter(id => !memberIdsToRemove.includes(id));
-        return { ...g, memberIds: updatedIds, adminIds: updatedAdmins, members: updatedIds.length };
-      }
-      return g;
-    }));
-    showGlobalToast(`${memberIdsToRemove.length} member(s) removed.`);
-  }, [friends, appendSystemMessage]);
-
-  const handleToggleAdmin = useCallback((groupId, memberId) => {
-    const group = groups.find(g => g.id === groupId);
-    const memberName = friends.find(f => f.id === memberId)?.name;
-    if (group && memberName) {
-      const isAdmin = group.adminIds.includes(memberId);
-      if (isAdmin) appendSystemMessage(groupId, `removed Admin privileges from ${memberName}`, currentUser.id);
-      else appendSystemMessage(groupId, `made ${memberName} an Admin`, currentUser.id);
-    }
-    setGroups(prev => prev.map(g => {
-      if (g.id === groupId) {
-        const isAdmin = g.adminIds.includes(memberId);
-        return { ...g, adminIds: isAdmin ? g.adminIds.filter(id => id !== memberId) : [...g.adminIds, memberId] };
-      }
-      return g;
-    }));
-    showGlobalToast('Admin roles updated.');
-  }, [groups, friends, appendSystemMessage]);
-
-  const handleSendReq = (user) => { if (!sentReqs.find(r => r.id === user.id)) setSentReqs(prev => [...prev, user]); };
-  const handleWithdrawReq = (userId) => setSentReqs(prev => prev.filter(r => r.id !== userId));
-  const handleAcceptReq = (userId) => {
-    const acceptedUser = receivedReqs.find(r => r.id === userId);
-    if (acceptedUser) {
-      setReceivedReqs(prev => prev.filter(r => r.id !== userId));
-      setFriends(prev => [...prev, { id: acceptedUser.id, name: acceptedUser.name, handle: acceptedUser.handle, avatar: acceptedUser.avatar, storyType: 'none', isOnline: acceptedUser.status === 'Online', storyViewed: false, stories: [] }]);
-    }
-  };
-  const handleRejectReq = (userId) => setReceivedReqs(prev => prev.filter(r => r.id !== userId));
-
-  const handleLeaveGroup = (groupId) => {
-    appendSystemMessage(groupId, 'left', currentUser.id);
-    setGroups(prev => prev.filter(g => g.id !== groupId));
-    setRecentConversations(prev => prev.filter(c => c.id !== groupId));
-    setChatDetails(prev => prev.filter(c => c.id !== groupId));
-    setSelectedChatId(null);
-    showGlobalToast('You left the group.');
-  };
-  
-  const handleDisconnect = (userId) => {
-    setFriends(prev => prev.filter(f => f.id !== userId));
-    setSelectedChatId(null);
-    showGlobalToast('Connection removed.');
-  };
-
-  const handleBlock = (id, isGroup) => {
-    setBlockedGroups(prev => [...prev, id]);
-    if (isGroup) {
-      setGroups(prev => prev.filter(g => g.id !== id));
-      showGlobalToast('Group blocked. You cannot be added back.');
-    } else {
-      setFriends(prev => prev.filter(f => f.id !== id));
-      showGlobalToast('User blocked.');
-    }
-    setRecentConversations(prev => prev.filter(c => c.id !== id));
-    setChatDetails(prev => prev.filter(c => c.id !== id));
-    setSelectedChatId(null);
-  };
-
-  const handleReport = (id, isGroup, category, description) => {
-    setBlockedGroups(prev => [...prev, id]);
-    if (isGroup) {
-      setGroups(prev => prev.filter(g => g.id !== id));
-      showGlobalToast(`Group reported for ${category}.`);
-    } else {
-      setFriends(prev => prev.filter(f => f.id !== id));
-      showGlobalToast(`User reported for ${category}.`);
-    }
-    setRecentConversations(prev => prev.filter(c => c.id !== id));
-    setChatDetails(prev => prev.filter(c => c.id !== id));
-    setSelectedChatId(null);
-  };
-
-  const handlePinMessage = useCallback((groupId, message) => {
-    setGroups(prev => prev.map(g => {
-      if (g.id === groupId) {
-        const isAlreadyPinned = g.pinnedMessage?.id === message.id;
-        appendSystemMessage(groupId, isAlreadyPinned ? 'unpinned a message' : 'pinned a message', currentUser.id);
-        return { ...g, pinnedMessage: isAlreadyPinned ? null : message };
-      }
-      return g;
-    }));
-  }, [appendSystemMessage]);
-
-  const handleToggleAdminMessaging = useCallback((groupId, value) => {
-    setGroups(prev => prev.map(g => {
-      if (g.id === groupId) {
-        appendSystemMessage(groupId, value ? 'changed group settings to allow only admins to send messages' : 'changed group settings to allow all members to send messages', currentUser.id);
-        return { ...g, onlyAdminsCanMessage: value };
-      }
-      return g;
-    }));
-  }, [appendSystemMessage]);
-
-  let activeChat = null;
-  if (selectedChatId) {
-    const friend = friends.find(f => f.id === selectedChatId);
-    const group = groups.find(g => g.id === selectedChatId);
-    const globalUser = globalUsers.find(u => u.id === selectedChatId) || sentReqs.find(u => u.id === selectedChatId) || receivedReqs.find(u => u.id === selectedChatId);
-    const existingChatDetails = chatDetails.find(c => c.id === selectedChatId);
-    const recentChat = recentConversations.find(c => c.id === selectedChatId);
-    
-    const baseInfo = friend || group || globalUser || recentChat || existingChatDetails;
-    
-    if (baseInfo) {
-      let isOnline = false;
-      if (friend) isOnline = friend.isOnline;
-      else if (globalUser) isOnline = globalUser.status === 'Online' || globalUser.status === 'online';
-      else if (recentChat) isOnline = recentChat.status === 'online';
-      else if (baseInfo.status) isOnline = baseInfo.status === 'online' || baseInfo.status === 'Online';
-
-      activeChat = {
-        ...baseInfo,
-        status: isOnline ? 'online' : 'offline',
-        isConnected: !!friend || !!group,
-        messages: existingChatDetails ? existingChatDetails.messages : []
-      };
-    }
-  }
-
-  const unreadChatIds = new Set([
-    ...recentConversations.filter(c => c.unread > 0).map(c => c.id),
-    ...groups.filter(g => g.unread > 0).map(g => g.id)
-  ]);
-  const totalUnreadCount = unreadChatIds.size;
-
-  return (
-    <div className="fixed inset-0 flex flex-col bg-[#0a0a0c] text-zinc-200 font-sans md:p-4 overflow-hidden selection:bg-indigo-500/30 cursor-default w-full max-w-[100vw]">
-      
-      {/* Tailwind JIT FOUC Preloader - Forces compilation of story styles on load */}
-      <div style={{ display: 'none' }} className="bg-gradient-to-tr from-purple-600 via-pink-500 to-orange-500 bg-gradient-to-br from-blue-600 to-cyan-400 bg-gradient-to-tr from-emerald-400 to-cyan-500 bg-gradient-to-br from-rose-500 to-orange-400 bg-gradient-to-bl from-zinc-800 via-zinc-900 to-black drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] drop-shadow-[0_0_12px_rgba(250,204,21,0.8)] drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] drop-shadow-[0_0_12px_rgba(249,115,22,0.8)] zoom-in-[0.98] bg-black/60 bg-black/80 bg-black/40 bg-gradient-to-t from-black/80 via-black/40 blur-3xl opacity-30 transform-gpu scale-110"></div>
-      
-      {appToast && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[150] bg-zinc-900/90 backdrop-blur-xl border border-white/10 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl animate-in fade-in slide-in-from-top-4 zoom-in-95 duration-300">
-          {appToast}
-        </div>
-      )}
-
-      <main className="flex-1 flex flex-col overflow-hidden relative w-full h-full max-w-7xl mx-auto min-h-0">
-        <div className="absolute inset-0" style={{ display: selectedChatId ? 'none' : 'block' }}>
-          
-          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            (activeNav === 'home' || activeNav === 'chats') ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
-          }`}>
-            <HomeDashboard 
-              onSelectChat={handleSelectChat} 
-              globalUsers={globalUsers}
-              sentReqs={sentReqs}
-              onSendReq={handleSendReq}
-              onWithdrawReq={handleWithdrawReq}
-              friends={friends}
-              setFriends={setFriends}
-              groups={groups}
-              receivedReqs={receivedReqs}
-              onAcceptReq={handleAcceptReq}
-              onRejectReq={handleRejectReq}
-              myStories={myStories}
-              setMyStories={setMyStories}
-              recentConversations={recentConversations}
-              typingIndicators={typingIndicators}
-              chatDetails={chatDetails}
-              onSendMessage={handleSendMessageGlobal}
-              onOverlayChange={handleOverlayChange}
-            />
-          </div>
-          
-          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            activeNav === 'teams' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
-          }`}>
-            <RequestsView 
-              sentReqs={sentReqs}
-              receivedReqs={receivedReqs}
-              onAccept={handleAcceptReq}
-              onReject={handleRejectReq}
-              onWithdraw={handleWithdrawReq}
-            />
-          </div>
-
-          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            activeNav === 'calls' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
-          }`}>
-            <CallsView 
-              callLogs={mockCallLogs} 
-              friends={friends} 
-              groups={groups} 
-              onOverlayChange={handleOverlayChange} 
-              isActive={activeNav === 'calls'}
-            />
-          </div>
-
-          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center justify-center text-zinc-500 pb-32 ${
-            activeNav === 'settings' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
-          }`}>
-            Building the settings module...
-        </div>
-
-      </div>
-        
-      {selectedChatId && activeChat && (
-        <ChatView 
-          key={activeChat.id}
-          chat={activeChat} 
-          onBack={() => setSelectedChatId(null)} 
-          sentReqs={sentReqs}
-            onSendReq={handleSendReq}
-            onWithdrawReq={handleWithdrawReq}
-            receivedReqs={receivedReqs}
-            onAcceptReq={handleAcceptReq}
-            onRejectReq={handleRejectReq}
-            onSendMessage={handleSendMessageGlobal}
-            onReactToMessage={handleReactToMessageGlobal}
-            friends={friends}
-            typingIndicators={typingIndicators}
-            onTyping={handleTypingGlobal}
-            onLeaveGroup={handleLeaveGroup}
-            onBlock={handleBlock}
-            onReport={handleReport}
-            onDisconnect={handleDisconnect}
-            onUpdateGroupInfo={handleUpdateGroupInfo}
-            onRemoveMembers={handleRemoveMembers}
-            onToggleAdmin={handleToggleAdmin}
-            onAddMembers={handleAddMembers}
-            onDeleteMessage={handleDeleteMessage}
-            onStartChat={handleStartChat}
-            onPinMessage={handlePinMessage}
-            onToggleAdminMessaging={handleToggleAdminMessaging}
-          />
-        )}
-      </main>
-
-      <NewChatModal 
-        isOpen={showNewChatModal} 
-        onClose={() => setShowNewChatModal(false)} 
-        friends={friends}
-        onStartChat={handleStartChat}
-        onCreateGroup={handleCreateGroup}
-      />
-
-      <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#121214]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-2 flex items-center shadow-2xl z-50 w-auto max-w-[95vw] overflow-x-auto ring-1 ring-white/[0.02] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-        (selectedChatId || isGlobalOverlayActive || showNewChatModal) 
-          ? 'opacity-0 pointer-events-none translate-y-4 scale-95' 
-          : 'opacity-100 pointer-events-auto translate-y-0 scale-100'
-      }`}>
-        <div className="flex items-center gap-1 md:gap-2 px-1">
-          <NavButton 
-            icon={<Settings size={22} />} 
-            active={activeNav === 'settings'} 
-            onClick={() => setActiveNav('settings')} 
-          />
-        </div>
-
-        <div className="w-[1px] h-8 bg-white/[0.1] mx-2 md:mx-4 flex-shrink-0 rounded-full"></div>
-
-        <div className="flex items-center gap-1 md:gap-2 px-1">
-          <NavButton 
-            icon={<Home size={22} />} 
-            active={activeNav === 'home'} 
-            onClick={() => {setActiveNav('home'); setSelectedChatId(null);}} 
-            badgeCount={totalUnreadCount > 0 ? totalUnreadCount : null}
-          />
-          <NavButton 
-            icon={<Globe size={22} />} 
-            active={activeNav === 'chats'} 
-            onClick={() => setActiveNav('chats')} 
-          />
-          <NavButton 
-            icon={<Users size={22} />} 
-            active={activeNav === 'teams'} 
-            onClick={() => setActiveNav('teams')} 
-            badgeCount={receivedReqs.length > 0 ? receivedReqs.length : null} 
-          />
-          <NavButton 
-            icon={<Phone size={22} />} 
-            active={activeNav === 'calls'} 
-            onClick={() => setActiveNav('calls')} 
-          />
-        </div>
-        
-        <div className="w-[1px] h-8 bg-white/[0.1] mx-2 md:mx-4 flex-shrink-0 rounded-full"></div>
-        
-        <div className="flex items-center px-1">
-          <button 
-            onClick={() => setShowNewChatModal(true)}
-            className="w-11 h-11 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 cursor-pointer"
-            title="New Chat or Group"
-          >
-            <Plus size={24} />
-          </button>
-        </div>
-      </nav>
-    </div>
   );
 }
