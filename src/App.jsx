@@ -147,7 +147,7 @@ const generateStories = (name, count) => {
 const initialMyStories = [
   {
     id: 'my-story-mock-1',
-    text: 'Just finished a great workout! ðŸ’ª',
+    text: 'Just finished a great workout! ' + E('1F4AA'),
     bgClass: gradients[2],
     viewed: false,
     animationPlayed: false,
@@ -357,6 +357,7 @@ const initialChats = [
     messages: [
       { id: 101, senderId: 1, text: 'Hey, did you get a chance to look at the Figma file?', timestamp: nowMs - 1 * DAY - 30 * MIN },
       { id: 102, senderId: 0, text: 'Just opening it now.', timestamp: nowMs - 1 * DAY - 25 * MIN },
+      { id: 103, senderId: 1, text: 'That workout story was intense!', timestamp: nowMs - 5 * MIN, storyReply: { storyId: 'my-story-mock-1', storyText: 'Just finished a great workout! ' + E('1F4AA'), storyBg: gradients[2], storyOwnerName: 'You', storyOwnerId: 0 } },
       { id: 104, senderId: 1, text: 'The new design system looks incredible!', timestamp: nowMs - 2 * MIN },
     ]
   },
@@ -625,14 +626,15 @@ export default function App() {
     }));
   }, []);
 
-  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null) => {
+  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null) => {
     const newMessage = customPayload || {
       id: Date.now(),
       senderId: currentUser.id,
       text: text,
       timestamp: Date.now(),
       replyTo: replyTo,
-      isStarred: false
+      isStarred: false,
+      ...(storyReply ? { storyReply } : {})
     };
 
     setChatDetails(prev => {
@@ -2604,7 +2606,14 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   const handleSendMessage = (e) => {
     e?.preventDefault();
     if (replyText.trim()) {
-      if (onSendMessage) onSendMessage(friend.id, replyText);
+      const storyContext = {
+        storyId: currentStory.id,
+        storyText: currentStory.text,
+        storyBg: currentStory.bgClass,
+        storyOwnerName: friend.isMine ? 'You' : friend.name,
+        storyOwnerId: friend.id
+      };
+      if (onSendMessage) onSendMessage(friend.id, replyText, null, null, storyContext);
       setReplyText('');
       setIsInputFocused(false);
       setShowToast(true);
@@ -3392,6 +3401,21 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                            ) : (
                              <><Forward size={12} /> Forwarded</>
                            )}
+                        </div>
+                      )}
+
+                      {/* Story Reply Context */}
+                      {msg.storyReply && (
+                        <div className="rounded-lg mb-1.5 max-w-full overflow-hidden flex gap-2 items-stretch">
+                          <div className={`w-12 h-12 rounded-lg shrink-0 flex items-center justify-center text-[10px] text-white/70 ${msg.storyReply.storyBg || 'bg-gradient-to-br from-indigo-600 to-purple-600'}`}>
+                            <Tv size={16} className="opacity-60" />
+                          </div>
+                          <div className="flex flex-col justify-center min-w-0">
+                            <span className="text-[10px] text-indigo-300 font-bold tracking-wide flex items-center gap-1">
+                              <Tv size={10} /> Replied to {msg.storyReply.storyOwnerName === 'You' ? 'your' : (msg.storyReply.storyOwnerName + "'s")} story
+                            </span>
+                            <p className="text-xs text-white/60 truncate">{msg.storyReply.storyText}</p>
+                          </div>
                         </div>
                       )}
 
