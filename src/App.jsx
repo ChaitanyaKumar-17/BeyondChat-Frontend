@@ -172,32 +172,32 @@ const initialMyStories = [
 ];
 
 const initialFriends = [
-  { id: 1, name: 'Elena', avatar: 'https://i.pravatar.cc/150?u=1', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Elena', 3) },
-  { id: 2, name: 'Lucas', avatar: 'https://i.pravatar.cc/150?u=2', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Lucas', 2) },
-  { id: 3, name: 'Sophia', avatar: 'https://i.pravatar.cc/150?u=3', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Sophia', 4) },
-  { id: 4, name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=4', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Sarah', 1) },
-  { id: 5, name: 'Mike', avatar: 'https://i.pravatar.cc/150?u=5', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Mike', 2) },
-  { id: 6, name: 'Anna', avatar: 'https://i.pravatar.cc/150?u=6', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Anna', 2) },
-  { id: 16, name: 'Oliver', avatar: 'https://i.pravatar.cc/150?u=16', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Oliver', 3) },
-  { id: 17, name: 'Isabella', avatar: 'https://i.pravatar.cc/150?u=17', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Isabella', 1) },
-  { id: 7, name: 'Chris', avatar: 'https://i.pravatar.cc/150?u=7', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Chris', 1) },
-  { id: 8, name: 'David', avatar: 'https://i.pravatar.cc/150?u=8', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('David', 3) },
-  { id: 9, name: 'Emma', avatar: 'https://i.pravatar.cc/150?u=9', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Emma', 4) },
-  { id: 18, name: 'Ethan', avatar: 'https://i.pravatar.cc/150?u=18', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Ethan', 2) },
-  { id: 10, name: 'James', avatar: 'https://i.pravatar.cc/150?u=10', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('James', 3) },
-  { id: 11, name: 'Lily', avatar: 'https://i.pravatar.cc/150?u=11', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Lily', 2) },
-  { id: 19, name: 'Mia', avatar: 'https://i.pravatar.cc/150?u=19', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Mia', 1) },
-  { id: 12, name: 'Tom', avatar: 'https://i.pravatar.cc/150?u=12', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Tom', 2) },
-  { id: 13, name: 'Nina', avatar: 'https://i.pravatar.cc/150?u=13', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Nina', 1) },
-  { id: 14, name: 'Leo', avatar: 'https://i.pravatar.cc/150?u=14', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Leo', 2) },
-  { id: 15, name: 'Maya', avatar: 'https://i.pravatar.cc/150?u=15', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Maya', 2) },
-  { id: 20, name: 'Noah', avatar: 'https://i.pravatar.cc/150?u=20', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Noah', 1) },
-  { id: 21, name: 'Ava', avatar: 'https://i.pravatar.cc/150?u=21', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Ava', 2) },
-  { id: 22, name: 'William', avatar: 'https://i.pravatar.cc/150?u=22', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('William', 3) },
-  { id: 23, name: 'Charlotte', avatar: 'https://i.pravatar.cc/150?u=23', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Charlotte', 1) },
-  { id: 24, name: 'Benjamin', avatar: 'https://i.pravatar.cc/150?u=24', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Benjamin', 2) },
-  { id: 25, name: 'Amelia', avatar: 'https://i.pravatar.cc/150?u=25', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Amelia', 1) },
-  { id: 26, name: 'Elijah', avatar: 'https://i.pravatar.cc/150?u=26', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Elijah', 2) },
+  { id: 1, name: 'Elena', avatar: 'https://i.pravatar.cc/150?u=1', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Elena', 3), username: 'elena.rod', phone: '+1 (555) 012-3456', bio: 'UI/UX designer & coffee lover. Currently obsessed with design systems.' },
+  { id: 2, name: 'Lucas', avatar: 'https://i.pravatar.cc/150?u=2', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Lucas', 2), username: 'lucasdev', phone: '+1 (555) 023-4567', bio: 'Full-stack developer. Building cool stuff with React and Node.' },
+  { id: 3, name: 'Sophia', avatar: 'https://i.pravatar.cc/150?u=3', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Sophia', 4), username: 'sophiaarts', phone: '+1 (555) 034-5678', bio: 'Digital artist and illustrator. Open for commissions!' },
+  { id: 4, name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=4', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Sarah', 1), username: 'sarah.j', phone: '+1 (555) 045-6789', bio: 'Frontend engineer @ TechCorp. Tailwind enthusiast.' },
+  { id: 5, name: 'Mike', avatar: 'https://i.pravatar.cc/150?u=5', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Mike', 2), username: 'mikebuilds', phone: '+1 (555) 056-7890', bio: 'Product manager by day, gamer by night.' },
+  { id: 6, name: 'Anna', avatar: 'https://i.pravatar.cc/150?u=6', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Anna', 2), username: 'annadesign', phone: '+1 (555) 067-8901', bio: 'Visual designer. Minimalism is the ultimate sophistication.' },
+  { id: 16, name: 'Oliver', avatar: 'https://i.pravatar.cc/150?u=16', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Oliver', 3), username: 'oliver.k', phone: '+1 (555) 160-1234', bio: 'Backend engineer. Rust and Go advocate.' },
+  { id: 17, name: 'Isabella', avatar: 'https://i.pravatar.cc/150?u=17', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Isabella', 1), username: 'isabella_m', phone: '+1 (555) 170-2345', bio: 'Data scientist exploring the world of ML.' },
+  { id: 7, name: 'Chris', avatar: 'https://i.pravatar.cc/150?u=7', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Chris', 1), username: 'chriscode', phone: '+1 (555) 078-9012', bio: 'DevOps wizard. Automating everything.' },
+  { id: 8, name: 'David', avatar: 'https://i.pravatar.cc/150?u=8', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('David', 3), username: 'davidchen', phone: '+1 (555) 089-0123', bio: 'API architect. Building the backend of the future.' },
+  { id: 9, name: 'Emma', avatar: 'https://i.pravatar.cc/150?u=9', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Emma', 4), username: 'emmawilson', phone: '+1 (555) 090-1234', bio: 'React Native dev. Mobile-first mindset.' },
+  { id: 18, name: 'Ethan', avatar: 'https://i.pravatar.cc/150?u=18', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Ethan', 2), username: 'ethan.dev', phone: '+1 (555) 180-3456', bio: 'Systems programmer. Low-level is the best level.' },
+  { id: 10, name: 'James', avatar: 'https://i.pravatar.cc/150?u=10', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('James', 3), username: 'jameslee', phone: '+1 (555) 101-2345', bio: 'Cloud architect @ AWS. Distributed systems fan.' },
+  { id: 11, name: 'Lily', avatar: 'https://i.pravatar.cc/150?u=11', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Lily', 2), username: 'lilyhikes', phone: '+1 (555) 112-3456', bio: 'Outdoor enthusiast and nature photographer.' },
+  { id: 19, name: 'Mia', avatar: 'https://i.pravatar.cc/150?u=19', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Mia', 1), username: 'mia.creates', phone: '+1 (555) 190-4567', bio: 'Content creator and social media strategist.' },
+  { id: 12, name: 'Tom', avatar: 'https://i.pravatar.cc/150?u=12', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Tom', 2), username: 'tomwrites', phone: '+1 (555) 123-4567', bio: 'Technical writer. Making docs people actually read.' },
+  { id: 13, name: 'Nina', avatar: 'https://i.pravatar.cc/150?u=13', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Nina', 1), username: 'ninapm', phone: '+1 (555) 134-5678', bio: 'Project manager keeping teams in sync.' },
+  { id: 14, name: 'Leo', avatar: 'https://i.pravatar.cc/150?u=14', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Leo', 2), username: 'leomotion', phone: '+1 (555) 145-6789', bio: 'Motion designer and animator. After Effects wizard.' },
+  { id: 15, name: 'Maya', avatar: 'https://i.pravatar.cc/150?u=15', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Maya', 2), username: 'mayatrails', phone: '+1 (555) 156-7890', bio: 'Trail runner and adventure seeker.' },
+  { id: 20, name: 'Noah', avatar: 'https://i.pravatar.cc/150?u=20', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Noah', 1), username: 'noahcodes', phone: '+1 (555) 200-5678', bio: 'Indie hacker building micro-SaaS products.' },
+  { id: 21, name: 'Ava', avatar: 'https://i.pravatar.cc/150?u=21', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Ava', 2), username: 'avagreen', phone: '+1 (555) 210-6789', bio: 'Environmental scientist and sustainability advocate.' },
+  { id: 22, name: 'William', avatar: 'https://i.pravatar.cc/150?u=22', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('William', 3), username: 'willcraft', phone: '+1 (555) 220-7890', bio: 'Game developer. Unity & Unreal Engine.' },
+  { id: 23, name: 'Charlotte', avatar: 'https://i.pravatar.cc/150?u=23', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Charlotte', 1), username: 'charlotteux', phone: '+1 (555) 230-8901', bio: 'UX researcher. Understanding users is my superpower.' },
+  { id: 24, name: 'Benjamin', avatar: 'https://i.pravatar.cc/150?u=24', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Benjamin', 2), username: 'benstack', phone: '+1 (555) 240-9012', bio: 'Full-stack TypeScript developer. Next.js fanatic.' },
+  { id: 25, name: 'Amelia', avatar: 'https://i.pravatar.cc/150?u=25', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Amelia', 1), username: 'ameliaink', phone: '+1 (555) 250-0123', bio: 'Graphic designer and brand identity specialist.' },
+  { id: 26, name: 'Elijah', avatar: 'https://i.pravatar.cc/150?u=26', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Elijah', 2), username: 'elijahml', phone: '+1 (555) 260-1234', bio: 'Machine learning engineer. Building intelligent systems.' },
 ];
 
 const initialGroups = [
@@ -1031,6 +1031,7 @@ export default function App() {
             onToggleAdminMessaging={handleToggleAdminMessaging}
             onToggleStarMessage={handleToggleStarMessage}
             onForwardMessage={setForwardingMsg}
+            groups={groups}
           />
         )}
       </main>
@@ -2863,7 +2864,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -3170,8 +3171,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <ArrowLeft size={18} />
           </button>
           <div 
-            className={`flex items-center gap-3 min-w-0 flex-1 ${chat.isGroup ? 'cursor-pointer' : ''}`}
-            onClick={() => chat.isGroup && setShowDetails(true)}
+            className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
+            onClick={() => setShowDetails(true)}
           >
             <div className="relative flex-shrink-0">
               {chat.isGroup ? (
@@ -3924,6 +3925,186 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           </div>
         </div>
       )}
+
+      {/* Individual User Info Panel */}
+      {showDetails && !chat.isGroup && (() => {
+        const userFriend = friends.find(f => f.id === chat.id);
+        const sharedGroups = (groups || []).filter(g => g.memberIds && g.memberIds.includes(chat.id) && g.memberIds.includes(currentUser.id));
+        const userStarred = messages.filter(m => m.isStarred && !m.isDeleted && m.type !== 'system');
+        return (
+          <div className="absolute inset-0 z-50 bg-[#121214] flex flex-col animate-in slide-in-from-right-8 duration-300">
+            <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
+              <button onClick={() => setShowDetails(false)} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full">
+                <ArrowLeft size={18} />
+              </button>
+              <h2 className="text-base font-medium text-white tracking-tight">Contact Info</h2>
+            </header>
+
+            <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-6 [&::-webkit-scrollbar]:hidden pb-24">
+              {/* Profile Avatar & Name */}
+              <div className="flex flex-col items-center w-full text-center">
+                <div className="relative mb-4">
+                  <img src={chat.avatar} alt={chat.name} className="w-28 h-28 rounded-full shadow-xl ring-4 ring-white/[0.05]" />
+                  {chat.status === 'online' && (
+                    <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-[3px] border-[#121214] rounded-full" />
+                  )}
+                </div>
+                <h2 className="text-2xl font-bold text-white tracking-tight">{chat.name}</h2>
+                {userFriend?.username && (
+                  <p className="text-sm text-indigo-400 mt-0.5">@{userFriend.username}</p>
+                )}
+                <p className={`text-xs mt-1 font-medium ${chat.status === 'online' ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                  {chat.status === 'online' ? 'Online' : 'Offline'}
+                </p>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex items-center justify-center gap-6">
+                <button className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1a1a1c] border border-white/[0.04] flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20 transition-all">
+                    <Phone size={20} />
+                  </div>
+                  <span className="text-[11px] text-zinc-500 font-medium">Audio</span>
+                </button>
+                <button className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1a1a1c] border border-white/[0.04] flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20 transition-all">
+                    <Video size={20} />
+                  </div>
+                  <span className="text-[11px] text-zinc-500 font-medium">Video</span>
+                </button>
+                <button className="flex flex-col items-center gap-1.5 group">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1a1a1c] border border-white/[0.04] flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20 transition-all">
+                    <Search size={20} />
+                  </div>
+                  <span className="text-[11px] text-zinc-500 font-medium">Search</span>
+                </button>
+              </div>
+
+              {/* Bio / About */}
+              {userFriend?.bio && (
+                <section>
+                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">About</h3>
+                  <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] p-5">
+                    <p className="text-sm text-zinc-200 leading-relaxed">{userFriend.bio}</p>
+                  </div>
+                </section>
+              )}
+
+              {/* Contact Details */}
+              <section>
+                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Details</h3>
+                <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] overflow-hidden">
+                  {userFriend?.phone && (
+                    <div className="flex items-center gap-4 p-4 border-b border-white/[0.02]">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                        <Phone size={16} className="text-emerald-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-white font-medium">{userFriend.phone}</p>
+                        <p className="text-xs text-zinc-500">Phone</p>
+                      </div>
+                    </div>
+                  )}
+                  {userFriend?.username && (
+                    <div className="flex items-center gap-4 p-4">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
+                        <Globe size={16} className="text-indigo-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-white font-medium">@{userFriend.username}</p>
+                        <p className="text-xs text-zinc-500">Username</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Starred Messages */}
+              {userStarred.length > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Starred Messages</h3>
+                  <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] flex flex-col overflow-hidden">
+                    {userStarred.slice(0, 5).map((msg, idx) => (
+                      <div 
+                        key={msg.id}
+                        onClick={() => {
+                          setShowDetails(false);
+                          setTimeout(() => {
+                            const el = document.getElementById(`message-${msg.id}`);
+                            const bubble = document.getElementById(`bubble-${msg.id}`);
+                            const container = scrollContainerRef.current;
+                            if (el && container) {
+                              container.style.scrollBehavior = 'auto';
+                              container.scrollTop = el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
+                              requestAnimationFrame(() => { container.style.scrollBehavior = 'smooth'; });
+                            }
+                            if (bubble) {
+                              bubble.classList.add('ring-4', 'ring-indigo-500/50', 'scale-[1.02]');
+                              setTimeout(() => bubble.classList.remove('ring-4', 'ring-indigo-500/50', 'scale-[1.02]'), 2000);
+                            }
+                          }, 100);
+                        }}
+                        className={`p-4 flex flex-col gap-1 hover:bg-white/5 transition-colors cursor-pointer ${idx !== 0 ? 'border-t border-white/[0.02]' : ''}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-white">
+                            {msg.senderId === currentUser.id ? 'You' : chat.name}
+                          </span>
+                          <span className="text-xs text-zinc-500">{formatMessageTime(msg.timestamp)}</span>
+                        </div>
+                        <p className="text-sm text-zinc-300 line-clamp-2">{msg.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Shared Groups */}
+              {sharedGroups.length > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">{sharedGroups.length} Group{sharedGroups.length !== 1 ? 's' : ''} in Common</h3>
+                  <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] flex flex-col overflow-hidden">
+                    {sharedGroups.map((g, idx) => (
+                      <div
+                        key={g.id}
+                        className={`flex items-center gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer ${idx !== 0 ? 'border-t border-white/[0.02]' : ''}`}
+                        onClick={() => { setShowDetails(false); onBack(); setTimeout(() => onStartChat(g.id), 100); }}
+                      >
+                        <div className={`w-10 h-10 rounded-xl ${g.icon || 'bg-indigo-500'} flex items-center justify-center text-white shrink-0`}>
+                          <Hash size={16} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-sm font-medium text-white truncate">{g.name}</h4>
+                          <p className="text-xs text-zinc-500 truncate">{g.members} members</p>
+                        </div>
+                        <ChevronRight size={16} className="text-zinc-600 shrink-0" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Danger Zone */}
+              <section className="space-y-2">
+                <button onClick={() => setReportStep('category')} className="w-full flex items-center gap-3 p-4 bg-[#1a1a1c] hover:bg-white/5 transition-colors rounded-2xl text-red-400 font-medium text-sm">
+                  <span className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center"><Flag size={16} /></span>
+                  Report {chat.name}
+                </button>
+                <button onClick={() => setShowBlockConfirm(true)} className="w-full flex items-center gap-3 p-4 bg-[#1a1a1c] hover:bg-white/5 transition-colors rounded-2xl text-red-400 font-medium text-sm">
+                  <span className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center"><Ban size={16} /></span>
+                  Block {chat.name}
+                </button>
+                {chat.isConnected && (
+                  <button onClick={() => setShowDisconnectConfirm(true)} className="w-full flex items-center gap-3 p-4 bg-red-500/10 hover:bg-red-500/20 transition-colors rounded-2xl text-red-500 font-medium text-sm">
+                    <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center"><UserMinus size={16} /></span>
+                    Disconnect
+                  </button>
+                )}
+              </section>
+            </div>
+          </div>
+        );
+      })()}
 
       {showAddMember && (
         <div className="absolute inset-0 z-[110] bg-[#0a0a0c] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
