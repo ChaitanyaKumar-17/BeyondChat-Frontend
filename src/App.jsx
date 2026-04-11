@@ -1381,7 +1381,7 @@ function CallsView({ callLogs, friends, groups, onOverlayChange, isActive }) {
         </div>
       )}
 
-      <header className="px-6 py-6 md:px-0 flex justify-between items-center flex-shrink-0">
+      <header className="px-6 py-6 md:px-0 flex justify-between items-center min-h-[94px] flex-shrink-0">
         <h1 className="text-2xl font-semibold text-white tracking-tight">Call History</h1>
         <button 
           onClick={handleOpenNewCall}
@@ -1562,7 +1562,7 @@ function RequestsView({ sentReqs, receivedReqs, onAccept, onReject, onWithdraw }
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden">
-      <header className="px-6 py-6 md:px-0 flex-shrink-0">
+      <header className="px-6 py-6 md:px-0 flex items-center min-h-[94px] flex-shrink-0">
         <h1 className="text-2xl font-semibold text-white tracking-tight">Requests</h1>
       </header>
 
