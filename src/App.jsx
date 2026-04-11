@@ -201,6 +201,8 @@ const initialFriends = [
 ];
 
 const initialGroups = [
+  { id: 1001, name: 'Announcements', description: 'Community broadcast channel.', members: 4, memberIds: [0, 1, 4, 8, 6, 9, 12], adminIds: [0], unread: 2, icon: 'bg-indigo-700', isGroup: true, onlyAdminsCanMessage: true, pinnedMessage: null, isBroadcast: true },
+  { id: 1002, name: 'Announcements', description: 'Community broadcast channel.', members: 5, memberIds: [0, 11, 15, 1, 5, 7, 10], adminIds: [0], unread: 0, icon: 'bg-rose-700', isGroup: true, onlyAdminsCanMessage: true, pinnedMessage: null, isBroadcast: true },
   { id: 101, name: 'Design System Team', description: 'Core UI/UX discussions and system updates.', members: 4, memberIds: [0, 1, 4, 8], adminIds: [0], unread: 3, icon: 'bg-purple-500', isGroup: true, onlyAdminsCanMessage: false, pinnedMessage: null },
   { id: 102, name: 'Frontend Guild', description: 'React, Tailwind, and Web Dev.', members: 3, memberIds: [0, 6, 9], adminIds: [6], unread: 0, icon: 'bg-blue-500', isGroup: true, onlyAdminsCanMessage: false, pinnedMessage: null },
   { id: 103, name: 'Weekend Hikers', description: 'Planning weekend hiking trips.', members: 3, memberIds: [0, 11, 15], adminIds: [11], unread: 1, icon: 'bg-emerald-500', isGroup: true, onlyAdminsCanMessage: false, pinnedMessage: null },
@@ -212,6 +214,11 @@ const mockChannels = [
   { id: 201, name: 'announcements', members: 1200, type: 'channel' },
   { id: 202, name: 'general', members: 850, type: 'channel' },
   { id: 203, name: 'design-inspo', members: 430, type: 'channel' },
+];
+
+const initialCommunities = [
+  { id: 'com1', name: 'Tech Innovators', short: 'TI', icon: 'bg-indigo-600', groupIds: [1001, 101, 102, 104] },
+  { id: 'com2', name: 'Social Club', short: 'SC', icon: 'bg-rose-600', groupIds: [1002, 103, 105] },
 ];
 
 const initialGlobalUsers = [
@@ -450,6 +457,28 @@ const initialChats = [
       { id: 400, senderId: 4, text: 'Hey Alex!', timestamp: nowMs - 40 * DAY - 10 * MIN },
       { id: 401, senderId: 4, text: 'Could you send over the hex codes?', timestamp: nowMs - 40 * DAY },
     ]
+  },
+  {
+    id: 1001,
+    isGroup: true,
+    name: 'Announcements',
+    icon: 'bg-indigo-700',
+    messages: [
+      { id: 9001, type: 'system', actorId: 0, text: 'created the broadcast channel', timestamp: nowMs - 7 * DAY },
+      { id: 9002, senderId: 0, text: 'Welcome to the Tech Innovators community! This is the official broadcast channel.', timestamp: nowMs - 7 * DAY + 5 * MIN },
+      { id: 9003, senderId: 0, text: 'Reminder: Team sync is tomorrow at 10 AM.', timestamp: nowMs - 1 * DAY },
+      { id: 9004, senderId: 0, text: 'We just shipped v2.0 of the design system! ' + E('1F389'), timestamp: nowMs - 2 * HOUR },
+    ]
+  },
+  {
+    id: 1002,
+    isGroup: true,
+    name: 'Announcements',
+    icon: 'bg-rose-700',
+    messages: [
+      { id: 9010, type: 'system', actorId: 0, text: 'created the broadcast channel', timestamp: nowMs - 14 * DAY },
+      { id: 9011, senderId: 0, text: 'Welcome to Social Club community!', timestamp: nowMs - 14 * DAY + 5 * MIN },
+    ]
   }
 ];
 
@@ -499,6 +528,9 @@ export default function App() {
   
   const [friends, setFriends] = useState(initialFriends);
   const [groups, setGroups] = useState(initialGroups);
+  const [communities, setCommunities] = useState(initialCommunities);
+  const [activeCommunityId, setActiveCommunityId] = useState(null);
+  const [communityGroupChatId, setCommunityGroupChatId] = useState(null);
   const [myStories, setMyStories] = useState(initialMyStories);
   const [globalUsers] = useState(initialGlobalUsers);
   const [sentReqs, setSentReqs] = useState([]);
@@ -929,6 +961,14 @@ export default function App() {
   ]);
   const totalUnreadCount = unreadChatIds.size;
 
+  const communityUnreadCount = communities.reduce((total, c) => {
+    const hasUnread = c.groupIds.some(gid => {
+      const g = groups.find(x => x.id === gid);
+      return g && g.unread > 0;
+    });
+    return total + (hasUnread ? 1 : 0);
+  }, 0);
+
   return (
     <div className="fixed inset-0 flex flex-col bg-[#0a0a0c] text-zinc-200 font-sans md:p-4 overflow-hidden selection:bg-indigo-500/30 cursor-default w-full max-w-[100vw]">
       
@@ -945,7 +985,7 @@ export default function App() {
         <div className="absolute inset-0" style={{ display: selectedChatId ? 'none' : 'block' }}>
           
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            (activeNav === 'home' || activeNav === 'chats') ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+            activeNav === 'home' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
             <HomeDashboard 
               onSelectChat={handleSelectChat} 
@@ -993,6 +1033,21 @@ export default function App() {
             />
           </div>
 
+          <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+            activeNav === 'community' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+          }`}>
+            <CommunityView 
+              communities={communities} 
+              groups={groups} 
+              activeCommunityId={activeCommunityId} 
+              setActiveCommunityId={setActiveCommunityId}
+              onSelectGroup={(gid) => {
+                setCommunityGroupChatId(gid);
+                handleSelectChat(gid);
+              }}
+            />
+          </div>
+
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center justify-center text-zinc-500 pb-32 ${
             activeNav === 'settings' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
@@ -1002,39 +1057,43 @@ export default function App() {
       </div>
         
       {selectedChatId && activeChat && (
-        <ChatView 
-          key={activeChat.id}
-          chat={activeChat} 
-          onBack={() => setSelectedChatId(null)} 
-          sentReqs={sentReqs}
-            onSendReq={handleSendReq}
-            onWithdrawReq={handleWithdrawReq}
-            receivedReqs={receivedReqs}
-            onAcceptReq={handleAcceptReq}
-            onRejectReq={handleRejectReq}
-            onSendMessage={handleSendMessageGlobal}
-            onReactToMessage={handleReactToMessageGlobal}
-            friends={friends}
-            typingIndicators={typingIndicators}
-            onTyping={handleTypingGlobal}
-            onLeaveGroup={handleLeaveGroup}
-            onBlock={handleBlock}
-            onReport={handleReport}
-            onDisconnect={handleDisconnect}
-            onUpdateGroupInfo={handleUpdateGroupInfo}
-            onRemoveMembers={handleRemoveMembers}
-            onToggleAdmin={handleToggleAdmin}
-            onAddMembers={handleAddMembers}
-            onDeleteMessage={handleDeleteMessage}
-            onStartChat={handleStartChat}
-            onPinMessage={handlePinMessage}
-            onToggleAdminMessaging={handleToggleAdminMessaging}
-            onToggleStarMessage={handleToggleStarMessage}
-            onForwardMessage={setForwardingMsg}
-            groups={groups}
-            globalUsers={globalUsers}
-          />
-        )}
+        <div className="flex h-full w-full">
+          <div className="flex-1 min-w-0 relative">
+            <ChatView 
+              key={activeChat.id}
+              chat={activeChat} 
+              onBack={() => { setSelectedChatId(null); setCommunityGroupChatId(null); }} 
+              sentReqs={sentReqs}
+              onSendReq={handleSendReq}
+              onWithdrawReq={handleWithdrawReq}
+              receivedReqs={receivedReqs}
+              onAcceptReq={handleAcceptReq}
+              onRejectReq={handleRejectReq}
+              onSendMessage={handleSendMessageGlobal}
+              onReactToMessage={handleReactToMessageGlobal}
+              friends={friends}
+              typingIndicators={typingIndicators}
+              onTyping={handleTypingGlobal}
+              onLeaveGroup={handleLeaveGroup}
+              onBlock={handleBlock}
+              onReport={handleReport}
+              onDisconnect={handleDisconnect}
+              onUpdateGroupInfo={handleUpdateGroupInfo}
+              onRemoveMembers={handleRemoveMembers}
+              onToggleAdmin={handleToggleAdmin}
+              onAddMembers={handleAddMembers}
+              onDeleteMessage={handleDeleteMessage}
+              onStartChat={handleStartChat}
+              onPinMessage={handlePinMessage}
+              onToggleAdminMessaging={handleToggleAdminMessaging}
+              onToggleStarMessage={handleToggleStarMessage}
+              onForwardMessage={setForwardingMsg}
+              groups={groups}
+              globalUsers={globalUsers}
+            />
+          </div>
+        </div>
+      )}
       </main>
 
       <NewChatModal 
@@ -1119,8 +1178,9 @@ export default function App() {
           />
           <NavButton 
             icon={<Globe size={22} />} 
-            active={activeNav === 'chats'} 
-            onClick={() => setActiveNav('chats')} 
+            active={activeNav === 'community'} 
+            onClick={() => { setActiveNav('community'); setActiveCommunityId(null); setSelectedChatId(null); setCommunityGroupChatId(null); }} 
+            badgeCount={communityUnreadCount > 0 ? communityUnreadCount : null}
           />
           <NavButton 
             icon={<Users size={22} />} 
@@ -4452,5 +4512,113 @@ function NavButton({ icon, active, onClick, hasBadge, badgeCount }) {
         </span>
       )}
     </button>
+  );
+}
+
+function CommunitySidebar({ communities, groups, activeCommunityId, setActiveCommunityId, onCommunityClick }) {
+  return (
+    <div className="w-[64px] flex-shrink-0 bg-[#0a0a0c] border-r border-white/10 flex flex-col items-center py-4 gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden z-10 pb-24">
+        {communities.map(c => {
+           const hasUnread = c.groupIds.some(gid => { const g = groups.find(x => x.id === gid); return g && g.unread > 0 });
+           return (
+           <div key={c.id} 
+                onClick={() => { setActiveCommunityId(c.id); if (onCommunityClick) onCommunityClick(c.id); }} 
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-white cursor-pointer relative transition-all ${activeCommunityId === c.id ? 'rounded-xl ' + c.icon : 'bg-[#1a1a1c] hover:bg-white/5 hover:rounded-xl text-zinc-400 hover:text-white'}`}>
+             {c.short}
+             {hasUnread && (
+                <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-[#0a0a0c]"></div>
+             )}
+             {activeCommunityId === c.id && (
+                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-r-full"></div>
+             )}
+           </div>
+        )})}
+    </div>
+  );
+}
+
+function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, setActiveCommunityId }) {
+  if (!activeCommunityId) {
+    return (
+      <div className="flex h-full w-full">
+        <div className="flex-1 bg-[#121214] overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24">
+          <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center">
+            <h1 className="text-2xl font-semibold text-white tracking-tight">Communities</h1>
+          </header>
+          <div className="p-4 space-y-2">
+            {communities.map(community => {
+              const hasUnread = community.groupIds.some(gid => {
+                const g = groups.find(x => x.id === gid);
+                return g && g.unread > 0;
+              });
+              
+              return (
+                <div key={community.id} onClick={() => setActiveCommunityId(community.id)} className="flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-12 h-12 rounded-full ${community.icon} flex items-center justify-center flex-shrink-0 text-white font-bold`}>
+                        {community.short}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                           <h3 className="text-[15px] font-semibold text-white truncate">{community.name}</h3>
+                        </div>
+                        <p className="text-sm text-zinc-400 truncate">{community.groupIds.length} groups</p>
+                      </div>
+                    </div>
+                    {hasUnread && (
+                      <div className="w-3 h-3 bg-red-500 rounded-full border-2 border-[#121214] ml-2"></div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full w-full">
+      <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
+      <div className="flex-1 bg-[#121214] overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24">
+        <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center gap-3">
+          <button onClick={() => setActiveCommunityId(null)} className="md:hidden p-2 -ml-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors flex-shrink-0">
+             <ChevronLeft size={24} />
+          </button>
+          <h1 className="text-2xl font-semibold text-white tracking-tight truncate">{communities.find(c => c.id === activeCommunityId)?.name}</h1>
+        </header>
+        <div className="p-4 space-y-2">
+          {communities.find(c => c.id === activeCommunityId)?.groupIds.map(gid => {
+            const group = groups.find(g => g.id === gid);
+            if (!group) return null;
+            return (
+              <div key={gid} onClick={() => onSelectGroup(gid)} className="flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-12 h-12 rounded-full ${group.icon} flex items-center justify-center flex-shrink-0 text-white font-bold`}>
+                       {group.isBroadcast ? <Globe size={20} /> : <Hash size={20} />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                         <h3 className="text-[15px] font-semibold text-white truncate">{group.name}</h3>
+                         {group.isBroadcast && <span className="bg-emerald-500/10 text-emerald-400 text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0"><Check size={10} />Broadcast</span>}
+                      </div>
+                      <p className="text-sm text-zinc-400 truncate">{group.description}</p>
+                    </div>
+                  </div>
+                  {group.unread > 0 && (
+                    <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 ml-2">
+                      {group.unread}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
