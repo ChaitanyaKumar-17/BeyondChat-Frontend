@@ -4540,7 +4540,7 @@ function CommunitySidebar({ communities, groups, activeCommunityId, setActiveCom
 function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, setActiveCommunityId }) {
   if (!activeCommunityId) {
     return (
-      <div className="flex h-full w-full">
+      <div className="flex h-full w-full animate-in fade-in zoom-in-95 duration-300">
         <div className="flex-1 bg-[#121214] overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24">
           <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center">
             <h1 className="text-2xl font-semibold text-white tracking-tight">Communities</h1>
@@ -4553,10 +4553,10 @@ function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, 
               });
               
               return (
-                <div key={community.id} onClick={() => setActiveCommunityId(community.id)} className="flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
+                <div key={community.id} onClick={() => setActiveCommunityId(community.id)} className="group flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-12 h-12 rounded-full ${community.icon} flex items-center justify-center flex-shrink-0 text-white font-bold`}>
+                      <div className={`w-12 h-12 rounded-full ${community.icon} flex items-center justify-center flex-shrink-0 text-white font-bold transition-transform group-hover:scale-105`}>
                         {community.short}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -4580,14 +4580,14 @@ function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, 
   }
 
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-full w-full animate-in fade-in slide-in-from-right-4 duration-300">
       <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
       <div className="flex-1 bg-[#121214] overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24">
         <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center gap-3">
-          <button onClick={() => setActiveCommunityId(null)} className="md:hidden p-2 -ml-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors flex-shrink-0">
+          <button onClick={() => setActiveCommunityId(null)} className="p-2 -ml-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all active:scale-95 flex-shrink-0">
              <ChevronLeft size={24} />
           </button>
-          <h1 className="text-2xl font-semibold text-white tracking-tight truncate">{communities.find(c => c.id === activeCommunityId)?.name}</h1>
+          <h1 className="text-2xl font-semibold text-white tracking-tight truncate animate-in fade-in slide-in-from-bottom-2 duration-300">{communities.find(c => c.id === activeCommunityId)?.name}</h1>
         </header>
         <div className="p-4 space-y-2">
           {communities.find(c => c.id === activeCommunityId)?.groupIds.map(gid => {
