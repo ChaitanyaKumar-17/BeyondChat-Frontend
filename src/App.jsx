@@ -543,6 +543,16 @@ export default function App() {
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [forwardingMsg, setForwardingMsg] = useState(null);
   const [overlayStates, setOverlayStates] = useState({ home: false, calls: false });
+  const [isChatClosing, setIsChatClosing] = useState(false);
+  
+  const handleCloseChat = () => {
+    setIsChatClosing(true);
+    setTimeout(() => {
+      setSelectedChatId(null);
+      setCommunityGroupChatId(null);
+      setIsChatClosing(false);
+    }, 300);
+  };
   
   const handleOverlayChange = useCallback((source, isActive) => {
     setOverlayStates(prev => ({ ...prev, [source]: isActive }));
@@ -982,10 +992,12 @@ export default function App() {
       )}
 
       <main className="flex-1 flex flex-col overflow-hidden relative w-full h-full max-w-7xl mx-auto min-h-0">
-        <div className="absolute inset-0" style={{ display: selectedChatId ? 'none' : 'block' }}>
+        <div className={`absolute inset-0 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] z-10 ${
+          (selectedChatId && !isChatClosing) ? 'opacity-0 -translate-x-[20%] pointer-events-none scale-[0.98]' : 'opacity-100 translate-x-0  scale-100'
+        }`}>
           
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            activeNav === 'home' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+            activeNav === 'home' ? 'opacity-100 translate-y-0  scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
             <HomeDashboard 
               onSelectChat={handleSelectChat} 
@@ -1010,7 +1022,7 @@ export default function App() {
           </div>
           
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            activeNav === 'teams' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+            activeNav === 'teams' ? 'opacity-100 translate-y-0  scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
             <RequestsView 
               sentReqs={sentReqs}
@@ -1022,7 +1034,7 @@ export default function App() {
           </div>
 
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            activeNav === 'calls' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+            activeNav === 'calls' ? 'opacity-100 translate-y-0  scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
             <CallsView 
               callLogs={mockCallLogs} 
@@ -1034,7 +1046,7 @@ export default function App() {
           </div>
 
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            activeNav === 'community' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+            activeNav === 'community' ? 'opacity-100 translate-y-0  scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
             <CommunityView 
               communities={communities} 
@@ -1049,20 +1061,23 @@ export default function App() {
           </div>
 
           <div className={`absolute inset-0 transition-all duration-150 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center justify-center text-zinc-500 pb-32 ${
-            activeNav === 'settings' ? 'opacity-100 translate-y-0 pointer-events-auto scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
+            activeNav === 'settings' ? 'opacity-100 translate-y-0  scale-100' : 'opacity-0 translate-y-4 pointer-events-none scale-[0.98]'
           }`}>
             Building the settings module...
         </div>
 
       </div>
         
-      {selectedChatId && activeChat && (
-        <div className="flex h-full w-full">
-          <div className="flex-1 min-w-0 relative">
-            <ChatView 
-              key={activeChat.id}
+      <div className={`absolute inset-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+        (selectedChatId && activeChat && !isChatClosing) ? 'translate-x-0 opacity-100 ' : 'translate-x-[20%] opacity-0 pointer-events-none'
+      }`}>
+        {selectedChatId && activeChat && (
+          <div className="flex h-full w-full bg-[#121214] shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
+            <div className="flex-1 min-w-0 relative">
+              <ChatView 
+                key={activeChat.id}
               chat={activeChat} 
-              onBack={() => { setSelectedChatId(null); setCommunityGroupChatId(null); }} 
+              onBack={handleCloseChat} 
               sentReqs={sentReqs}
               onSendReq={handleSendReq}
               onWithdrawReq={handleWithdrawReq}
@@ -1091,9 +1106,10 @@ export default function App() {
               groups={groups}
               globalUsers={globalUsers}
             />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       </main>
 
       <NewChatModal 
@@ -1157,7 +1173,7 @@ export default function App() {
       <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#121214]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-2 flex items-center shadow-2xl z-50 w-auto max-w-[95vw] overflow-x-auto ring-1 ring-white/[0.02] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         (selectedChatId || isGlobalOverlayActive || showNewChatModal || forwardingMsg) 
           ? 'opacity-0 pointer-events-none translate-y-4 scale-95' 
-          : 'opacity-100 pointer-events-auto translate-y-0 scale-100'
+          : 'opacity-100  translate-y-0 scale-100'
       }`}>
         <div className="flex items-center gap-1 md:gap-2 px-1">
           <NavButton 
@@ -1173,13 +1189,13 @@ export default function App() {
           <NavButton 
             icon={<Home size={22} />} 
             active={activeNav === 'home'} 
-            onClick={() => {setActiveNav('home'); setSelectedChatId(null);}} 
+            onClick={() => {setActiveNav('home'); if (selectedChatId) handleCloseChat(); else setSelectedChatId(null);}} 
             badgeCount={totalUnreadCount > 0 ? totalUnreadCount : null}
           />
           <NavButton 
             icon={<Globe size={22} />} 
             active={activeNav === 'community'} 
-            onClick={() => { setActiveNav('community'); setActiveCommunityId(null); setSelectedChatId(null); setCommunityGroupChatId(null); }} 
+            onClick={() => { setActiveNav('community'); setActiveCommunityId(null); if (selectedChatId) handleCloseChat(); else { setSelectedChatId(null); setCommunityGroupChatId(null); } }} 
             badgeCount={communityUnreadCount > 0 ? communityUnreadCount : null}
           />
           <NavButton 
@@ -1240,7 +1256,7 @@ function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) 
     <div 
       className={`absolute inset-0 z-[100] bg-[#0a0a0c] flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         isOpen 
-          ? 'opacity-100 translate-y-0 pointer-events-auto' 
+          ? 'opacity-100 translate-y-0 ' 
           : 'opacity-0 translate-y-16 pointer-events-none'
       }`}
     >
@@ -1543,7 +1559,7 @@ function CallsView({ callLogs, friends, groups, onOverlayChange, isActive }) {
       <div 
         className={`absolute inset-0 z-[100] bg-[#0a0a0c] flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
           showNewCall 
-            ? 'opacity-100 translate-y-0 pointer-events-auto' 
+            ? 'opacity-100 translate-y-0 ' 
             : 'opacity-0 translate-y-16 pointer-events-none'
         }`}
       >
@@ -2143,7 +2159,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
       <div 
         className={`absolute inset-0 z-[100] bg-[#0a0a0c] flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
           isSearchActive 
-            ? 'opacity-100 translate-y-0 pointer-events-auto' 
+            ? 'opacity-100 translate-y-0 ' 
             : 'opacity-0 translate-y-16 pointer-events-none'
         }`}
       >
@@ -2395,7 +2411,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
               <div className={`absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-[#0a0a0c]/0 sm:from-[#0a0a0c] to-[#0a0a0c]/0 z-40 flex items-center pointer-events-none transition-all duration-300 ease-in-out ${showLeftArrow ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
                 <button 
                   onClick={() => scroll('left')}
-                  className="ml-1 md:ml-2 p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/[0.08] rounded-full text-white shadow-lg pointer-events-auto cursor-pointer hidden sm:flex"
+                  className="ml-1 md:ml-2 p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/[0.08] rounded-full text-white shadow-lg  cursor-pointer hidden sm:flex"
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -2435,7 +2451,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
               <div className={`absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-[#0a0a0c]/0 sm:from-[#0a0a0c] to-[#0a0a0c]/0 z-40 flex items-center justify-end pointer-events-none transition-all duration-300 ease-in-out ${showRightArrow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
                 <button 
                   onClick={() => scroll('right')}
-                  className="mr-1 md:mr-2 p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/[0.08] rounded-full text-white shadow-lg pointer-events-auto cursor-pointer hidden sm:flex"
+                  className="mr-1 md:mr-2 p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/[0.08] rounded-full text-white shadow-lg  cursor-pointer hidden sm:flex"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -2821,7 +2837,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         {hasPhysicalPrev && (
           <button 
             onClick={handlePrev}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-white transition-all duration-300 hover:scale-110 active:scale-95 pointer-events-auto flex items-center justify-center"
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-white transition-all duration-300 hover:scale-110 active:scale-95  flex items-center justify-center"
           >
             <ChevronLeft className="w-6 h-6 md:w-5 md:h-5" />
           </button>
@@ -2830,7 +2846,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         {hasPhysicalNext && (
           <button 
             onClick={handleNext}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-white transition-all duration-300 hover:scale-110 active:scale-95 pointer-events-auto flex items-center justify-center"
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-white transition-all duration-300 hover:scale-110 active:scale-95  flex items-center justify-center"
           >
             <ChevronRight className="w-6 h-6 md:w-5 md:h-5" />
           </button>
@@ -2900,7 +2916,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
           </div>
         )}
 
-        <div className={`absolute inset-0 z-[130] flex items-end md:items-center justify-center transition-opacity duration-200 ease-out ${showViewersList ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`absolute inset-0 z-[130] flex items-end md:items-center justify-center transition-opacity duration-200 ease-out ${showViewersList ? 'opacity-100 ' : 'opacity-0 pointer-events-none'}`}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md transform-gpu" style={{ willChange: 'opacity, backdrop-filter' }} onClick={() => setShowViewersList(false)}></div>
           <div className={`bg-[#1a1a1c] w-full h-[60vh] md:h-auto md:max-h-[70vh] md:max-w-sm rounded-t-3xl md:rounded-3xl flex flex-col shadow-2xl relative z-10 border border-white/10 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${showViewersList ? 'translate-y-0 md:scale-100' : 'translate-y-full md:translate-y-8 md:scale-95'}`}>
             <div className="p-5 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#1a1a1c] rounded-t-3xl md:rounded-3xl z-10">
@@ -4538,10 +4554,21 @@ function CommunitySidebar({ communities, groups, activeCommunityId, setActiveCom
 }
 
 function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, setActiveCommunityId }) {
-  if (!activeCommunityId) {
-    return (
-      <div className="flex h-full w-full animate-in fade-in zoom-in-95 duration-300">
-        <div className="flex-1 bg-[#121214] overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24">
+  const [displayCommunityId, setDisplayCommunityId] = useState(activeCommunityId);
+  
+  useEffect(() => {
+    if (activeCommunityId) {
+      setDisplayCommunityId(activeCommunityId);
+    }
+  }, [activeCommunityId]);
+
+  return (
+    <div className="relative h-full w-full overflow-hidden bg-[#121214]">
+      {/* Root Communities List */}
+      <div className={`absolute inset-0 flex transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] z-10 ${
+        !activeCommunityId ? 'opacity-100 translate-x-0  scale-100' : 'opacity-0 -translate-x-[20%] pointer-events-none scale-95'
+      }`}>
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col pb-24">
           <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center">
             <h1 className="text-2xl font-semibold text-white tracking-tight">Communities</h1>
           </header>
@@ -4556,12 +4583,12 @@ function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, 
                 <div key={community.id} onClick={() => setActiveCommunityId(community.id)} className="group flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-12 h-12 rounded-full ${community.icon} flex items-center justify-center flex-shrink-0 text-white font-bold transition-transform group-hover:scale-105`}>
+                      <div className={`w-12 h-12 rounded-full ${community.icon} flex items-center justify-center flex-shrink-0 text-white font-bold transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110 group-active:scale-95`}>
                         {community.short}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                           <h3 className="text-[15px] font-semibold text-white truncate">{community.name}</h3>
+                           <h3 className="text-[15px] font-semibold text-white truncate transition-colors group-hover:text-indigo-400">{community.name}</h3>
                         </div>
                         <p className="text-sm text-zinc-400 truncate">{community.groupIds.length} groups</p>
                       </div>
@@ -4576,47 +4603,54 @@ function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, 
           </div>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="flex h-full w-full animate-in fade-in slide-in-from-right-4 duration-300">
-      <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
-      <div className="flex-1 bg-[#121214] overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24">
-        <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center gap-3">
-          <button onClick={() => setActiveCommunityId(null)} className="p-2 -ml-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all active:scale-95 flex-shrink-0">
-             <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-2xl font-semibold text-white tracking-tight truncate animate-in fade-in slide-in-from-bottom-2 duration-300">{communities.find(c => c.id === activeCommunityId)?.name}</h1>
-        </header>
-        <div className="p-4 space-y-2">
-          {communities.find(c => c.id === activeCommunityId)?.groupIds.map(gid => {
-            const group = groups.find(g => g.id === gid);
-            if (!group) return null;
-            return (
-              <div key={gid} onClick={() => onSelectGroup(gid)} className="flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-12 h-12 rounded-full ${group.icon} flex items-center justify-center flex-shrink-0 text-white font-bold`}>
-                       {group.isBroadcast ? <Globe size={20} /> : <Hash size={20} />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                         <h3 className="text-[15px] font-semibold text-white truncate">{group.name}</h3>
-                         {group.isBroadcast && <span className="bg-emerald-500/10 text-emerald-400 text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0"><Check size={10} />Broadcast</span>}
+      {/* Community Sidebar */}
+      <div className={`absolute top-0 bottom-0 left-0 z-30 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+        activeCommunityId ? 'translate-x-0 opacity-100 ' : '-translate-x-full opacity-0 pointer-events-none'
+      }`}>
+        <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
+      </div>
+
+      {/* Community Groups List */}
+      <div className={`absolute top-0 bottom-0 right-0 z-20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+        activeCommunityId ? 'left-[64px] opacity-100 translate-x-0  scale-100' : 'left-[64px] opacity-0 translate-x-[20%] pointer-events-none scale-105'
+      }`}>
+        <div key={displayCommunityId} className="h-full overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24 bg-[#121214] animate-in fade-in slide-in-from-right-2 zoom-in-[0.98] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]">
+          <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center gap-3">
+            <button onClick={() => setActiveCommunityId(null)} className="p-2 -ml-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all active:scale-95 flex-shrink-0">
+               <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-2xl font-semibold text-white tracking-tight truncate">{communities.find(c => c.id === displayCommunityId)?.name}</h1>
+          </header>
+          <div className="p-4 space-y-2">
+            {communities.find(c => c.id === displayCommunityId)?.groupIds.map(gid => {
+              const group = groups.find(g => g.id === gid);
+              if (!group) return null;
+              return (
+                <div key={gid} onClick={() => onSelectGroup(gid)} className="group flex flex-col p-4 rounded-3xl hover:bg-white/5 cursor-pointer relative transition-colors border border-transparent hover:border-white/[0.04]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-12 h-12 rounded-full ${group.icon} flex items-center justify-center flex-shrink-0 text-white font-bold transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110 group-active:scale-95`}>
+                         {group.isBroadcast ? <Globe size={20} /> : <Hash size={20} />}
                       </div>
-                      <p className="text-sm text-zinc-400 truncate">{group.description}</p>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                           <h3 className="text-[15px] font-semibold text-white truncate transition-colors group-hover:text-indigo-400">{group.name}</h3>
+                           {group.isBroadcast && <span className="bg-emerald-500/10 text-emerald-400 text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0"><Check size={10} />Broadcast</span>}
+                        </div>
+                        <p className="text-sm text-zinc-400 truncate">{group.description}</p>
+                      </div>
                     </div>
+                    {group.unread > 0 && (
+                      <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 ml-2">
+                        {group.unread}
+                      </div>
+                    )}
                   </div>
-                  {group.unread > 0 && (
-                    <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 ml-2">
-                      {group.unread}
-                    </div>
-                  )}
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>
