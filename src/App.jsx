@@ -1171,7 +1171,7 @@ export default function App() {
       )}
 
       <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#121214]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-2 flex items-center shadow-2xl z-50 w-auto max-w-[95vw] overflow-x-auto ring-1 ring-white/[0.02] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-        (selectedChatId || isGlobalOverlayActive || showNewChatModal || forwardingMsg) 
+        ((selectedChatId && !isChatClosing) || isGlobalOverlayActive || showNewChatModal || forwardingMsg) 
           ? 'opacity-0 pointer-events-none translate-y-4 scale-95' 
           : 'opacity-100  translate-y-0 scale-100'
       }`}>
@@ -1499,7 +1499,7 @@ function CallsView({ callLogs, friends, groups, onOverlayChange, isActive }) {
                >
                  <div className="flex items-center gap-4">
                    {log.type === 'group' ? (
-                     <div className={`w-12 h-12 rounded-xl ${log.icon} flex items-center justify-center text-white shadow-lg`}>
+                     <div className={`w-12 h-12 rounded-full ${log.icon} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
                         <Hash size={20} />
                      </div>
                    ) : (
@@ -1606,7 +1606,7 @@ function CallsView({ callLogs, friends, groups, onOverlayChange, isActive }) {
                 {groups.map(group => (
                   <div key={group.id} className="flex items-center justify-between p-3 hover:bg-[#1a1a1c] rounded-2xl transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl ${group.icon} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
+                      <div className={`w-12 h-12 rounded-full ${group.icon} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
                         <Hash size={20} />
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col items-start text-left">
@@ -2001,7 +2001,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
       >
         <div className="flex items-center gap-4 flex-1 min-w-0">
           {chat.isGroup ? (
-            <div className={`w-12 h-12 rounded-xl ${chat.icon || 'bg-indigo-500'} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
+            <div className={`w-12 h-12 rounded-full ${chat.icon || 'bg-indigo-500'} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
               <Hash size={20} />
             </div>
           ) : (
@@ -2053,7 +2053,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
     return (
       <div key={group.id} onClick={() => onSelectChat(group.id)} className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#1a1a1c] cursor-pointer transition-colors group">
         <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div className={`w-12 h-12 rounded-xl ${group.icon} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
+          <div className={`w-12 h-12 rounded-full ${group.icon} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
             <Hash size={20} />
           </div>
           <div className="min-w-0 flex-1">
@@ -2321,7 +2321,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
                   <div className="space-y-2">
                     {matchedGroups.map(group => (
                       <div key={group.id} className="flex items-center gap-4 p-3 hover:bg-[#1a1a1c] rounded-2xl cursor-pointer transition-colors" onClick={() => onSelectChat(group.id)}>
-                        <div className={`w-10 h-10 rounded-xl ${group.icon} flex items-center justify-center text-white`}>
+                        <div className={`w-10 h-10 rounded-full ${group.icon} flex items-center justify-center text-white shrink-0`}>
                           <Hash size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -3191,7 +3191,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   }, [messages]);
 
   return (
-    <div className="absolute inset-0 flex flex-col bg-[#121214] md:rounded-3xl border border-white/[0.02] shadow-2xl overflow-hidden z-40">
+    <div className="absolute inset-0 flex flex-col bg-[#121214] shadow-2xl overflow-hidden z-40">
       
       {/* Click outside overlay for popup menus like reactions */}
       {reactionPopupId && (
@@ -3272,7 +3272,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           >
             <div className="relative flex-shrink-0">
               {chat.isGroup ? (
-                <div className={`w-10 h-10 rounded-xl ${chat.icon || 'bg-indigo-500'} flex items-center justify-center text-white shadow-sm`}>
+                <div className={`w-10 h-10 rounded-full ${chat.icon || 'bg-indigo-500'} flex items-center justify-center text-white shadow-sm`}>
                   <Hash size={16} />
                 </div>
               ) : (
@@ -4563,15 +4563,15 @@ function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, 
   }, [activeCommunityId]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#121214]">
+    <div className="relative h-full w-full overflow-hidden">
       {/* Root Communities List */}
-      <div className={`absolute inset-0 flex transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] z-10 ${
+      <div className={`absolute inset-0 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] z-10 ${
         !activeCommunityId ? 'opacity-100 translate-x-0  scale-100' : 'opacity-0 -translate-x-[20%] pointer-events-none scale-95'
       }`}>
+        <header className="px-6 py-6 md:px-0 flex items-center min-h-[94px] flex-shrink-0">
+          <h1 className="text-2xl font-semibold text-white tracking-tight">Communities</h1>
+        </header>
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col pb-24">
-          <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center">
-            <h1 className="text-2xl font-semibold text-white tracking-tight">Communities</h1>
-          </header>
           <div className="p-4 space-y-2">
             {communities.map(community => {
               const hasUnread = community.groupIds.some(gid => {
@@ -4615,8 +4615,8 @@ function CommunityView({ communities, groups, onSelectGroup, activeCommunityId, 
       <div className={`absolute top-0 bottom-0 right-0 z-20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'left-[64px] opacity-100 translate-x-0  scale-100' : 'left-[64px] opacity-0 translate-x-[20%] pointer-events-none scale-105'
       }`}>
-        <div key={displayCommunityId} className="h-full overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24 bg-[#121214] animate-in fade-in slide-in-from-right-2 zoom-in-[0.98] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]">
-          <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#121214]/80 backdrop-blur z-10 flex min-h-[94px] items-center gap-3">
+        <div key={displayCommunityId} className="h-full overflow-y-auto [&::-webkit-scrollbar]:hidden flex flex-col relative pb-24 animate-in fade-in slide-in-from-right-2 zoom-in-[0.98] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]">
+          <header className="px-6 py-6 border-b border-white/10 sticky top-0 bg-[#0a0a0c]/80 backdrop-blur z-10 flex min-h-[94px] items-center gap-3">
             <button onClick={() => setActiveCommunityId(null)} className="p-2 -ml-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all active:scale-95 flex-shrink-0">
                <ChevronLeft size={24} />
             </button>
