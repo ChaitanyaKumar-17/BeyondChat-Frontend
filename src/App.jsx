@@ -757,7 +757,7 @@ export default function App() {
             newLastMessageText = lastM.text;
           }
         }
-        // Use timeout to avoid exact StrictMode double-invocation warnings for state side-effects.
+
         setTimeout(() => {
           setRecentConversations(rcPrev => rcPrev.map(rc => rc.id === chatId ? { ...rc, lastMessage: newLastMessageText } : rc));
         }, 0);
