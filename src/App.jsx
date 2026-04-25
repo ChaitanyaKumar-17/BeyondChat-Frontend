@@ -554,11 +554,24 @@ export default function App() {
     
     setIsChatClosing(true);
     setTimeout(() => {
-      // If disappearing chat is enabled, clear all messages on exit
       if (disappearing?.enabled && closingId) {
-        setChatDetails(prev => prev.map(c => 
-          c.id === closingId ? { ...c, messages: [] } : c
-        ));
+        // Only delete messages sent DURING the disappearing session (after enabledAt)
+        setChatDetails(prev => prev.map(c => {
+          if (c.id !== closingId) return c;
+          return {
+            ...c,
+            messages: c.messages.filter(m => !m.timestamp || m.timestamp < disappearing.enabledAt)
+          };
+        }));
+        
+        // For 'session' duration, auto-disable disappearing mode when chat closes
+        if (disappearing.duration === 'session') {
+          setDisappearingChats(prev => {
+            const next = { ...prev };
+            delete next[closingId];
+            return next;
+          });
+        }
       }
       setSelectedChatId(null);
       setCommunityGroupChatId(null);
@@ -976,14 +989,27 @@ export default function App() {
       setDisappearingChats(prev => {
         const next = { ...prev };
         let changed = false;
+        const expiredIds = [];
         Object.entries(next).forEach(([chatId, config]) => {
           if (!config.enabled || config.duration === 'session') return;
           const durationMs = { '1day': DAY, '1week': 7 * DAY, '1month': 30 * DAY }[config.duration];
           if (durationMs && now - config.enabledAt >= durationMs) {
+            expiredIds.push({ id: chatId, enabledAt: config.enabledAt });
             delete next[chatId];
             changed = true;
           }
         });
+        // Clean up messages for expired chats
+        if (expiredIds.length > 0) {
+          setChatDetails(prevChats => prevChats.map(c => {
+            const expired = expiredIds.find(e => String(e.id) === String(c.id));
+            if (!expired) return c;
+            return {
+              ...c,
+              messages: c.messages.filter(m => !m.timestamp || m.timestamp < expired.enabledAt)
+            };
+          }));
+        }
         return changed ? next : prev;
       });
     }, 60000); // check every minute
