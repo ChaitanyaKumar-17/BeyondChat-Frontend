@@ -554,24 +554,29 @@ export default function App() {
     
     setIsChatClosing(true);
     setTimeout(() => {
-      if (disappearing?.enabled && closingId) {
-        // Only delete messages sent DURING the disappearing session (after enabledAt)
+      // Only clean up messages for 'session' duration when chat closes
+      if (disappearing?.enabled && closingId && disappearing.duration === 'session') {
         setChatDetails(prev => prev.map(c => {
           if (c.id !== closingId) return c;
-          return {
-            ...c,
-            messages: c.messages.filter(m => !m.timestamp || m.timestamp < disappearing.enabledAt)
+          const filtered = c.messages.filter(m => 
+            m.type === 'system' || !m.timestamp || m.timestamp < disappearing.enabledAt
+          );
+          const expiryMsg = {
+            id: Date.now() + Math.random(),
+            type: 'system',
+            actorId: currentUser.id,
+            text: 'your disappearing messages session ended',
+            timestamp: Date.now()
           };
+          return { ...c, messages: [...filtered, expiryMsg] };
         }));
         
-        // For 'session' duration, auto-disable disappearing mode when chat closes
-        if (disappearing.duration === 'session') {
-          setDisappearingChats(prev => {
-            const next = { ...prev };
-            delete next[closingId];
-            return next;
-          });
-        }
+        // Auto-disable disappearing mode for session duration
+        setDisappearingChats(prev => {
+          const next = { ...prev };
+          delete next[closingId];
+          return next;
+        });
       }
       setSelectedChatId(null);
       setCommunityGroupChatId(null);
@@ -713,10 +718,17 @@ export default function App() {
       }
     });
 
+    // Don't update home screen preview with disappearing messages
+    const isDisappearing = disappearingChats[userId]?.enabled;
+
     setRecentConversations(prev => {
       const existingRecent = prev.find(c => c.id === userId);
       if (existingRecent) {
         const filtered = prev.filter(c => c.id !== userId);
+        if (isDisappearing) {
+          // Keep old lastMessage, just bump to top
+          return [{ ...existingRecent, timestamp: Date.now(), unread: 0 }, ...filtered];
+        }
         return [{ ...existingRecent, lastMessage: text, timestamp: Date.now(), unread: 0 }, ...filtered];
       }
 
@@ -732,11 +744,11 @@ export default function App() {
 
       const filtered = prev.filter(c => c.id !== userId);
       const newRecent = {
-        id: userId, name, avatar, status, isGroup, icon, lastMessage: text, timestamp: Date.now(), unread: 0
+        id: userId, name, avatar, status, isGroup, icon, lastMessage: isDisappearing ? '' : text, timestamp: Date.now(), unread: 0
       };
       return [newRecent, ...filtered];
     });
-  }, [friends, groups, globalUsers]);
+  }, [friends, groups, globalUsers, disappearingChats]);
 
   const appendSystemMessage = useCallback((chatId, text, actorId = currentUser.id) => {
     const sysMsg = { id: Date.now() + Math.random(), type: 'system', text, actorId, timestamp: Date.now() };
@@ -966,12 +978,11 @@ export default function App() {
 
   const handleToggleDisappearing = useCallback((chatId, enabled, duration = null) => {
     if (enabled && duration) {
-      const durationLabels = { session: 'this session', '1day': '1 day', '1week': '1 week', '1month': '1 month' };
       setDisappearingChats(prev => ({
         ...prev,
         [chatId]: { enabled: true, duration, enabledAt: Date.now() }
       }));
-      appendSystemMessage(chatId, `turned on disappearing messages for ${durationLabels[duration]}`, currentUser.id);
+      appendSystemMessage(chatId, 'turned on disappearing messages', currentUser.id);
     } else {
       setDisappearingChats(prev => {
         const next = { ...prev };
@@ -1004,10 +1015,17 @@ export default function App() {
           setChatDetails(prevChats => prevChats.map(c => {
             const expired = expiredIds.find(e => String(e.id) === String(c.id));
             if (!expired) return c;
-            return {
-              ...c,
-              messages: c.messages.filter(m => !m.timestamp || m.timestamp < expired.enabledAt)
+            const filtered = c.messages.filter(m =>
+              m.type === 'system' || !m.timestamp || m.timestamp < expired.enabledAt
+            );
+            const expiryMsg = {
+              id: Date.now() + Math.random(),
+              type: 'system',
+              actorId: currentUser.id,
+              text: 'disappearing messages expired',
+              timestamp: Date.now()
             };
+            return { ...c, messages: [...filtered, expiryMsg] };
           }));
         }
         return changed ? next : prev;
@@ -3432,7 +3450,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <span className="text-amber-400 shrink-0"><Timer size={14} /></span>
             <div className="flex flex-col min-w-0">
               <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider leading-none mb-0.5">Disappearing Messages</span>
-              <span className="text-xs text-amber-300/70 truncate">Messages will be deleted when you leave this chat</span>
+              <span className="text-xs text-amber-300/70 truncate">Messages will be deleted once the timer expires</span>
             </div>
           </div>
           <span className="text-[10px] text-amber-500/60 font-medium shrink-0 ml-2 bg-amber-500/10 px-2 py-0.5 rounded-full">
@@ -3940,6 +3958,41 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               )}
             </div>
 
+            {isAdmin && (
+              <section className="relative z-20">
+                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Group Settings</h3>
+                <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] overflow-hidden">
+                  <div className="p-5 flex items-center justify-between">
+                    <div className="flex flex-col pr-4">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-sm font-medium text-white">Disappearing Messages</span>
+                        {disappearingChat?.enabled && <Timer size={12} className="text-amber-400" />}
+                      </div>
+                      <span className="text-xs text-zinc-500 leading-snug">Messages disappear when you leave this chat</span>
+                    </div>
+                    <button
+                      onClick={() => disappearingChat?.enabled ? onToggleDisappearing(chat.id, false) : setShowDisappearingModal(true)}
+                      className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${disappearingChat?.enabled ? 'bg-amber-500' : 'bg-zinc-700'}`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${disappearingChat?.enabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  <div className="border-t border-white/[0.02] p-5 flex items-center justify-between">
+                    <div className="flex flex-col pr-4">
+                      <span className="text-sm font-medium text-white mb-0.5">Restrict Messaging</span>
+                      <span className="text-xs text-zinc-500 leading-snug">Allow only admins to send messages to this group</span>
+                    </div>
+                    <button
+                      onClick={() => onToggleAdminMessaging(chat.id, !chat.onlyAdminsCanMessage)}
+                      className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${chat.onlyAdminsCanMessage ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${chat.onlyAdminsCanMessage ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                </div>
+              </section>
+            )}
+
             <section className={`relative transition-all duration-300 ${memberMenuOpen ? 'z-40' : 'z-20'}`}>
               <div className="flex items-center justify-between mb-3 px-1">
                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{chat.members} Members</h3>
@@ -4094,40 +4147,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               </section>
             )}
 
-            {isAdmin && (
-              <section className="relative z-20 mb-6">
-                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Group Settings</h3>
-                <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] overflow-hidden">
-                  <div className="p-5 flex items-center justify-between">
-                    <div className="flex flex-col pr-4">
-                      <span className="text-sm font-medium text-white mb-0.5">Restrict Messaging</span>
-                      <span className="text-xs text-zinc-500 leading-snug">Allow only admins to send messages to this group</span>
-                    </div>
-                    <button
-                      onClick={() => onToggleAdminMessaging(chat.id, !chat.onlyAdminsCanMessage)}
-                      className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${chat.onlyAdminsCanMessage ? 'bg-emerald-500' : 'bg-zinc-700'}`}
-                    >
-                      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${chat.onlyAdminsCanMessage ? 'translate-x-6' : 'translate-x-0.5'}`} />
-                    </button>
-                  </div>
-                  <div className="border-t border-white/[0.02] p-5 flex items-center justify-between">
-                    <div className="flex flex-col pr-4">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm font-medium text-white">Disappearing Messages</span>
-                        {disappearingChat?.enabled && <Timer size={12} className="text-amber-400" />}
-                      </div>
-                      <span className="text-xs text-zinc-500 leading-snug">Messages disappear when you leave this chat</span>
-                    </div>
-                    <button
-                      onClick={() => disappearingChat?.enabled ? onToggleDisappearing(chat.id, false) : setShowDisappearingModal(true)}
-                      className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${disappearingChat?.enabled ? 'bg-amber-500' : 'bg-zinc-700'}`}
-                    >
-                      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${disappearingChat?.enabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
-                    </button>
-                  </div>
-                </div>
-              </section>
-            )}
+
 
             <section className="space-y-2 relative z-10">
               <button onClick={() => setReportStep('category')} className="w-full flex items-center gap-3 p-4 bg-[#1a1a1c] hover:bg-white/5 transition-colors rounded-2xl text-red-400 font-medium text-sm">
@@ -4197,6 +4217,26 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   <span className="text-[11px] text-zinc-500 font-medium">Video</span>
                 </button>
               </div>
+
+              {/* Chat Settings */}
+              <section>
+                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Chat Settings</h3>
+                <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] p-5 flex items-center justify-between">
+                  <div className="flex flex-col pr-4">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm font-medium text-white">Disappearing Messages</span>
+                      {disappearingChat?.enabled && <Timer size={12} className="text-amber-400" />}
+                    </div>
+                    <span className="text-xs text-zinc-500 leading-snug">Messages disappear when you leave this chat</span>
+                  </div>
+                  <button
+                    onClick={() => disappearingChat?.enabled ? onToggleDisappearing(chat.id, false) : setShowDisappearingModal(true)}
+                    className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${disappearingChat?.enabled ? 'bg-amber-500' : 'bg-zinc-700'}`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${disappearingChat?.enabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+              </section>
 
               {/* Bio / About */}
               {userFriend?.bio && (
@@ -4337,25 +4377,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </section>
               )}
 
-              {/* Chat Settings */}
-              <section className="mb-2">
-                <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Chat Settings</h3>
-                <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] p-5 flex items-center justify-between">
-                  <div className="flex flex-col pr-4">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-sm font-medium text-white">Disappearing Messages</span>
-                      {disappearingChat?.enabled && <Timer size={12} className="text-amber-400" />}
-                    </div>
-                    <span className="text-xs text-zinc-500 leading-snug">Messages disappear when you leave this chat</span>
-                  </div>
-                  <button
-                    onClick={() => disappearingChat?.enabled ? onToggleDisappearing(chat.id, false) : setShowDisappearingModal(true)}
-                    className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${disappearingChat?.enabled ? 'bg-amber-500' : 'bg-zinc-700'}`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${disappearingChat?.enabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
-                  </button>
-                </div>
-              </section>
 
               {/* Danger Zone */}
               <section className="space-y-2">
@@ -4829,6 +4850,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Community Sidebar */}
       <div className={`absolute top-0 bottom-0 left-0 z-30 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
       }`}>
