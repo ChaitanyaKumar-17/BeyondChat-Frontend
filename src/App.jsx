@@ -107,24 +107,24 @@ const formatRecentChatTime = (timestamp) => {
 
 const formatLastSeen = (lastSeen, isOnline) => {
   if (isOnline) return 'Online';
-  if (!lastSeen) return 'disabled';
+  if (!lastSeen) return 'Disabled';
   const now = new Date();
   const date = new Date(lastSeen);
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / DAY);
   
-  if (diffDays > 30) return 'disabled';
-  if (diffDays > 14) return 'a while ago';
-  if (diffDays > 7) return 'last week';
+  if (diffDays > 30) return 'Disabled';
+  if (diffDays > 14) return 'A While Ago';
+  if (diffDays > 7) return 'Last Week';
   
   const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const calendarDays = Math.round((nowStart.getTime() - dateStart.getTime()) / DAY);
   
-  if (calendarDays === 0) return `today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  if (calendarDays === 1) return `yesterday at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (calendarDays === 0) return `Today At ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (calendarDays === 1) return `Yesterday At ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   if (calendarDays < 7) return date.toLocaleDateString([], { weekday: 'long' });
-  return 'last week';
+  return 'Last Week';
 };
 
 // --- MOCK DATA ---
@@ -3203,29 +3203,44 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   }, []);
 
   // Simulate receipt progression: sent → delivered → read
+  // All messages batch together — no out-of-order delivery
+  // If recipient is offline, messages stay as 'sent'
   useEffect(() => {
-    const myMsgs = messages.filter(m => m.senderId === currentUser.id && m.status && m.status !== 'read');
-    if (myMsgs.length === 0) return;
+    const isRecipientOnline = chat.isGroup
+      ? true // groups always have some members online
+      : chat.status === 'online';
+    
+    const sentMsgs = messages.filter(m => m.senderId === currentUser.id && m.status === 'sent');
+    const deliveredMsgs = messages.filter(m => m.senderId === currentUser.id && m.status === 'delivered');
     
     const timers = [];
-    myMsgs.forEach(msg => {
-      if (msg.status === 'sent') {
-        const t = setTimeout(() => {
-          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: r.status === 'pending' ? 'delivered' : r.status, deliveredAt: r.status === 'pending' ? Date.now() : r.deliveredAt })) : null;
+    
+    // Batch deliver all 'sent' messages at once — only if recipient is online
+    if (sentMsgs.length > 0 && isRecipientOnline) {
+      const t = setTimeout(() => {
+        const now = Date.now();
+        sentMsgs.forEach(msg => {
+          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: r.status === 'pending' ? 'delivered' : r.status, deliveredAt: r.status === 'pending' ? now : r.deliveredAt })) : null;
           onUpdateMessageStatus(chat.id, msg.id, 'delivered', newReceipts);
-        }, 1500 + Math.random() * 1000);
-        timers.push(t);
-      }
-      if (msg.status === 'delivered') {
-        const t = setTimeout(() => {
-          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: 'read', readAt: Date.now() })) : null;
+        });
+      }, 1500);
+      timers.push(t);
+    }
+    
+    // Batch read all 'delivered' messages at once — only if recipient is online
+    if (deliveredMsgs.length > 0 && isRecipientOnline) {
+      const t = setTimeout(() => {
+        const now = Date.now();
+        deliveredMsgs.forEach(msg => {
+          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: 'read', readAt: now })) : null;
           onUpdateMessageStatus(chat.id, msg.id, 'read', newReceipts);
-        }, 2000 + Math.random() * 2000);
-        timers.push(t);
-      }
-    });
+        });
+      }, 2500);
+      timers.push(t);
+    }
+    
     return () => timers.forEach(clearTimeout);
-  }, [messages]);
+  }, [messages, chat.status]);
 
   useEffect(() => {
     setEditName(chat.name || '');
@@ -4549,7 +4564,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
                 <div className="bg-[#1a1a1c] rounded-2xl border border-white/[0.02] overflow-hidden">
                   {readBy.length === 0 ? (
-                    <p className="text-xs text-zinc-600 p-4 text-center">No one yet</p>
+                    <p className="text-xs text-zinc-600 p-4 text-center">{pending.length === receipts.length ? 'No one yet' : 'No one yet'}</p>
                   ) : readBy.map((r, i) => {
                     const member = friends.find(f => f.id === r.userId);
                     return (
@@ -4577,7 +4592,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
                 <div className="bg-[#1a1a1c] rounded-2xl border border-white/[0.02] overflow-hidden">
                   {deliveredTo.length === 0 ? (
-                    <p className="text-xs text-zinc-600 p-4 text-center">No one yet</p>
+                    <p className="text-xs text-zinc-600 p-4 text-center">{readBy.length === receipts.length ? 'Read by all' : pending.length > 0 ? 'Some are yet to receive' : 'No one yet'}</p>
                   ) : deliveredTo.map((r, i) => {
                     const member = friends.find(f => f.id === r.userId);
                     return (
@@ -4605,7 +4620,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
                 <div className="bg-[#1a1a1c] rounded-2xl border border-white/[0.02] overflow-hidden">
                   {pending.length === 0 ? (
-                    <p className="text-xs text-zinc-600 p-4 text-center">Delivered to everyone</p>
+                    <p className="text-xs text-zinc-600 p-4 text-center">{readBy.length === receipts.length ? 'Read by all' : 'Delivered to everyone'}</p>
                   ) : pending.map((r, i) => {
                     const member = friends.find(f => f.id === r.userId);
                     return (
