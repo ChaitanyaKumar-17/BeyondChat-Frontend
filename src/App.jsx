@@ -42,7 +42,8 @@ import {
   Forward,
   AlertTriangle,
   Timer,
-  Shield
+  Shield,
+  Eye
 } from 'lucide-react';
 
 
@@ -102,6 +103,28 @@ const formatRecentChatTime = (timestamp) => {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const yy = String(date.getFullYear()).slice(-2);
   return `${dd}/${mm}/${yy}`;
+};
+
+const formatLastSeen = (lastSeen, isOnline) => {
+  if (isOnline) return 'Online';
+  if (!lastSeen) return 'disabled';
+  const now = new Date();
+  const date = new Date(lastSeen);
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / DAY);
+  
+  if (diffDays > 30) return 'disabled';
+  if (diffDays > 14) return 'a while ago';
+  if (diffDays > 7) return 'last week';
+  
+  const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const calendarDays = Math.round((nowStart.getTime() - dateStart.getTime()) / DAY);
+  
+  if (calendarDays === 0) return `today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (calendarDays === 1) return `yesterday at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (calendarDays < 7) return date.toLocaleDateString([], { weekday: 'long' });
+  return 'last week';
 };
 
 // --- MOCK DATA ---
@@ -174,32 +197,32 @@ const initialMyStories = [
 ];
 
 const initialFriends = [
-  { id: 1, name: 'Elena', avatar: 'https://i.pravatar.cc/150?u=1', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Elena', 3), username: 'elena.rod', phone: '+1 (555) 012-3456', bio: 'UI/UX designer & coffee lover. Currently obsessed with design systems.', mutualFriendIds: [4, 8, 6, 9, 5, 10, 7] },
-  { id: 2, name: 'Lucas', avatar: 'https://i.pravatar.cc/150?u=2', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Lucas', 2), username: 'lucasdev', phone: '+1 (555) 023-4567', bio: 'Full-stack developer. Building cool stuff with React and Node.', mutualFriendIds: [5, 9, 18, 24] },
-  { id: 3, name: 'Sophia', avatar: 'https://i.pravatar.cc/150?u=3', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Sophia', 4), username: 'sophiaarts', phone: '+1 (555) 034-5678', bio: 'Digital artist and illustrator. Open for commissions!', mutualFriendIds: [6, 14, 25] },
-  { id: 4, name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=4', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Sarah', 1), username: 'sarah.j', phone: '+1 (555) 045-6789', bio: 'Frontend engineer @ TechCorp. Tailwind enthusiast.', mutualFriendIds: [1, 8, 23, 9, 6, 24] },
-  { id: 5, name: 'Mike', avatar: 'https://i.pravatar.cc/150?u=5', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Mike', 2), username: 'mikebuilds', phone: '+1 (555) 056-7890', bio: 'Product manager by day, gamer by night.', mutualFriendIds: [1, 2, 7, 10, 22] },
-  { id: 6, name: 'Anna', avatar: 'https://i.pravatar.cc/150?u=6', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Anna', 2), username: 'annadesign', phone: '+1 (555) 067-8901', bio: 'Visual designer. Minimalism is the ultimate sophistication.', mutualFriendIds: [1, 3, 9, 4, 25, 14] },
-  { id: 16, name: 'Oliver', avatar: 'https://i.pravatar.cc/150?u=16', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Oliver', 3), username: 'oliver.k', phone: '+1 (555) 160-1234', bio: 'Backend engineer. Rust and Go advocate.', mutualFriendIds: [18, 8, 10] },
-  { id: 17, name: 'Isabella', avatar: 'https://i.pravatar.cc/150?u=17', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Isabella', 1), username: 'isabella_m', phone: '+1 (555) 170-2345', bio: 'Data scientist exploring the world of ML.', mutualFriendIds: [26, 18] },
-  { id: 7, name: 'Chris', avatar: 'https://i.pravatar.cc/150?u=7', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Chris', 1), username: 'chriscode', phone: '+1 (555) 078-9012', bio: 'DevOps wizard. Automating everything.', mutualFriendIds: [1, 5, 10, 8] },
-  { id: 8, name: 'David', avatar: 'https://i.pravatar.cc/150?u=8', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('David', 3), username: 'davidchen', phone: '+1 (555) 089-0123', bio: 'API architect. Building the backend of the future.', mutualFriendIds: [1, 4, 7, 16, 10] },
-  { id: 9, name: 'Emma', avatar: 'https://i.pravatar.cc/150?u=9', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Emma', 4), username: 'emmawilson', phone: '+1 (555) 090-1234', bio: 'React Native dev. Mobile-first mindset.', mutualFriendIds: [1, 2, 4, 6, 19] },
-  { id: 18, name: 'Ethan', avatar: 'https://i.pravatar.cc/150?u=18', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Ethan', 2), username: 'ethan.dev', phone: '+1 (555) 180-3456', bio: 'Systems programmer. Low-level is the best level.', mutualFriendIds: [2, 16, 17, 26] },
-  { id: 10, name: 'James', avatar: 'https://i.pravatar.cc/150?u=10', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('James', 3), username: 'jameslee', phone: '+1 (555) 101-2345', bio: 'Cloud architect @ AWS. Distributed systems fan.', mutualFriendIds: [1, 5, 7, 8, 16, 12] },
-  { id: 11, name: 'Lily', avatar: 'https://i.pravatar.cc/150?u=11', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Lily', 2), username: 'lilyhikes', phone: '+1 (555) 112-3456', bio: 'Outdoor enthusiast and nature photographer.', mutualFriendIds: [15, 21, 13] },
-  { id: 19, name: 'Mia', avatar: 'https://i.pravatar.cc/150?u=19', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Mia', 1), username: 'mia.creates', phone: '+1 (555) 190-4567', bio: 'Content creator and social media strategist.', mutualFriendIds: [9, 23, 25] },
-  { id: 12, name: 'Tom', avatar: 'https://i.pravatar.cc/150?u=12', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Tom', 2), username: 'tomwrites', phone: '+1 (555) 123-4567', bio: 'Technical writer. Making docs people actually read.', mutualFriendIds: [10, 13, 20] },
-  { id: 13, name: 'Nina', avatar: 'https://i.pravatar.cc/150?u=13', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Nina', 1), username: 'ninapm', phone: '+1 (555) 134-5678', bio: 'Project manager keeping teams in sync.', mutualFriendIds: [11, 12, 15] },
-  { id: 14, name: 'Leo', avatar: 'https://i.pravatar.cc/150?u=14', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Leo', 2), username: 'leomotion', phone: '+1 (555) 145-6789', bio: 'Motion designer and animator. After Effects wizard.', mutualFriendIds: [3, 6, 25] },
-  { id: 15, name: 'Maya', avatar: 'https://i.pravatar.cc/150?u=15', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Maya', 2), username: 'mayatrails', phone: '+1 (555) 156-7890', bio: 'Trail runner and adventure seeker.', mutualFriendIds: [11, 13, 21] },
-  { id: 20, name: 'Noah', avatar: 'https://i.pravatar.cc/150?u=20', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Noah', 1), username: 'noahcodes', phone: '+1 (555) 200-5678', bio: 'Indie hacker building micro-SaaS products.', mutualFriendIds: [12, 24, 2] },
-  { id: 21, name: 'Ava', avatar: 'https://i.pravatar.cc/150?u=21', storyType: 'private', isOnline: false, storyViewed: false, stories: generateStories('Ava', 2), username: 'avagreen', phone: '+1 (555) 210-6789', bio: 'Environmental scientist and sustainability advocate.', mutualFriendIds: [11, 15] },
-  { id: 22, name: 'William', avatar: 'https://i.pravatar.cc/150?u=22', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('William', 3), username: 'willcraft', phone: '+1 (555) 220-7890', bio: 'Game developer. Unity & Unreal Engine.', mutualFriendIds: [5, 26, 18] },
-  { id: 23, name: 'Charlotte', avatar: 'https://i.pravatar.cc/150?u=23', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Charlotte', 1), username: 'charlotteux', phone: '+1 (555) 230-8901', bio: 'UX researcher. Understanding users is my superpower.', mutualFriendIds: [4, 19, 1, 6] },
-  { id: 24, name: 'Benjamin', avatar: 'https://i.pravatar.cc/150?u=24', storyType: 'private', isOnline: true, storyViewed: false, stories: generateStories('Benjamin', 2), username: 'benstack', phone: '+1 (555) 240-9012', bio: 'Full-stack TypeScript developer. Next.js fanatic.', mutualFriendIds: [2, 4, 20] },
-  { id: 25, name: 'Amelia', avatar: 'https://i.pravatar.cc/150?u=25', storyType: 'standard', isOnline: false, storyViewed: false, stories: generateStories('Amelia', 1), username: 'ameliaink', phone: '+1 (555) 250-0123', bio: 'Graphic designer and brand identity specialist.', mutualFriendIds: [3, 6, 14, 19] },
-  { id: 26, name: 'Elijah', avatar: 'https://i.pravatar.cc/150?u=26', storyType: 'standard', isOnline: true, storyViewed: false, stories: generateStories('Elijah', 2), username: 'elijahml', phone: '+1 (555) 260-1234', bio: 'Machine learning engineer. Building intelligent systems.', mutualFriendIds: [17, 18, 22] },
+  { id: 1, name: 'Elena', avatar: 'https://i.pravatar.cc/150?u=1', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Elena', 3), username: 'elena.rod', phone: '+1 (555) 012-3456', bio: 'UI/UX designer & coffee lover. Currently obsessed with design systems.', mutualFriendIds: [4, 8, 6, 9, 5, 10, 7] },
+  { id: 2, name: 'Lucas', avatar: 'https://i.pravatar.cc/150?u=2', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Lucas', 2), username: 'lucasdev', phone: '+1 (555) 023-4567', bio: 'Full-stack developer. Building cool stuff with React and Node.', mutualFriendIds: [5, 9, 18, 24] },
+  { id: 3, name: 'Sophia', avatar: 'https://i.pravatar.cc/150?u=3', storyType: 'private', isOnline: false, lastSeen: nowMs - 2 * HOUR, storyViewed: false, stories: generateStories('Sophia', 4), username: 'sophiaarts', phone: '+1 (555) 034-5678', bio: 'Digital artist and illustrator. Open for commissions!', mutualFriendIds: [6, 14, 25] },
+  { id: 4, name: 'Sarah', avatar: 'https://i.pravatar.cc/150?u=4', storyType: 'private', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Sarah', 1), username: 'sarah.j', phone: '+1 (555) 045-6789', bio: 'Frontend engineer @ TechCorp. Tailwind enthusiast.', mutualFriendIds: [1, 8, 23, 9, 6, 24] },
+  { id: 5, name: 'Mike', avatar: 'https://i.pravatar.cc/150?u=5', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Mike', 2), username: 'mikebuilds', phone: '+1 (555) 056-7890', bio: 'Product manager by day, gamer by night.', mutualFriendIds: [1, 2, 7, 10, 22] },
+  { id: 6, name: 'Anna', avatar: 'https://i.pravatar.cc/150?u=6', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Anna', 2), username: 'annadesign', phone: '+1 (555) 067-8901', bio: 'Visual designer. Minimalism is the ultimate sophistication.', mutualFriendIds: [1, 3, 9, 4, 25, 14] },
+  { id: 16, name: 'Oliver', avatar: 'https://i.pravatar.cc/150?u=16', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Oliver', 3), username: 'oliver.k', phone: '+1 (555) 160-1234', bio: 'Backend engineer. Rust and Go advocate.', mutualFriendIds: [18, 8, 10] },
+  { id: 17, name: 'Isabella', avatar: 'https://i.pravatar.cc/150?u=17', storyType: 'private', isOnline: false, lastSeen: nowMs - 3 * DAY, storyViewed: false, stories: generateStories('Isabella', 1), username: 'isabella_m', phone: '+1 (555) 170-2345', bio: 'Data scientist exploring the world of ML.', mutualFriendIds: [26, 18] },
+  { id: 7, name: 'Chris', avatar: 'https://i.pravatar.cc/150?u=7', storyType: 'private', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Chris', 1), username: 'chriscode', phone: '+1 (555) 078-9012', bio: 'DevOps wizard. Automating everything.', mutualFriendIds: [1, 5, 10, 8] },
+  { id: 8, name: 'David', avatar: 'https://i.pravatar.cc/150?u=8', storyType: 'private', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('David', 3), username: 'davidchen', phone: '+1 (555) 089-0123', bio: 'API architect. Building the backend of the future.', mutualFriendIds: [1, 4, 7, 16, 10] },
+  { id: 9, name: 'Emma', avatar: 'https://i.pravatar.cc/150?u=9', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Emma', 4), username: 'emmawilson', phone: '+1 (555) 090-1234', bio: 'React Native dev. Mobile-first mindset.', mutualFriendIds: [1, 2, 4, 6, 19] },
+  { id: 18, name: 'Ethan', avatar: 'https://i.pravatar.cc/150?u=18', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Ethan', 2), username: 'ethan.dev', phone: '+1 (555) 180-3456', bio: 'Systems programmer. Low-level is the best level.', mutualFriendIds: [2, 16, 17, 26] },
+  { id: 10, name: 'James', avatar: 'https://i.pravatar.cc/150?u=10', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('James', 3), username: 'jameslee', phone: '+1 (555) 101-2345', bio: 'Cloud architect @ AWS. Distributed systems fan.', mutualFriendIds: [1, 5, 7, 8, 16, 12] },
+  { id: 11, name: 'Lily', avatar: 'https://i.pravatar.cc/150?u=11', storyType: 'private', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Lily', 2), username: 'lilyhikes', phone: '+1 (555) 112-3456', bio: 'Outdoor enthusiast and nature photographer.', mutualFriendIds: [15, 21, 13] },
+  { id: 19, name: 'Mia', avatar: 'https://i.pravatar.cc/150?u=19', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Mia', 1), username: 'mia.creates', phone: '+1 (555) 190-4567', bio: 'Content creator and social media strategist.', mutualFriendIds: [9, 23, 25] },
+  { id: 12, name: 'Tom', avatar: 'https://i.pravatar.cc/150?u=12', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Tom', 2), username: 'tomwrites', phone: '+1 (555) 123-4567', bio: 'Technical writer. Making docs people actually read.', mutualFriendIds: [10, 13, 20] },
+  { id: 13, name: 'Nina', avatar: 'https://i.pravatar.cc/150?u=13', storyType: 'standard', isOnline: false, lastSeen: nowMs - 10 * DAY, storyViewed: false, stories: generateStories('Nina', 1), username: 'ninapm', phone: '+1 (555) 134-5678', bio: 'Project manager keeping teams in sync.', mutualFriendIds: [11, 12, 15] },
+  { id: 14, name: 'Leo', avatar: 'https://i.pravatar.cc/150?u=14', storyType: 'private', isOnline: false, lastSeen: nowMs - 20 * DAY, storyViewed: false, stories: generateStories('Leo', 2), username: 'leomotion', phone: '+1 (555) 145-6789', bio: 'Motion designer and animator. After Effects wizard.', mutualFriendIds: [3, 6, 25] },
+  { id: 15, name: 'Maya', avatar: 'https://i.pravatar.cc/150?u=15', storyType: 'standard', isOnline: false, lastSeen: nowMs - 45 * DAY, storyViewed: false, stories: generateStories('Maya', 2), username: 'mayatrails', phone: '+1 (555) 156-7890', bio: 'Trail runner and adventure seeker.', mutualFriendIds: [11, 13, 21] },
+  { id: 20, name: 'Noah', avatar: 'https://i.pravatar.cc/150?u=20', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Noah', 1), username: 'noahcodes', phone: '+1 (555) 200-5678', bio: 'Indie hacker building micro-SaaS products.', mutualFriendIds: [12, 24, 2] },
+  { id: 21, name: 'Ava', avatar: 'https://i.pravatar.cc/150?u=21', storyType: 'private', isOnline: false, lastSeen: nowMs - 1 * DAY - 5 * HOUR, storyViewed: false, stories: generateStories('Ava', 2), username: 'avagreen', phone: '+1 (555) 210-6789', bio: 'Environmental scientist and sustainability advocate.', mutualFriendIds: [11, 15] },
+  { id: 22, name: 'William', avatar: 'https://i.pravatar.cc/150?u=22', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('William', 3), username: 'willcraft', phone: '+1 (555) 220-7890', bio: 'Game developer. Unity & Unreal Engine.', mutualFriendIds: [5, 26, 18] },
+  { id: 23, name: 'Charlotte', avatar: 'https://i.pravatar.cc/150?u=23', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Charlotte', 1), username: 'charlotteux', phone: '+1 (555) 230-8901', bio: 'UX researcher. Understanding users is my superpower.', mutualFriendIds: [4, 19, 1, 6] },
+  { id: 24, name: 'Benjamin', avatar: 'https://i.pravatar.cc/150?u=24', storyType: 'private', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Benjamin', 2), username: 'benstack', phone: '+1 (555) 240-9012', bio: 'Full-stack TypeScript developer. Next.js fanatic.', mutualFriendIds: [2, 4, 20] },
+  { id: 25, name: 'Amelia', avatar: 'https://i.pravatar.cc/150?u=25', storyType: 'standard', isOnline: false, lastSeen: nowMs - 5 * DAY, storyViewed: false, stories: generateStories('Amelia', 1), username: 'ameliaink', phone: '+1 (555) 250-0123', bio: 'Graphic designer and brand identity specialist.', mutualFriendIds: [3, 6, 14, 19] },
+  { id: 26, name: 'Elijah', avatar: 'https://i.pravatar.cc/150?u=26', storyType: 'standard', isOnline: true, lastSeen: null, storyViewed: false, stories: generateStories('Elijah', 2), username: 'elijahml', phone: '+1 (555) 260-1234', bio: 'Machine learning engineer. Building intelligent systems.', mutualFriendIds: [17, 18, 22] },
 ];
 
 const initialGroups = [
@@ -699,6 +722,7 @@ export default function App() {
   }, []);
 
   const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null) => {
+    const group = groups.find(g => g.id === userId);
     const newMessage = customPayload || {
       id: Date.now(),
       senderId: currentUser.id,
@@ -706,6 +730,8 @@ export default function App() {
       timestamp: Date.now(),
       replyTo: replyTo,
       isStarred: false,
+      status: 'sent',
+      ...(group ? { receipts: (group.memberIds || []).filter(mid => mid !== currentUser.id).map(mid => ({ userId: mid, status: 'pending' })) } : {}),
       ...(storyReply ? { storyReply } : {})
     };
 
@@ -749,6 +775,19 @@ export default function App() {
       return [newRecent, ...filtered];
     });
   }, [friends, groups, globalUsers, disappearingChats]);
+
+  const handleUpdateMessageStatus = useCallback((chatId, messageId, newStatus, newReceipts = null) => {
+    setChatDetails(prev => prev.map(c => {
+      if (c.id !== chatId) return c;
+      return {
+        ...c,
+        messages: c.messages.map(m => {
+          if (m.id !== messageId) return m;
+          return { ...m, status: newStatus, ...(newReceipts ? { receipts: newReceipts } : {}) };
+        })
+      };
+    }));
+  }, []);
 
   const appendSystemMessage = useCallback((chatId, text, actorId = currentUser.id) => {
     const sysMsg = { id: Date.now() + Math.random(), type: 'system', text, actorId, timestamp: Date.now() };
@@ -1071,6 +1110,7 @@ export default function App() {
       activeChat = {
         ...baseInfo,
         status: isOnline ? 'online' : 'offline',
+        lastSeen: friend?.lastSeen || null,
         isConnected: !!friend || !!group,
         messages: existingChatDetails ? existingChatDetails.messages : []
       };
@@ -1220,6 +1260,7 @@ export default function App() {
               globalUsers={globalUsers}
               disappearingChat={disappearingChats[activeChat.id] || null}
               onToggleDisappearing={handleToggleDisappearing}
+              onUpdateMessageStatus={handleUpdateMessageStatus}
             />
             </div>
           </div>
@@ -3074,7 +3115,35 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing }) {
+function ReceiptIndicator({ status }) {
+  if (!status) return null;
+  if (status === 'sent') {
+    return (
+      <span className="inline-flex items-center gap-0 ml-1" title="Sent">
+        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-500" /></svg>
+      </span>
+    );
+  }
+  if (status === 'delivered') {
+    return (
+      <span className="inline-flex items-center -space-x-1 ml-1" title="Delivered">
+        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-400" /></svg>
+        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-400" /></svg>
+      </span>
+    );
+  }
+  if (status === 'read') {
+    return (
+      <span className="inline-flex items-center -space-x-1 ml-1" title="Read">
+        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.5" fill="currentColor" className="text-indigo-400" /></svg>
+        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.5" fill="currentColor" className="text-indigo-400" /></svg>
+      </span>
+    );
+  }
+  return null;
+}
+
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -3127,10 +3196,36 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const canMessage = !chat.isGroup || chat.onlyAdminsCanMessage !== true || isAdmin;
 
   const [, setTick] = useState(0);
+  const [showMessageInfo, setShowMessageInfo] = useState(null);
   useEffect(() => {
     const timer = setInterval(() => setTick(t => t + 1), 30000);
     return () => clearInterval(timer);
   }, []);
+
+  // Simulate receipt progression: sent → delivered → read
+  useEffect(() => {
+    const myMsgs = messages.filter(m => m.senderId === currentUser.id && m.status && m.status !== 'read');
+    if (myMsgs.length === 0) return;
+    
+    const timers = [];
+    myMsgs.forEach(msg => {
+      if (msg.status === 'sent') {
+        const t = setTimeout(() => {
+          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: r.status === 'pending' ? 'delivered' : r.status, deliveredAt: r.status === 'pending' ? Date.now() : r.deliveredAt })) : null;
+          onUpdateMessageStatus(chat.id, msg.id, 'delivered', newReceipts);
+        }, 1500 + Math.random() * 1000);
+        timers.push(t);
+      }
+      if (msg.status === 'delivered') {
+        const t = setTimeout(() => {
+          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: 'read', readAt: Date.now() })) : null;
+          onUpdateMessageStatus(chat.id, msg.id, 'read', newReceipts);
+        }, 2000 + Math.random() * 2000);
+        timers.push(t);
+      }
+    });
+    return () => timers.forEach(clearTimeout);
+  }, [messages]);
 
   useEffect(() => {
     setEditName(chat.name || '');
@@ -3394,14 +3489,14 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               ) : (
                 <img src={chat.avatar} alt={chat.name} className="w-10 h-10 rounded-full" />
               )}
-              {chat.status === 'online' && !chat.isGroup && (
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#121214] rounded-full" />
+              {!chat.isGroup && (
+                <div className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-[#121214] rounded-full ${chat.status === 'online' ? 'bg-emerald-500' : 'bg-zinc-600'}`} />
               )}
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-base font-medium text-white tracking-tight truncate max-w-[160px] sm:max-w-xs md:max-w-md">{chat.name}</h2>
-              <p className="text-xs text-zinc-400 truncate">
-                {chat.isGroup ? `${onlineMembersCount} online` : (chat.status === 'online' ? 'Active now' : 'Offline')}
+              <p className={`text-xs truncate ${chat.isGroup ? 'text-zinc-400' : (chat.status === 'online' ? 'text-emerald-400' : 'text-zinc-500')}`}>
+                {chat.isGroup ? `${onlineMembersCount} online` : formatLastSeen(chat.lastSeen, chat.status === 'online')}
               </p>
             </div>
           </div>
@@ -3550,6 +3645,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                           <Pin size={16} className={chat.pinnedMessage?.id === msg.id ? 'text-indigo-400 fill-indigo-400' : ''}/> {chat.pinnedMessage?.id === msg.id ? 'Unpin Message' : 'Pin Message'}
                         </button>
                       )}
+                      {chat.isGroup && isMe && msg.receipts && (
+                        <button onClick={(e) => { e.stopPropagation(); setShowMessageInfo(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                          <Eye size={16}/> Message Info
+                        </button>
+                      )}
                       <button onClick={(e) => {
                         e.stopPropagation();
                         const isPersonalTimeExpired = Date.now() - msg.timestamp > HOUR;
@@ -3655,9 +3755,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   )}
 
                 </div>
-                <span className="text-[10px] text-zinc-500 mt-1 px-1">
+                <span className="text-[10px] text-zinc-500 mt-1 px-1 flex items-center gap-0.5">
                   {chat.isGroup && !isMe && msg.showAvatar && <span className="font-medium mr-2">{friends.find(f=>f.id===msg.senderId)?.name.split(' ')[0]}</span>}
                   {formatMessageTime(msg.timestamp)}
+                  {isMe && <ReceiptIndicator status={msg.status} />}
                 </span>
               </div>
             </div>
@@ -4411,6 +4512,113 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     Disconnect
                   </button>
                 )}
+              </section>
+            </div>
+          </div>
+        );
+      })()}
+
+      {showMessageInfo && (() => {
+        const infoMsg = showMessageInfo;
+        const receipts = infoMsg.receipts || [];
+        const readBy = receipts.filter(r => r.status === 'read');
+        const deliveredTo = receipts.filter(r => r.status === 'delivered');
+        const pending = receipts.filter(r => r.status === 'pending');
+        return (
+          <div className="absolute inset-0 z-[170] bg-[#0a0a0c] flex flex-col animate-in slide-in-from-right-8 duration-300">
+            <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
+              <button onClick={() => setShowMessageInfo(null)} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full">
+                <ArrowLeft size={18} />
+              </button>
+              <h2 className="text-base font-medium text-white tracking-tight">Message Info</h2>
+            </header>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 [&::-webkit-scrollbar]:hidden">
+              {/* Message Preview */}
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-4">
+                <p className="text-sm text-zinc-200 line-clamp-3">{infoMsg.text}</p>
+                <span className="text-[10px] text-zinc-500 mt-2 block">{formatMessageTime(infoMsg.timestamp)}</span>
+              </div>
+
+              {/* Read By */}
+              <section>
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
+                  <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Read by &middot; {readBy.length}</h3>
+                </div>
+                <div className="bg-[#1a1a1c] rounded-2xl border border-white/[0.02] overflow-hidden">
+                  {readBy.length === 0 ? (
+                    <p className="text-xs text-zinc-600 p-4 text-center">No one yet</p>
+                  ) : readBy.map((r, i) => {
+                    const member = friends.find(f => f.id === r.userId);
+                    return (
+                      <div key={r.userId} className={`flex items-center gap-3 p-3.5 ${i !== 0 ? 'border-t border-white/[0.02]' : ''}`}>
+                        <img src={member?.avatar || `https://i.pravatar.cc/150?u=${r.userId}`} alt="" className="w-9 h-9 rounded-full shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white font-medium truncate">{member?.name || 'Member'}</p>
+                          <p className="text-[10px] text-indigo-400">{r.readAt ? formatMessageTime(r.readAt) : ''}</p>
+                        </div>
+                        <div className="flex -space-x-1">
+                          <svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="currentColor" className="text-indigo-400" /></svg>
+                          <svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="currentColor" className="text-indigo-400" /></svg>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* Delivered To */}
+              <section>
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                  <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Delivered to &middot; {deliveredTo.length}</h3>
+                </div>
+                <div className="bg-[#1a1a1c] rounded-2xl border border-white/[0.02] overflow-hidden">
+                  {deliveredTo.length === 0 ? (
+                    <p className="text-xs text-zinc-600 p-4 text-center">No one yet</p>
+                  ) : deliveredTo.map((r, i) => {
+                    const member = friends.find(f => f.id === r.userId);
+                    return (
+                      <div key={r.userId} className={`flex items-center gap-3 p-3.5 ${i !== 0 ? 'border-t border-white/[0.02]' : ''}`}>
+                        <img src={member?.avatar || `https://i.pravatar.cc/150?u=${r.userId}`} alt="" className="w-9 h-9 rounded-full shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white font-medium truncate">{member?.name || 'Member'}</p>
+                          <p className="text-[10px] text-emerald-400">{r.deliveredAt ? formatMessageTime(r.deliveredAt) : ''}</p>
+                        </div>
+                        <div className="flex -space-x-1">
+                          <svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-400" /></svg>
+                          <svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-400" /></svg>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* Pending */}
+              <section>
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <div className="w-2 h-2 rounded-full bg-zinc-600"></div>
+                  <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Pending &middot; {pending.length}</h3>
+                </div>
+                <div className="bg-[#1a1a1c] rounded-2xl border border-white/[0.02] overflow-hidden">
+                  {pending.length === 0 ? (
+                    <p className="text-xs text-zinc-600 p-4 text-center">Delivered to everyone</p>
+                  ) : pending.map((r, i) => {
+                    const member = friends.find(f => f.id === r.userId);
+                    return (
+                      <div key={r.userId} className={`flex items-center gap-3 p-3.5 ${i !== 0 ? 'border-t border-white/[0.02]' : ''}`}>
+                        <img src={member?.avatar || `https://i.pravatar.cc/150?u=${r.userId}`} alt="" className="w-9 h-9 rounded-full shrink-0 opacity-50" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-zinc-500 font-medium truncate">{member?.name || 'Member'}</p>
+                          <p className="text-[10px] text-zinc-600">Waiting...</p>
+                        </div>
+                        <svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-600" /></svg>
+                      </div>
+                    );
+                  })}
+                </div>
               </section>
             </div>
           </div>
