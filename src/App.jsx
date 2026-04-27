@@ -3203,44 +3203,61 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   }, []);
 
   // Simulate receipt progression: sent → delivered → read
-  // All messages batch together — no out-of-order delivery
-  // If recipient is offline, messages stay as 'sent'
+  // Respects per-member online/offline status in groups
   useEffect(() => {
-    const isRecipientOnline = chat.isGroup
-      ? true // groups always have some members online
-      : chat.status === 'online';
-    
-    const sentMsgs = messages.filter(m => m.senderId === currentUser.id && m.status === 'sent');
-    const deliveredMsgs = messages.filter(m => m.senderId === currentUser.id && m.status === 'delivered');
-    
+    const myMsgs = messages.filter(m => m.senderId === currentUser.id && m.status && m.status !== 'read');
+    if (myMsgs.length === 0) return;
+
     const timers = [];
-    
-    // Batch deliver all 'sent' messages at once — only if recipient is online
-    if (sentMsgs.length > 0 && isRecipientOnline) {
-      const t = setTimeout(() => {
-        const now = Date.now();
-        sentMsgs.forEach(msg => {
-          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: r.status === 'pending' ? 'delivered' : r.status, deliveredAt: r.status === 'pending' ? now : r.deliveredAt })) : null;
-          onUpdateMessageStatus(chat.id, msg.id, 'delivered', newReceipts);
-        });
-      }, 1500);
-      timers.push(t);
-    }
-    
-    // Batch read all 'delivered' messages at once — only if recipient is online
-    if (deliveredMsgs.length > 0 && isRecipientOnline) {
-      const t = setTimeout(() => {
-        const now = Date.now();
-        deliveredMsgs.forEach(msg => {
-          const newReceipts = msg.receipts ? msg.receipts.map(r => ({ ...r, status: 'read', readAt: now })) : null;
-          onUpdateMessageStatus(chat.id, msg.id, 'read', newReceipts);
-        });
-      }, 2500);
-      timers.push(t);
+
+    if (chat.isGroup) {
+      // Group: update each member's receipt based on their online status
+      const needsUpdate = myMsgs.filter(msg => msg.receipts?.some(r => r.status !== 'read'));
+      if (needsUpdate.length > 0) {
+        const t = setTimeout(() => {
+          const now = Date.now();
+          needsUpdate.forEach(msg => {
+            const newReceipts = msg.receipts.map(r => {
+              const member = friends.find(f => f.id === r.userId);
+              const memberOnline = member?.isOnline ?? false;
+              if (!memberOnline) return r;
+              if (r.status === 'pending') return { ...r, status: 'delivered', deliveredAt: now };
+              if (r.status === 'delivered') return { ...r, status: 'read', readAt: now };
+              return r;
+            });
+            const allRead = newReceipts.every(r => r.status === 'read');
+            const allDeliveredOrRead = newReceipts.every(r => r.status === 'delivered' || r.status === 'read');
+            const aggStatus = allRead ? 'read' : allDeliveredOrRead ? 'delivered' : 'sent';
+            onUpdateMessageStatus(chat.id, msg.id, aggStatus, newReceipts);
+          });
+        }, 1800);
+        timers.push(t);
+      }
+    } else {
+      // Personal: batch all messages, check single recipient online
+      const isRecipientOnline = chat.status === 'online';
+      if (!isRecipientOnline) {
+        return () => {};
+      }
+      const sentMsgs = myMsgs.filter(m => m.status === 'sent');
+      const deliveredMsgs = myMsgs.filter(m => m.status === 'delivered');
+
+      if (sentMsgs.length > 0) {
+        const t = setTimeout(() => {
+          sentMsgs.forEach(msg => onUpdateMessageStatus(chat.id, msg.id, 'delivered', null));
+        }, 1500);
+        timers.push(t);
+      }
+      if (deliveredMsgs.length > 0) {
+        const t = setTimeout(() => {
+          deliveredMsgs.forEach(msg => onUpdateMessageStatus(chat.id, msg.id, 'read', null));
+        }, 2500);
+        timers.push(t);
+      }
     }
     
     return () => timers.forEach(clearTimeout);
-  }, [messages, chat.status]);
+  }, [messages, chat.status, friends]);
 
   useEffect(() => {
     setEditName(chat.name || '');
