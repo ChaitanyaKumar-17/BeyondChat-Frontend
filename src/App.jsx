@@ -564,8 +564,8 @@ export default function App() {
           const expiryMsg = {
             id: Date.now() + Math.random(),
             type: 'system',
-            actorId: currentUser.id,
-            text: 'your disappearing messages session ended',
+            actorId: null,
+            text: 'Your disappearing messages session ended',
             timestamp: Date.now()
           };
           return { ...c, messages: [...filtered, expiryMsg] };
@@ -984,14 +984,31 @@ export default function App() {
       }));
       appendSystemMessage(chatId, 'turned on disappearing messages', currentUser.id);
     } else {
+      // When manually toggling off, delete messages sent during the disappearing period
+      const config = disappearingChats[chatId];
+      if (config?.enabled) {
+        setChatDetails(prev => prev.map(c => {
+          if (c.id !== chatId) return c;
+          const filtered = c.messages.filter(m =>
+            m.type === 'system' || !m.timestamp || m.timestamp < config.enabledAt
+          );
+          const endMsg = {
+            id: Date.now() + Math.random(),
+            type: 'system',
+            actorId: null,
+            text: 'Your disappearing messages session ended',
+            timestamp: Date.now()
+          };
+          return { ...c, messages: [...filtered, endMsg] };
+        }));
+      }
       setDisappearingChats(prev => {
         const next = { ...prev };
         delete next[chatId];
         return next;
       });
-      appendSystemMessage(chatId, 'turned off disappearing messages', currentUser.id);
     }
-  }, [appendSystemMessage]);
+  }, [appendSystemMessage, disappearingChats]);
 
   // Auto-expire disappearing chats based on duration
   useEffect(() => {
@@ -1021,8 +1038,8 @@ export default function App() {
             const expiryMsg = {
               id: Date.now() + Math.random(),
               type: 'system',
-              actorId: currentUser.id,
-              text: 'disappearing messages expired',
+              actorId: null,
+              text: 'Your disappearing messages expired',
               timestamp: Date.now()
             };
             return { ...c, messages: [...filtered, expiryMsg] };
@@ -3483,11 +3500,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           }
 
           if (item.type === 'system') {
-            const actorName = item.actorId === currentUser.id ? 'You' : (friends.find(f => f.id === item.actorId)?.name || 'Someone');
+            const actorName = item.actorId == null ? '' : (item.actorId === currentUser.id ? 'You' : (friends.find(f => f.id === item.actorId)?.name || 'Someone'));
             return (
               <div key={item.id} className="text-center my-3">
                 <span className="text-[11px] font-medium text-zinc-400 bg-white/[0.03] px-4 py-1.5 rounded-full border border-white/[0.02]">
-                  {actorName} {item.text}
+                  {actorName ? `${actorName} ${item.text}` : item.text}
                 </span>
               </div>
             );
