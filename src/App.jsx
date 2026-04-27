@@ -388,7 +388,7 @@ const initialChats = [
     status: 'online',
     messages: [
       { id: 101, senderId: 1, text: 'Hey, did you get a chance to look at the Figma file?', timestamp: nowMs - 1 * DAY - 30 * MIN },
-      { id: 102, senderId: 0, text: 'Just opening it now.', timestamp: nowMs - 1 * DAY - 25 * MIN },
+      { id: 102, senderId: 0, text: 'Just opening it now.', timestamp: nowMs - 1 * DAY - 25 * MIN, status: 'read' },
       { id: 103, senderId: 1, text: 'That workout story was intense!', timestamp: nowMs - 5 * MIN, storyReply: { storyId: 'my-story-mock-1', storyText: 'Just finished a great workout! ' + E('1F4AA'), storyBg: gradients[2], storyOwnerName: 'You', storyOwnerId: 0 } },
       { id: 104, senderId: 1, text: 'The new design system looks incredible!', timestamp: nowMs - 2 * MIN },
     ]
@@ -407,7 +407,7 @@ const initialChats = [
       { id: 1013, senderId: 1, text: 'Anyone checked the new Figma?', timestamp: nowMs - 2 * HOUR },
       { id: 1014, senderId: 8, text: 'Yeah, looks good to me.', timestamp: nowMs - 1 * HOUR - 55 * MIN },
       { id: 1015, senderId: 4, text: 'I left some comments on the padding.', timestamp: nowMs - 1 * HOUR - 40 * MIN },
-      { id: 1016, senderId: 0, text: 'I will address the padding feedback shortly.', timestamp: nowMs - 1 * HOUR - 10 * MIN },
+      { id: 1016, senderId: 0, text: 'I will address the padding feedback shortly.', timestamp: nowMs - 1 * HOUR - 10 * MIN, status: 'read' },
       { id: 1017, senderId: 1, text: 'Great. Let us target deployment by EOD.', timestamp: nowMs - 45 * MIN },
       { id: 1018, senderId: 8, text: 'Sounds like a plan.', timestamp: nowMs - 30 * MIN },
       { id: 1019, senderId: 4, text: 'Remember to update the design system docs too.', timestamp: nowMs - 15 * MIN },
@@ -490,9 +490,9 @@ const initialChats = [
     icon: 'bg-indigo-700',
     messages: [
       { id: 9001, type: 'system', actorId: 0, text: 'created the broadcast channel', timestamp: nowMs - 7 * DAY },
-      { id: 9002, senderId: 0, text: 'Welcome to the Tech Innovators community! This is the official broadcast channel.', timestamp: nowMs - 7 * DAY + 5 * MIN },
-      { id: 9003, senderId: 0, text: 'Reminder: Team sync is tomorrow at 10 AM.', timestamp: nowMs - 1 * DAY },
-      { id: 9004, senderId: 0, text: 'We just shipped v2.0 of the design system! ' + E('1F389'), timestamp: nowMs - 2 * HOUR },
+      { id: 9002, senderId: 0, text: 'Welcome to the Tech Innovators community! This is the official broadcast channel.', timestamp: nowMs - 7 * DAY + 5 * MIN, status: 'read' },
+      { id: 9003, senderId: 0, text: 'Reminder: Team sync is tomorrow at 10 AM.', timestamp: nowMs - 1 * DAY, status: 'read' },
+      { id: 9004, senderId: 0, text: 'We just shipped v2.0 of the design system! ' + E('1F389'), timestamp: nowMs - 2 * HOUR, status: 'read' },
     ]
   },
   {
@@ -502,7 +502,7 @@ const initialChats = [
     icon: 'bg-rose-700',
     messages: [
       { id: 9010, type: 'system', actorId: 0, text: 'created the broadcast channel', timestamp: nowMs - 14 * DAY },
-      { id: 9011, senderId: 0, text: 'Welcome to Social Club community!', timestamp: nowMs - 14 * DAY + 5 * MIN },
+      { id: 9011, senderId: 0, text: 'Welcome to Social Club community!', timestamp: nowMs - 14 * DAY + 5 * MIN, status: 'read' },
     ]
   }
 ];
@@ -588,7 +588,7 @@ export default function App() {
             id: Date.now() + Math.random(),
             type: 'system',
             actorId: null,
-            text: 'Your disappearing messages session ended',
+            text: 'Your secret chat session ended',
             timestamp: Date.now()
           };
           return { ...c, messages: [...filtered, expiryMsg] };
@@ -1021,7 +1021,7 @@ export default function App() {
         ...prev,
         [chatId]: { enabled: true, duration, enabledAt: Date.now() }
       }));
-      appendSystemMessage(chatId, 'turned on disappearing messages', currentUser.id);
+      appendSystemMessage(chatId, 'turned on secret chat', currentUser.id);
     } else {
       // When manually toggling off, delete messages sent during the disappearing period
       const config = disappearingChats[chatId];
@@ -1035,7 +1035,7 @@ export default function App() {
             id: Date.now() + Math.random(),
             type: 'system',
             actorId: null,
-            text: 'Your disappearing messages session ended',
+            text: 'Your secret chat session ended',
             timestamp: Date.now()
           };
           return { ...c, messages: [...filtered, endMsg] };
@@ -1078,7 +1078,7 @@ export default function App() {
               id: Date.now() + Math.random(),
               type: 'system',
               actorId: null,
-              text: 'Your disappearing messages expired',
+              text: 'Your secret chat expired',
               timestamp: Date.now()
             };
             return { ...c, messages: [...filtered, expiryMsg] };
@@ -3561,7 +3561,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
             <span className="text-amber-400 shrink-0"><Timer size={14} /></span>
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider leading-none mb-0.5">Disappearing Messages</span>
+              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider leading-none mb-0.5">Secret Chat</span>
               <span className="text-xs text-amber-300/70 truncate">Messages will be deleted once the timer expires</span>
             </div>
           </div>
@@ -3646,7 +3646,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         </button>
                       )}
                       {chat.isGroup && isMe && msg.receipts && (
-                        <button onClick={(e) => { e.stopPropagation(); setShowMessageInfo(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setShowMessageInfo(msg.id); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                           <Eye size={16}/> Message Info
                         </button>
                       )}
@@ -4083,10 +4083,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   <div className="p-5 flex items-center justify-between">
                     <div className="flex flex-col pr-4">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm font-medium text-white">Disappearing Messages</span>
+                        <span className="text-sm font-medium text-white">Secret Chat</span>
                         {disappearingChat?.enabled && <Timer size={12} className="text-amber-400" />}
                       </div>
-                      <span className="text-xs text-zinc-500 leading-snug">Messages disappear when you leave this chat</span>
+                      <span className="text-xs text-zinc-500 leading-snug">Messages are deleted once the session ends</span>
                     </div>
                     <button
                       onClick={() => disappearingChat?.enabled ? onToggleDisappearing(chat.id, false) : setShowDisappearingModal(true)}
@@ -4342,10 +4342,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 <div className="bg-[#1a1a1c] rounded-3xl border border-white/[0.02] p-5 flex items-center justify-between">
                   <div className="flex flex-col pr-4">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-sm font-medium text-white">Disappearing Messages</span>
+                      <span className="text-sm font-medium text-white">Secret Chat</span>
                       {disappearingChat?.enabled && <Timer size={12} className="text-amber-400" />}
                     </div>
-                    <span className="text-xs text-zinc-500 leading-snug">Messages disappear when you leave this chat</span>
+                    <span className="text-xs text-zinc-500 leading-snug">Messages are deleted once the session ends</span>
                   </div>
                   <button
                     onClick={() => disappearingChat?.enabled ? onToggleDisappearing(chat.id, false) : setShowDisappearingModal(true)}
@@ -4519,7 +4519,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       })()}
 
       {showMessageInfo && (() => {
-        const infoMsg = showMessageInfo;
+        const infoMsg = messages.find(m => m.id === showMessageInfo) || null;
+        if (!infoMsg) return null;
         const receipts = infoMsg.receipts || [];
         const readBy = receipts.filter(r => r.status === 'read');
         const deliveredTo = receipts.filter(r => r.status === 'delivered');
@@ -4633,7 +4634,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 <Timer size={20} className="text-amber-400" />
               </div>
               <div>
-                <h3 className="text-white font-semibold text-base">Disappearing Messages</h3>
+                <h3 className="text-white font-semibold text-base">Secret Chat</h3>
                 <p className="text-xs text-zinc-500">Choose how long to keep it active</p>
               </div>
             </div>
