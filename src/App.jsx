@@ -15,6 +15,7 @@ import {
   MoreHorizontal,
   Send,
   Mic,
+  MicOff,
   Smile,
   Paperclip,
   Globe,
@@ -43,8 +44,34 @@ import {
   AlertTriangle,
   Timer,
   Shield,
-  Eye
+  Eye,
+  FileText,
+  Image as ImageIcon,
+  Film,
+  FileArchive,
+  Download,
+  Square,
+  File as FileIcon
 } from 'lucide-react';
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+
+const formatFileSize = (bytes) => {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
+const getFileIcon = (type, name) => {
+  if (type?.startsWith('image/')) return ImageIcon;
+  if (type?.startsWith('video/')) return Film;
+  if (type?.startsWith('audio/')) return Mic;
+  if (type?.includes('zip') || type?.includes('rar') || type?.includes('tar') || type?.includes('7z') || name?.match(/\.(zip|rar|7z|tar|gz)$/i)) return FileArchive;
+  if (type?.includes('pdf') || type?.includes('doc') || type?.includes('text') || name?.match(/\.(pdf|doc|docx|txt|rtf|csv|xls|xlsx|ppt|pptx)$/i)) return FileText;
+  return FileIcon;
+};
 
 
 
@@ -746,6 +773,9 @@ export default function App() {
 
     // Don't update home screen preview with disappearing messages
     const isDisappearing = disappearingChats[userId]?.enabled;
+    
+    // Generate preview text for non-text messages
+    const previewText = text || (newMessage.attachment ? `📎 ${newMessage.attachment.name}` : (newMessage.voiceNote ? '🎙 Voice message' : ''));
 
     setRecentConversations(prev => {
       const existingRecent = prev.find(c => c.id === userId);
@@ -755,7 +785,7 @@ export default function App() {
           // Keep old lastMessage, just bump to top
           return [{ ...existingRecent, timestamp: Date.now(), unread: 0 }, ...filtered];
         }
-        return [{ ...existingRecent, lastMessage: text, timestamp: Date.now(), unread: 0 }, ...filtered];
+        return [{ ...existingRecent, lastMessage: previewText, timestamp: Date.now(), unread: 0 }, ...filtered];
       }
 
       const friend = friends.find(f => f.id === userId);
@@ -770,7 +800,7 @@ export default function App() {
 
       const filtered = prev.filter(c => c.id !== userId);
       const newRecent = {
-        id: userId, name, avatar, status, isGroup, icon, lastMessage: isDisappearing ? '' : text, timestamp: Date.now(), unread: 0
+        id: userId, name, avatar, status, isGroup, icon, lastMessage: isDisappearing ? '' : previewText, timestamp: Date.now(), unread: 0
       };
       return [newRecent, ...filtered];
     });
@@ -3182,6 +3212,20 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [newMsgCount, setNewMsgCount] = useState(0);
   const [firstUnreadMsgId, setFirstUnreadMsgId] = useState(null);
 
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const recordingTimerRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  // File attachment state
+  const [attachedFiles, setAttachedFiles] = useState([]);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const fileInputRef = useRef(null);
+
   const scrollContainerRef = useRef(null);
   const isInitialMount = useRef(true);
   const prevMsgCountRef = useRef(chat.messages?.length || 0);
@@ -3326,14 +3370,142 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     }
   };
 
+  // --- FILE ATTACHMENT HANDLERS ---
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = [];
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name} exceeds the 2GB limit`);
+        continue;
+      }
+      // Create a preview URL for images/videos
+      const url = URL.createObjectURL(file);
+      validFiles.push({ file, name: file.name, size: file.size, type: file.type, url });
+    }
+    setAttachedFiles(prev => [...prev, ...validFiles]);
+    setShowAttachMenu(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (index) => {
+    setAttachedFiles(prev => {
+      const removed = prev[index];
+      if (removed?.url) URL.revokeObjectURL(removed.url);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleSendFiles = () => {
+    if (attachedFiles.length === 0) return;
+    attachedFiles.forEach(af => {
+      const payload = {
+        id: Date.now() + Math.random(),
+        senderId: currentUser.id,
+        timestamp: Date.now(),
+        status: 'sent',
+        isStarred: false,
+        attachment: {
+          name: af.name,
+          size: af.size,
+          type: af.type,
+          url: af.url,
+        }
+      };
+      onSendMessage(chat.id, null, null, payload);
+    });
+    setAttachedFiles([]);
+  };
+
+  // --- VOICE RECORDING HANDLERS ---
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        setAudioBlob(blob);
+        setAudioUrl(url);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(t => t + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Microphone access denied:', err);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingTime(0);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const sendVoiceMessage = () => {
+    if (!audioBlob || !audioUrl) return;
+    const payload = {
+      id: Date.now() + Math.random(),
+      senderId: currentUser.id,
+      timestamp: Date.now(),
+      status: 'sent',
+      isStarred: false,
+      voiceNote: {
+        url: audioUrl,
+        duration: recordingTime,
+      }
+    };
+    onSendMessage(chat.id, null, null, payload);
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingTime(0);
+  };
+
+  const formatRecordingTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
+
   const handleSend = (e) => {
     e?.preventDefault();
-    if (!inputText.trim()) return;
     
-    onSendMessage(chat.id, inputText, replyingTo);
-    setInputText('');
-    setReplyingTo(null);
-    setShowEmojiPicker(false);
+    // Send attached files first
+    if (attachedFiles.length > 0) {
+      handleSendFiles();
+    }
+    
+    if (inputText.trim()) {
+      onSendMessage(chat.id, inputText, replyingTo);
+      setInputText('');
+      setReplyingTo(null);
+      setShowEmojiPicker(false);
+    }
     
     onTyping(chat.id, false);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -3757,8 +3929,80 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         </div>
                       )}
 
+                      {/* File Attachment */}
+                      {msg.attachment && (() => {
+                        const att = msg.attachment;
+                        const IconComp = getFileIcon(att.type, att.name);
+                        if (att.type?.startsWith('image/')) {
+                          return (
+                            <div className="rounded-xl overflow-hidden mb-1.5 max-w-[280px]">
+                              <img src={att.url} alt={att.name} className="w-full max-h-[300px] object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+                              <div className="flex items-center justify-between px-2 py-1.5 gap-2">
+                                <span className="text-[10px] text-white/60 truncate">{att.name}</span>
+                                <a href={att.url} download={att.name} className="text-white/40 hover:text-white transition-colors shrink-0" onClick={e => e.stopPropagation()}><Download size={12} /></a>
+                              </div>
+                            </div>
+                          );
+                        }
+                        if (att.type?.startsWith('video/')) {
+                          return (
+                            <div className="rounded-xl overflow-hidden mb-1.5 max-w-[280px]">
+                              <video src={att.url} controls className="w-full max-h-[300px] rounded-xl" />
+                              <div className="flex items-center justify-between px-2 py-1.5 gap-2">
+                                <span className="text-[10px] text-white/60 truncate">{att.name}</span>
+                                <a href={att.url} download={att.name} className="text-white/40 hover:text-white transition-colors shrink-0" onClick={e => e.stopPropagation()}><Download size={12} /></a>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className={`flex items-center gap-3 rounded-xl p-3 mb-1.5 min-w-[200px] ${isMe ? 'bg-indigo-700/40' : 'bg-white/[0.04]'}`}>
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isMe ? 'bg-indigo-500/30' : 'bg-white/[0.06]'}`}>
+                              <IconComp size={18} className="text-white/70" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-white truncate">{att.name}</p>
+                              <p className="text-[10px] text-white/50">{formatFileSize(att.size)}</p>
+                            </div>
+                            <a href={att.url} download={att.name} className={`p-2 rounded-full transition-colors shrink-0 ${isMe ? 'hover:bg-indigo-500/30 text-white/50 hover:text-white' : 'hover:bg-white/[0.06] text-white/40 hover:text-white'}`} onClick={e => e.stopPropagation()}>
+                              <Download size={16} />
+                            </a>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Voice Note */}
+                      {msg.voiceNote && (() => {
+                        const vn = msg.voiceNote;
+                        return (
+                          <div className={`flex items-center gap-3 rounded-xl p-3 mb-1 min-w-[220px] ${isMe ? 'bg-indigo-700/40' : 'bg-white/[0.04]'}`}>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const audio = document.getElementById(`audio-${msg.id}`);
+                                if (audio) audio.paused ? audio.play() : audio.pause();
+                              }}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30' : 'bg-indigo-500/20 hover:bg-indigo-500/30'}`}
+                            >
+                              <Play size={16} className="text-white ml-0.5" />
+                            </button>
+                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                              <div className="flex items-center gap-[2px] h-4">
+                                {Array.from({ length: 28 }, (_, i) => (
+                                  <div key={i} className={`w-[3px] rounded-full ${isMe ? 'bg-white/40' : 'bg-indigo-400/50'}`} style={{ height: `${Math.random() * 12 + 4}px` }} />
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-white/50">{Math.floor(vn.duration / 60)}:{(vn.duration % 60).toString().padStart(2, '0')}</span>
+                            </div>
+                            <Mic size={14} className={`shrink-0 ${isMe ? 'text-white/30' : 'text-indigo-400/50'}`} />
+                            <audio id={`audio-${msg.id}`} src={vn.url} preload="metadata" />
+                          </div>
+                        );
+                      })()}
+
                       <div className="pr-5 mt-0.5">
-                        <span className="break-words leading-relaxed">{msg.text}</span>
+                        {msg.text && <span className="break-words leading-relaxed">{msg.text}</span>}
+                        {!msg.text && !msg.attachment && !msg.voiceNote && <span className="break-words leading-relaxed"></span>}
                         {msg.isStarred && <Star size={12} className="inline-block text-yellow-400 fill-current opacity-80 shrink-0 ml-1.5 mb-[2px]" />}
                       </div>
 
@@ -3978,10 +4222,92 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </div>
           )}
 
+          {/* File Attachment Preview Strip */}
+          {attachedFiles.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-2 px-1 [&::-webkit-scrollbar]:hidden">
+              {attachedFiles.map((af, i) => {
+                const IconComp = getFileIcon(af.type, af.name);
+                return (
+                  <div key={i} className="relative shrink-0 group/file">
+                    {af.type?.startsWith('image/') ? (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10">
+                        <img src={af.url} alt={af.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-xl bg-[#1a1a1c] border border-white/10 flex flex-col items-center justify-center gap-1 px-1">
+                        <IconComp size={18} className="text-zinc-400" />
+                        <span className="text-[8px] text-zinc-500 truncate w-full text-center">{af.name.split('.').pop()?.toUpperCase()}</span>
+                      </div>
+                    )}
+                    <button 
+                      onClick={() => removeFile(i)} 
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors shadow-lg"
+                    >
+                      <X size={10} />
+                    </button>
+                    <span className="text-[8px] text-zinc-500 truncate block w-16 mt-0.5 text-center">{af.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Hidden file input */}
+          <input 
+            ref={fileInputRef}
+            type="file" 
+            multiple 
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+
           {/* Form Input */}
           {!canMessage ? (
             <div className="flex items-center justify-center p-3 text-sm text-zinc-500 bg-[#1e1e24] border border-white/[0.05] rounded-full relative z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
               Only admins can send messages in this group
+            </div>
+          ) : isRecording ? (
+            /* Voice Recording UI */
+            <div className="flex items-center gap-3 bg-[#1e1e24] border border-red-500/30 p-2 px-4 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10 animate-in fade-in duration-200">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shrink-0" />
+                <span className="text-sm text-red-400 font-mono font-medium tabular-nums">{formatRecordingTime(recordingTime)}</span>
+                <div className="flex items-center gap-[2px] flex-1 h-4 overflow-hidden">
+                  {Array.from({ length: 40 }, (_, i) => (
+                    <div key={i} className="w-[2px] rounded-full bg-red-400/40 animate-pulse" style={{ height: `${Math.random() * 14 + 3}px`, animationDelay: `${i * 50}ms` }} />
+                  ))}
+                </div>
+              </div>
+              <button type="button" onClick={cancelRecording} className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]" title="Cancel">
+                <Trash2 size={18} />
+              </button>
+              <button type="button" onClick={stopRecording} className="p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors shadow-lg active:scale-95" title="Stop">
+                <Square size={14} className="fill-current" />
+              </button>
+            </div>
+          ) : audioBlob ? (
+            /* Voice Message Review UI */
+            <div className="flex items-center gap-3 bg-[#1e1e24] border border-indigo-500/30 p-2 px-4 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10 animate-in fade-in duration-200">
+              <button 
+                type="button" 
+                onClick={() => { const a = document.getElementById('review-audio'); a && (a.paused ? a.play() : a.pause()); }}
+                className="p-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 rounded-full transition-colors"
+              >
+                <Play size={16} className="ml-0.5" />
+              </button>
+              <div className="flex items-center gap-[2px] flex-1 h-4">
+                {Array.from({ length: 35 }, (_, i) => (
+                  <div key={i} className="w-[2px] rounded-full bg-indigo-400/40" style={{ height: `${Math.random() * 12 + 4}px` }} />
+                ))}
+              </div>
+              <span className="text-xs text-zinc-400 font-mono tabular-nums">{formatRecordingTime(recordingTime)}</span>
+              <audio id="review-audio" src={audioUrl} preload="metadata" />
+              <button type="button" onClick={cancelRecording} className="p-2 text-zinc-400 hover:text-red-400 transition-colors rounded-full hover:bg-white/[0.05]" title="Discard">
+                <Trash2 size={16} />
+              </button>
+              <button type="button" onClick={sendVoiceMessage} className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95" title="Send">
+                <Send size={16} className="translate-x-[1px]" />
+              </button>
             </div>
           ) : (
             <form 
@@ -3995,7 +4321,12 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               >
                 <Smile size={20} />
               </button>
-              <button type="button" className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]">
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]"
+                title="Attach file (up to 2GB)"
+              >
                 <Paperclip size={20} />
               </button>
               
@@ -4009,12 +4340,12 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
               />
               
-              {inputText.trim() || replyingTo ? (
+              {inputText.trim() || replyingTo || attachedFiles.length > 0 ? (
                 <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95">
                   <Send size={18} className="translate-x-[1px] translate-y-[1px]" />
                 </button>
               ) : (
-                <button type="button" className="p-2.5 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]">
+                <button type="button" onClick={startRecording} className="p-2.5 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]" title="Record voice message">
                   <Mic size={18} />
                 </button>
               )}
