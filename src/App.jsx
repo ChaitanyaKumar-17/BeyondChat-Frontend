@@ -1413,7 +1413,6 @@ export default function App() {
   );
 }
 
-// --- VIEWS ---
 
 function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) {
   const [mode, setMode] = useState('select-type'); // 'select-type', 'select-members', 'name-group'
