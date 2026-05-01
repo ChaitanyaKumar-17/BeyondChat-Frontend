@@ -154,7 +154,6 @@ const formatLastSeen = (lastSeen, isOnline) => {
   return 'Last Week';
 };
 
-// --- MOCK DATA ---
 const currentUser = { 
   id: 0, 
   name: 'Alex Rivera', 
