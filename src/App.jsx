@@ -73,6 +73,20 @@ const getFileIcon = (type, name) => {
   return FileIcon;
 };
 
+// Generate a stable waveform pattern from a seed (message id)
+const generateWaveform = (seed, bars = 32) => {
+  let s = typeof seed === 'number' ? seed : 12345;
+  const heights = [];
+  for (let i = 0; i < bars; i++) {
+    s = (s * 16807 + 7) % 2147483647;
+    const base = ((s % 100) / 100) * 14 + 4; // 4-18px range
+    // Add voice-like envelope: louder in middle, quieter at edges
+    const envelope = 1 - Math.abs((i / bars) * 2 - 1) * 0.4;
+    heights.push(Math.round(base * envelope));
+  }
+  return heights;
+};
+
 
 
 // --- TIME FORMATTING HELPERS ---
@@ -154,6 +168,7 @@ const formatLastSeen = (lastSeen, isOnline) => {
   return 'Last Week';
 };
 
+// --- MOCK DATA ---
 const currentUser = { 
   id: 0, 
   name: 'Alex Rivera', 
@@ -1412,6 +1427,7 @@ export default function App() {
   );
 }
 
+// --- VIEWS ---
 
 function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) {
   const [mode, setMode] = useState('select-type'); // 'select-type', 'select-members', 'name-group'
@@ -3171,6 +3187,88 @@ function ReceiptIndicator({ status }) {
   return null;
 }
 
+// Voice note player with play/pause and progress bar
+function VoiceNotePlayer({ msgId, url, duration, isMe }) {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef(null);
+  const waveHeights = useMemo(() => generateWaveform(msgId, 32), [msgId]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      setProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
+    };
+    const onEnded = () => { setPlaying(false); setProgress(0); setCurrentTime(0); };
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    return () => {
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+    };
+  }, []);
+
+  const togglePlay = (e) => {
+    e.stopPropagation();
+    const audio = audioRef.current;
+    if (!audio) return;
+    playing ? audio.pause() : audio.play();
+  };
+
+  const seek = (e) => {
+    e.stopPropagation();
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = pct * audio.duration;
+  };
+
+  const formatTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
+
+  const filledBars = Math.floor((progress / 100) * waveHeights.length);
+
+  return (
+    <div className={`flex items-center gap-3 rounded-xl p-3 mb-1 min-w-[220px] ${isMe ? 'bg-indigo-700/40' : 'bg-white/[0.04]'}`}>
+      <button 
+        onClick={togglePlay}
+        className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30' : 'bg-indigo-500/20 hover:bg-indigo-500/30'}`}
+      >
+        {playing ? <Pause size={16} className="text-white" /> : <Play size={16} className="text-white ml-0.5" />}
+      </button>
+      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+        <div className="flex items-end gap-[2px] h-5 cursor-pointer" onClick={seek}>
+          {waveHeights.map((h, i) => (
+            <div 
+              key={i} 
+              className={`w-[3px] rounded-full transition-colors duration-150 ${i < filledBars ? (isMe ? 'bg-white/80' : 'bg-indigo-400') : (isMe ? 'bg-white/25' : 'bg-indigo-400/30')}`} 
+              style={{ height: `${h}px` }} 
+            />
+          ))}
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-[10px] text-white/50 font-mono tabular-nums">{playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}</span>
+          <Mic size={12} className={`shrink-0 ${isMe ? 'text-white/25' : 'text-indigo-400/40'}`} />
+        </div>
+      </div>
+      <audio ref={audioRef} src={url} preload="metadata" />
+    </div>
+  );
+}
+
 function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
@@ -3215,9 +3313,13 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [liveBars, setLiveBars] = useState(new Array(40).fill(4));
   const mediaRecorderRef = useRef(null);
   const recordingTimerRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const analyserRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const audioCtxRef = useRef(null);
 
   // File attachment state
   const [attachedFiles, setAttachedFiles] = useState([]);
@@ -3423,6 +3525,33 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
+      // Set up Web Audio API for real frequency visualization
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtxRef.current = audioCtx;
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.7;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const updateBars = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const barCount = 40;
+        const step = Math.floor(bufferLength / barCount);
+        const bars = [];
+        for (let i = 0; i < barCount; i++) {
+          const val = dataArray[i * step] || 0;
+          bars.push(Math.max(3, (val / 255) * 20));
+        }
+        setLiveBars(bars);
+        animFrameRef.current = requestAnimationFrame(updateBars);
+      };
+      updateBars();
+
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
@@ -3446,12 +3575,21 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     }
   };
 
+  const cleanupRecording = () => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (audioCtxRef.current) { try { audioCtxRef.current.close(); } catch(e) {} }
+    analyserRef.current = null;
+    audioCtxRef.current = null;
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    setLiveBars(new Array(40).fill(4));
+  };
+
   const stopRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
     setIsRecording(false);
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    cleanupRecording();
   };
 
   const cancelRecording = () => {
@@ -3462,7 +3600,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     setAudioBlob(null);
     setAudioUrl(null);
     setRecordingTime(0);
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    cleanupRecording();
   };
 
   const sendVoiceMessage = () => {
@@ -3970,33 +4108,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       })()}
 
                       {/* Voice Note */}
-                      {msg.voiceNote && (() => {
-                        const vn = msg.voiceNote;
-                        return (
-                          <div className={`flex items-center gap-3 rounded-xl p-3 mb-1 min-w-[220px] ${isMe ? 'bg-indigo-700/40' : 'bg-white/[0.04]'}`}>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const audio = document.getElementById(`audio-${msg.id}`);
-                                if (audio) audio.paused ? audio.play() : audio.pause();
-                              }}
-                              className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30' : 'bg-indigo-500/20 hover:bg-indigo-500/30'}`}
-                            >
-                              <Play size={16} className="text-white ml-0.5" />
-                            </button>
-                            <div className="flex-1 min-w-0 flex flex-col gap-1">
-                              <div className="flex items-center gap-[2px] h-4">
-                                {Array.from({ length: 28 }, (_, i) => (
-                                  <div key={i} className={`w-[3px] rounded-full ${isMe ? 'bg-white/40' : 'bg-indigo-400/50'}`} style={{ height: `${Math.random() * 12 + 4}px` }} />
-                                ))}
-                              </div>
-                              <span className="text-[10px] text-white/50">{Math.floor(vn.duration / 60)}:{(vn.duration % 60).toString().padStart(2, '0')}</span>
-                            </div>
-                            <Mic size={14} className={`shrink-0 ${isMe ? 'text-white/30' : 'text-indigo-400/50'}`} />
-                            <audio id={`audio-${msg.id}`} src={vn.url} preload="metadata" />
-                          </div>
-                        );
-                      })()}
+                      {msg.voiceNote && (
+                        <VoiceNotePlayer msgId={msg.id} url={msg.voiceNote.url} duration={msg.voiceNote.duration} isMe={isMe} />
+                      )}
 
                       <div className="pr-5 mt-0.5">
                         {msg.text && <span className="break-words leading-relaxed">{msg.text}</span>}
@@ -4220,33 +4334,47 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </div>
           )}
 
-          {/* File Attachment Preview Strip */}
+          {/* File Attachment Preview Panel */}
           {attachedFiles.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-2 px-1 [&::-webkit-scrollbar]:hidden">
-              {attachedFiles.map((af, i) => {
-                const IconComp = getFileIcon(af.type, af.name);
-                return (
-                  <div key={i} className="relative shrink-0 group/file">
-                    {af.type?.startsWith('image/') ? (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10">
-                        <img src={af.url} alt={af.name} className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="w-16 h-16 rounded-xl bg-[#1a1a1c] border border-white/10 flex flex-col items-center justify-center gap-1 px-1">
-                        <IconComp size={18} className="text-zinc-400" />
-                        <span className="text-[8px] text-zinc-500 truncate w-full text-center">{af.name.split('.').pop()?.toUpperCase()}</span>
-                      </div>
-                    )}
-                    <button 
-                      onClick={() => removeFile(i)} 
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors shadow-lg"
-                    >
-                      <X size={10} />
-                    </button>
-                    <span className="text-[8px] text-zinc-500 truncate block w-16 mt-0.5 text-center">{af.name}</span>
-                  </div>
-                );
-              })}
+            <div className="bg-[#1a1a1c]/90 backdrop-blur-md border border-white/[0.05] rounded-2xl p-3 mb-2 animate-in slide-in-from-bottom-2 duration-200">
+              <div className="flex items-center justify-between mb-2 px-1">
+                <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">{attachedFiles.length} file{attachedFiles.length > 1 ? 's' : ''} attached</span>
+                <button onClick={() => { attachedFiles.forEach(af => af.url && URL.revokeObjectURL(af.url)); setAttachedFiles([]); }} className="text-[10px] text-red-400 hover:text-red-300 transition-colors">Clear all</button>
+              </div>
+              <div className="flex gap-2.5 overflow-x-auto pt-3 pb-1 [&::-webkit-scrollbar]:hidden">
+                {attachedFiles.map((af, i) => {
+                  const IconComp = getFileIcon(af.type, af.name);
+                  return (
+                    <div key={i} className="relative shrink-0">
+                      {af.type?.startsWith('image/') ? (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/10">
+                          <img src={af.url} alt={af.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : af.type?.startsWith('video/') ? (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/10 relative bg-black">
+                          <video src={af.url} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <Play size={18} className="text-white/80" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded-xl bg-[#252528] border border-white/[0.06] flex flex-col items-center justify-center gap-1.5 px-2">
+                          <IconComp size={22} className="text-indigo-400/70" />
+                          <span className="text-[8px] text-zinc-400 font-medium truncate w-full text-center">{af.name.split('.').pop()?.toUpperCase()}</span>
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => removeFile(i)} 
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors shadow-lg z-10"
+                      >
+                        <X size={10} />
+                      </button>
+                      <p className="text-[8px] text-zinc-500 truncate w-20 mt-1 text-center">{af.name}</p>
+                      <p className="text-[7px] text-zinc-600 w-20 text-center">{formatFileSize(af.size)}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -4270,9 +4398,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <div className="flex items-center gap-2 flex-1">
                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shrink-0" />
                 <span className="text-sm text-red-400 font-mono font-medium tabular-nums">{formatRecordingTime(recordingTime)}</span>
-                <div className="flex items-center gap-[2px] flex-1 h-4 overflow-hidden">
-                  {Array.from({ length: 40 }, (_, i) => (
-                    <div key={i} className="w-[2px] rounded-full bg-red-400/40 animate-pulse" style={{ height: `${Math.random() * 14 + 3}px`, animationDelay: `${i * 50}ms` }} />
+                <div className="flex items-end gap-[2px] flex-1 h-5 overflow-hidden">
+                  {liveBars.map((h, i) => (
+                    <div key={i} className="w-[2px] rounded-full bg-red-400/70 transition-[height] duration-75" style={{ height: `${h}px` }} />
                   ))}
                 </div>
               </div>
@@ -4293,9 +4421,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               >
                 <Play size={16} className="ml-0.5" />
               </button>
-              <div className="flex items-center gap-[2px] flex-1 h-4">
-                {Array.from({ length: 35 }, (_, i) => (
-                  <div key={i} className="w-[2px] rounded-full bg-indigo-400/40" style={{ height: `${Math.random() * 12 + 4}px` }} />
+              <div className="flex items-end gap-[2px] flex-1 h-5">
+                {generateWaveform(Date.now(), 35).map((h, i) => (
+                  <div key={i} className="w-[2px] rounded-full bg-indigo-400/50" style={{ height: `${h}px` }} />
                 ))}
               </div>
               <span className="text-xs text-zinc-400 font-mono tabular-nums">{formatRecordingTime(recordingTime)}</span>
@@ -5216,6 +5344,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   );
 }
 
+// --- HELPERS ---
 
 function StoryRing({ stories, type }) {
   const count = stories.length;
@@ -5485,6 +5614,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Create Community Modal */}
       {showCreateModal && (
         <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200 max-h-[80vh]">

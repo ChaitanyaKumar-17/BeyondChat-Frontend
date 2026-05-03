@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@keyframes voiceWave {
+  0% { height: 4px; }
+  50% { height: 18px; }
+  100% { height: 6px; }
+}
