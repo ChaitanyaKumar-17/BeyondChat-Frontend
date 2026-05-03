@@ -3078,7 +3078,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
                 }}
                 className={`absolute right-2 md:right-1.5 p-2 md:p-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-all duration-300 shadow-lg shadow-indigo-500/20 ${replyText.trim() ? 'scale-100 opacity-100' : 'scale-50 opacity-0 pointer-events-none'}`}
               >
-                <Send className="w-4 h-4 md:w-3.5 md:h-3.5 translate-x-[1px] translate-y-[1px]" />
+                <Send className="w-4 h-4 md:w-3.5 md:h-3.5" />
               </button>
             </div>
             
@@ -3265,6 +3265,58 @@ function VoiceNotePlayer({ msgId, url, duration, isMe }) {
         </div>
       </div>
       <audio ref={audioRef} src={url} preload="metadata" />
+    </div>
+  );
+}
+
+// Inline voice review player (same pill style, with play/pause + progress)
+function VoiceReviewPlayer({ url, duration, onCancel, onSend }) {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef(null);
+  const waveHeights = useMemo(() => generateWaveform(77777, 35), []);
+  const filledBars = Math.floor((progress / 100) * waveHeights.length);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTime = () => { setCurrentTime(audio.currentTime); setProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0); };
+    const onEnd = () => { setPlaying(false); setProgress(0); setCurrentTime(0); };
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    audio.addEventListener('timeupdate', onTime);
+    audio.addEventListener('ended', onEnd);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    return () => { audio.removeEventListener('timeupdate', onTime); audio.removeEventListener('ended', onEnd); audio.removeEventListener('play', onPlay); audio.removeEventListener('pause', onPause); };
+  }, [url]);
+
+  const seek = (e) => { const audio = audioRef.current; if (!audio || !audio.duration) return; const rect = e.currentTarget.getBoundingClientRect(); audio.currentTime = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * audio.duration; };
+  const fmtTime = (s) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+
+  return (
+    <div className="flex items-center gap-3 bg-[#1e1e24] border border-indigo-500/30 p-2 px-4 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10 animate-in fade-in duration-200">
+      <button 
+        type="button" 
+        onClick={() => { const a = audioRef.current; a && (playing ? a.pause() : a.play()); }}
+        className="p-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 rounded-full transition-colors"
+      >
+        {playing ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+      </button>
+      <div className="flex items-end gap-[2px] flex-1 h-5 cursor-pointer" onClick={seek}>
+        {waveHeights.map((h, i) => (
+          <div key={i} className={`w-[2px] rounded-full transition-colors duration-100 ${i < filledBars ? 'bg-indigo-400' : 'bg-indigo-400/25'}`} style={{ height: `${h}px` }} />
+        ))}
+      </div>
+      <span className="text-xs text-zinc-400 font-mono tabular-nums shrink-0">{playing || currentTime > 0 ? fmtTime(currentTime) : fmtTime(duration)}</span>
+      <audio ref={audioRef} src={url} preload="metadata" />
+      <button type="button" onClick={onCancel} className="p-2 text-zinc-400 hover:text-red-400 transition-colors rounded-full hover:bg-white/[0.05]" title="Discard">
+        <Trash2 size={16} />
+      </button>
+      <button type="button" onClick={onSend} className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95" title="Send">
+        <Send size={16} />
+      </button>
     </div>
   );
 }
@@ -4412,29 +4464,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               </button>
             </div>
           ) : audioBlob ? (
-            /* Voice Message Review UI */
-            <div className="flex items-center gap-3 bg-[#1e1e24] border border-indigo-500/30 p-2 px-4 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10 animate-in fade-in duration-200">
-              <button 
-                type="button" 
-                onClick={() => { const a = document.getElementById('review-audio'); a && (a.paused ? a.play() : a.pause()); }}
-                className="p-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 rounded-full transition-colors"
-              >
-                <Play size={16} className="ml-0.5" />
-              </button>
-              <div className="flex items-end gap-[2px] flex-1 h-5">
-                {generateWaveform(Date.now(), 35).map((h, i) => (
-                  <div key={i} className="w-[2px] rounded-full bg-indigo-400/50" style={{ height: `${h}px` }} />
-                ))}
-              </div>
-              <span className="text-xs text-zinc-400 font-mono tabular-nums">{formatRecordingTime(recordingTime)}</span>
-              <audio id="review-audio" src={audioUrl} preload="metadata" />
-              <button type="button" onClick={cancelRecording} className="p-2 text-zinc-400 hover:text-red-400 transition-colors rounded-full hover:bg-white/[0.05]" title="Discard">
-                <Trash2 size={16} />
-              </button>
-              <button type="button" onClick={sendVoiceMessage} className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95" title="Send">
-                <Send size={16} className="translate-x-[1px]" />
-              </button>
-            </div>
+            <VoiceReviewPlayer url={audioUrl} duration={recordingTime} onCancel={cancelRecording} onSend={sendVoiceMessage} />
           ) : (
             <form 
               onSubmit={handleSend}
@@ -4468,7 +4498,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               
               {inputText.trim() || replyingTo || attachedFiles.length > 0 ? (
                 <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95">
-                  <Send size={18} className="translate-x-[1px] translate-y-[1px]" />
+                  <Send size={18} />
                 </button>
               ) : (
                 <button type="button" onClick={startRecording} className="p-2.5 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]" title="Record voice message">
