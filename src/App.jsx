@@ -5644,7 +5644,6 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
-      {/* Create Community Modal */}
       {showCreateModal && (
         <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200 max-h-[80vh]">
