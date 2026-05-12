@@ -5374,7 +5374,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   );
 }
 
-// --- HELPERS ---
 
 function StoryRing({ stories, type }) {
   const count = stories.length;
