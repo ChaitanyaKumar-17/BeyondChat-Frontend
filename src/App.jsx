@@ -52,10 +52,121 @@ import {
   FileArchive,
   Download,
   Square,
-  File as FileIcon
+  File as FileIcon,
+  Sticker,
+  SearchIcon
 } from 'lucide-react';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+
+// Curated GIF categories with direct GIPHY CDN URLs (no API key needed)
+const CURATED_GIF_CATEGORIES = [
+  { id: 'reactions', name: '🔥 Reactions', gifs: [
+    { id: 'g1', title: 'Thumbs Up', url: 'https://media.giphy.com/media/111ebonMs90YLu/giphy.gif' },
+    { id: 'g2', title: 'Mind Blown', url: 'https://media.giphy.com/media/xT0xeJpnrWC3XWblEk/giphy.gif' },
+    { id: 'g3', title: 'Wow', url: 'https://media.giphy.com/media/l0MYGb1LuZ3n7dRnO/giphy.gif' },
+    { id: 'g4', title: 'Shocked', url: 'https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif' },
+    { id: 'g5', title: 'Eye Roll', url: 'https://media.giphy.com/media/Pn1gZzAY38kbm/giphy.gif' },
+    { id: 'g6', title: 'Facepalm', url: 'https://media.giphy.com/media/XsUtdIeJ0MWMo/giphy.gif' },
+  ]},
+  { id: 'funny', name: '😂 Funny', gifs: [
+    { id: 'g7', title: 'LOL', url: 'https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif' },
+    { id: 'g8', title: 'Dancing', url: 'https://media.giphy.com/media/l0HlNQ03J5JxX2rGM/giphy.gif' },
+    { id: 'g9', title: 'Laughing', url: 'https://media.giphy.com/media/ZqlvCTNHpqrio/giphy.gif' },
+    { id: 'g10', title: 'Deal With It', url: 'https://media.giphy.com/media/3o7TKnO6Wfe8R1B95e/giphy.gif' },
+    { id: 'g11', title: 'Sarcastic', url: 'https://media.giphy.com/media/AoBgxayGMHlIs/giphy.gif' },
+    { id: 'g12', title: 'Awkward', url: 'https://media.giphy.com/media/l41lGvinEgARjB2HC/giphy.gif' },
+  ]},
+  { id: 'love', name: '❤️ Love', gifs: [
+    { id: 'g13', title: 'Heart', url: 'https://media.giphy.com/media/l4pTdcifPZLpDjL1e/giphy.gif' },
+    { id: 'g14', title: 'Kiss', url: 'https://media.giphy.com/media/G6sJqVpD1U4jC/giphy.gif' },
+    { id: 'g15', title: 'Hug', url: 'https://media.giphy.com/media/XpgOZHuDfIkoM/giphy.gif' },
+    { id: 'g16', title: 'Love Eyes', url: 'https://media.giphy.com/media/l0ExhcMymdL2TKgKY/giphy.gif' },
+    { id: 'g17', title: 'Blush', url: 'https://media.giphy.com/media/26vUxJ9rqfwuIEkTu/giphy.gif' },
+    { id: 'g18', title: 'Heart Pop', url: 'https://media.giphy.com/media/3oEjI4sFlp73fvEYgw/giphy.gif' },
+  ]},
+  { id: 'celebrate', name: '🎉 Celebrations', gifs: [
+    { id: 'g19', title: 'Party', url: 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif' },
+    { id: 'g20', title: 'Confetti', url: 'https://media.giphy.com/media/g9582DNuQppxC/giphy.gif' },
+    { id: 'g21', title: 'High Five', url: 'https://media.giphy.com/media/3oEjHV0z8S7WM4MwnK/giphy.gif' },
+    { id: 'g22', title: 'Clapping', url: 'https://media.giphy.com/media/NEvPzZ8bd1V4Y/giphy.gif' },
+    { id: 'g23', title: 'Success', url: 'https://media.giphy.com/media/a0h7sAqON67nO/giphy.gif' },
+    { id: 'g24', title: 'Fireworks', url: 'https://media.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif' },
+  ]},
+  { id: 'animals', name: '🐾 Animals', gifs: [
+    { id: 'g25', title: 'Cute Cat', url: 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif' },
+    { id: 'g26', title: 'Happy Dog', url: 'https://media.giphy.com/media/mCRJDo24UvJMA/giphy.gif' },
+    { id: 'g27', title: 'Panda Roll', url: 'https://media.giphy.com/media/EatwJZRUIv41G/giphy.gif' },
+    { id: 'g28', title: 'Baby Otter', url: 'https://media.giphy.com/media/dSetRSJcR3PGqkvjRg/giphy.gif' },
+    { id: 'g29', title: 'Bunny', url: 'https://media.giphy.com/media/1iu8uG2cjYFZS6wTxv/giphy.gif' },
+    { id: 'g30', title: 'Penguin', url: 'https://media.giphy.com/media/berMeA31UJmfe/giphy.gif' },
+  ]},
+];
+
+const STICKER_PACKS = [
+  { id: 'emotions', name: 'Emotions', builtin: true, stickers: [
+    { id: 'e1', emoji: '😂', label: 'Crying laughing' }, { id: 'e2', emoji: '😍', label: 'Heart eyes' },
+    { id: 'e3', emoji: '🥺', label: 'Pleading' }, { id: 'e4', emoji: '😱', label: 'Shocked' },
+    { id: 'e5', emoji: '🤯', label: 'Mind blown' }, { id: 'e6', emoji: '😎', label: 'Cool' },
+    { id: 'e7', emoji: '🥳', label: 'Party' }, { id: 'e8', emoji: '😴', label: 'Sleepy' },
+    { id: 'e9', emoji: '🤗', label: 'Hugging' }, { id: 'e10', emoji: '😤', label: 'Frustrated' },
+    { id: 'e11', emoji: '🤣', label: 'ROFL' }, { id: 'e12', emoji: '😇', label: 'Angel' },
+  ]},
+  { id: 'reactions', name: 'Reactions', builtin: true, stickers: [
+    { id: 'r1', emoji: '👍', label: 'Thumbs up' }, { id: 'r2', emoji: '👏', label: 'Clap' },
+    { id: 'r3', emoji: '🔥', label: 'Fire' }, { id: 'r4', emoji: '💯', label: '100' },
+    { id: 'r5', emoji: '❤️', label: 'Heart' }, { id: 'r6', emoji: '💀', label: 'Dead' },
+    { id: 'r7', emoji: '🙏', label: 'Pray' }, { id: 'r8', emoji: '✨', label: 'Sparkle' },
+    { id: 'r9', emoji: '💪', label: 'Strong' }, { id: 'r10', emoji: '🤝', label: 'Handshake' },
+    { id: 'r11', emoji: '👀', label: 'Eyes' }, { id: 'r12', emoji: '🫡', label: 'Salute' },
+  ]},
+  { id: 'animals', name: 'Animals', builtin: true, stickers: [
+    { id: 'a1', emoji: '🐶', label: 'Dog' }, { id: 'a2', emoji: '🐱', label: 'Cat' },
+    { id: 'a3', emoji: '🐻', label: 'Bear' }, { id: 'a4', emoji: '🦊', label: 'Fox' },
+    { id: 'a5', emoji: '🐼', label: 'Panda' }, { id: 'a6', emoji: '🦁', label: 'Lion' },
+    { id: 'a7', emoji: '🐸', label: 'Frog' }, { id: 'a8', emoji: '🦋', label: 'Butterfly' },
+    { id: 'a9', emoji: '🐧', label: 'Penguin' }, { id: 'a10', emoji: '🦄', label: 'Unicorn' },
+    { id: 'a11', emoji: '🐣', label: 'Chick' }, { id: 'a12', emoji: '🐙', label: 'Octopus' },
+  ]},
+  { id: 'food', name: 'Food', builtin: true, stickers: [
+    { id: 'f1', emoji: '🍕', label: 'Pizza' }, { id: 'f2', emoji: '🍔', label: 'Burger' },
+    { id: 'f3', emoji: '☕', label: 'Coffee' }, { id: 'f4', emoji: '🍰', label: 'Cake' },
+    { id: 'f5', emoji: '🍣', label: 'Sushi' }, { id: 'f6', emoji: '🌮', label: 'Taco' },
+    { id: 'f7', emoji: '🍩', label: 'Donut' }, { id: 'f8', emoji: '🧁', label: 'Cupcake' },
+    { id: 'f9', emoji: '🍿', label: 'Popcorn' }, { id: 'f10', emoji: '🥤', label: 'Drink' },
+    { id: 'f11', emoji: '🍦', label: 'Ice cream' }, { id: 'f12', emoji: '🧋', label: 'Boba' },
+  ]},
+  { id: 'gestures', name: 'Gestures', builtin: true, stickers: [
+    { id: 'g1', emoji: '✌️', label: 'Peace' }, { id: 'g2', emoji: '🤙', label: 'Call me' },
+    { id: 'g3', emoji: '🫶', label: 'Heart hands' }, { id: 'g4', emoji: '🤌', label: 'Pinch' },
+    { id: 'g5', emoji: '👋', label: 'Wave' }, { id: 'g6', emoji: '🫣', label: 'Peeking' },
+    { id: 'g7', emoji: '🤫', label: 'Shush' }, { id: 'g8', emoji: '🫠', label: 'Melting' },
+    { id: 'g9', emoji: '💃', label: 'Dance' }, { id: 'g10', emoji: '🕺', label: 'Groove' },
+    { id: 'g11', emoji: '🙌', label: 'Celebration' }, { id: 'g12', emoji: '🤷', label: 'Shrug' },
+  ]},
+];
+
+// External sticker packs available in the store
+const STICKER_STORE_PACKS = [
+  { id: 'weather', name: 'Weather', preview: '🌤️', description: 'Sun, rain, snow & more', stickers: [
+    { id: 'w1', emoji: '☀️', label: 'Sunny' }, { id: 'w2', emoji: '🌧️', label: 'Rainy' }, { id: 'w3', emoji: '⛈️', label: 'Storm' }, { id: 'w4', emoji: '❄️', label: 'Snow' }, { id: 'w5', emoji: '🌈', label: 'Rainbow' }, { id: 'w6', emoji: '🌪️', label: 'Tornado' }, { id: 'w7', emoji: '🌙', label: 'Moon' }, { id: 'w8', emoji: '⭐', label: 'Star' }, { id: 'w9', emoji: '🌊', label: 'Wave' }, { id: 'w10', emoji: '🔥', label: 'Hot' }, { id: 'w11', emoji: '🥶', label: 'Cold' }, { id: 'w12', emoji: '🌅', label: 'Sunset' },
+  ]},
+  { id: 'sports', name: 'Sports', preview: '⚽', description: 'Goals, hoops & touchdowns', stickers: [
+    { id: 's1', emoji: '⚽', label: 'Soccer' }, { id: 's2', emoji: '🏀', label: 'Basketball' }, { id: 's3', emoji: '🏈', label: 'Football' }, { id: 's4', emoji: '⚾', label: 'Baseball' }, { id: 's5', emoji: '🎾', label: 'Tennis' }, { id: 's6', emoji: '🏐', label: 'Volleyball' }, { id: 's7', emoji: '🥊', label: 'Boxing' }, { id: 's8', emoji: '🏆', label: 'Trophy' }, { id: 's9', emoji: '🥇', label: 'Gold medal' }, { id: 's10', emoji: '🎯', label: 'Bullseye' }, { id: 's11', emoji: '🏋️', label: 'Weights' }, { id: 's12', emoji: '🚴', label: 'Cycling' },
+  ]},
+  { id: 'travel', name: 'Travel', preview: '✈️', description: 'Planes, places & adventure', stickers: [
+    { id: 't1', emoji: '✈️', label: 'Plane' }, { id: 't2', emoji: '🗺️', label: 'Map' }, { id: 't3', emoji: '🏖️', label: 'Beach' }, { id: 't4', emoji: '⛰️', label: 'Mountain' }, { id: 't5', emoji: '🏰', label: 'Castle' }, { id: 't6', emoji: '🗽', label: 'Statue' }, { id: 't7', emoji: '🚗', label: 'Car' }, { id: 't8', emoji: '🚂', label: 'Train' }, { id: 't9', emoji: '⛵', label: 'Sailboat' }, { id: 't10', emoji: '🎒', label: 'Backpack' }, { id: 't11', emoji: '📸', label: 'Camera' }, { id: 't12', emoji: '🧳', label: 'Luggage' },
+  ]},
+  { id: 'music', name: 'Music', preview: '🎵', description: 'Beats, notes & instruments', stickers: [
+    { id: 'm1', emoji: '🎵', label: 'Music' }, { id: 'm2', emoji: '🎸', label: 'Guitar' }, { id: 'm3', emoji: '🎹', label: 'Piano' }, { id: 'm4', emoji: '🥁', label: 'Drums' }, { id: 'm5', emoji: '🎤', label: 'Mic' }, { id: 'm6', emoji: '🎧', label: 'Headphones' }, { id: 'm7', emoji: '🎺', label: 'Trumpet' }, { id: 'm8', emoji: '🎻', label: 'Violin' }, { id: 'm9', emoji: '🎶', label: 'Notes' }, { id: 'm10', emoji: '📻', label: 'Radio' }, { id: 'm11', emoji: '🔊', label: 'Speaker' }, { id: 'm12', emoji: '💿', label: 'CD' },
+  ]},
+  { id: 'tech', name: 'Tech', preview: '💻', description: 'Gadgets, code & innovation', stickers: [
+    { id: 'tc1', emoji: '💻', label: 'Laptop' }, { id: 'tc2', emoji: '📱', label: 'Phone' }, { id: 'tc3', emoji: '🤖', label: 'Robot' }, { id: 'tc4', emoji: '🎮', label: 'Gaming' }, { id: 'tc5', emoji: '⌨️', label: 'Keyboard' }, { id: 'tc6', emoji: '🖥️', label: 'Desktop' }, { id: 'tc7', emoji: '📡', label: 'Satellite' }, { id: 'tc8', emoji: '🔋', label: 'Battery' }, { id: 'tc9', emoji: '💡', label: 'Idea' }, { id: 'tc10', emoji: '⚡', label: 'Lightning' }, { id: 'tc11', emoji: '🛸', label: 'UFO' }, { id: 'tc12', emoji: '🧬', label: 'DNA' },
+  ]},
+  { id: 'space', name: 'Space', preview: '🚀', description: 'Rockets, planets & galaxies', stickers: [
+    { id: 'sp1', emoji: '🚀', label: 'Rocket' }, { id: 'sp2', emoji: '🌍', label: 'Earth' }, { id: 'sp3', emoji: '🌕', label: 'Moon' }, { id: 'sp4', emoji: '⭐', label: 'Star' }, { id: 'sp5', emoji: '☄️', label: 'Comet' }, { id: 'sp6', emoji: '🪐', label: 'Saturn' }, { id: 'sp7', emoji: '👽', label: 'Alien' }, { id: 'sp8', emoji: '🛰️', label: 'Satellite' }, { id: 'sp9', emoji: '🌌', label: 'Galaxy' }, { id: 'sp10', emoji: '🔭', label: 'Telescope' }, { id: 'sp11', emoji: '👨‍🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '🌠', label: 'Shooting star' },
+  ]},
+];
 
 const formatFileSize = (bytes) => {
   if (!bytes) return '0 B';
@@ -792,7 +903,7 @@ export default function App() {
     const isDisappearing = disappearingChats[userId]?.enabled;
     
     // Generate preview text for non-text messages
-    const previewText = text || (newMessage.attachment ? `📎 ${newMessage.attachment.name}` : (newMessage.voiceNote ? '🎙 Voice message' : ''));
+    const previewText = text || (newMessage.attachment ? `📎 ${newMessage.attachment.name}` : (newMessage.voiceNote ? '🎙 Voice message' : (newMessage.gif ? 'GIF' : (newMessage.sticker ? newMessage.sticker.emoji : ''))));
 
     setRecentConversations(prev => {
       const existingRecent = prev.find(c => c.id === userId);
@@ -3355,6 +3466,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
   // New States for requested features
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [pickerTab, setPickerTab] = useState('emoji'); // 'emoji' | 'gif' | 'sticker'
+  const [gifSearch, setGifSearch] = useState('');
+  const [installedPacks, setInstalledPacks] = useState([]); // IDs of installed external packs
+  const [showStickerStore, setShowStickerStore] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null); // { id, text, senderId }
   const [reactionPopupId, setReactionPopupId] = useState(null);
   const [activeMsgId, setActiveMsgId] = useState(null);
@@ -3362,6 +3477,48 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [isScrolledUp, setIsScrolledUp] = useState(false);
   const [newMsgCount, setNewMsgCount] = useState(0);
   const [firstUnreadMsgId, setFirstUnreadMsgId] = useState(null);
+
+  // All sticker packs = built-in + installed external ones
+  const allStickerPacks = useMemo(() => {
+    const external = STICKER_STORE_PACKS.filter(p => installedPacks.includes(p.id));
+    return [...STICKER_PACKS, ...external];
+  }, [installedPacks]);
+
+  // Curated GIF filtering (no API needed)
+  const filteredGifs = useMemo(() => {
+    const q = gifSearch.toLowerCase().trim();
+    if (!q) return CURATED_GIF_CATEGORIES;
+    return CURATED_GIF_CATEGORIES.map(cat => ({
+      ...cat,
+      gifs: cat.gifs.filter(g => g.title.toLowerCase().includes(q))
+    })).filter(cat => cat.gifs.length > 0);
+  }, [gifSearch]);
+
+  const sendGif = (gif) => {
+    const payload = {
+      id: Date.now() + Math.random(),
+      senderId: currentUser.id,
+      timestamp: Date.now(),
+      status: 'sent',
+      isStarred: false,
+      gif: { url: gif.url, title: gif.title }
+    };
+    onSendMessage(chat.id, null, null, payload);
+    setShowEmojiPicker(false);
+  };
+
+  const sendSticker = (sticker) => {
+    const payload = {
+      id: Date.now() + Math.random(),
+      senderId: currentUser.id,
+      timestamp: Date.now(),
+      status: 'sent',
+      isStarred: false,
+      sticker: { id: sticker.id, emoji: sticker.emoji, label: sticker.label }
+    };
+    onSendMessage(chat.id, null, null, payload);
+    setShowEmojiPicker(false);
+  };
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -3577,6 +3734,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     setAttachedFiles([]);
     setViewOnceEnabled(false);
   };
+
 
   // --- VOICE RECORDING HANDLERS ---
   const startRecording = async () => {
@@ -4212,9 +4370,27 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         <VoiceNotePlayer msgId={msg.id} url={msg.voiceNote.url} duration={msg.voiceNote.duration} isMe={isMe} />
                       )}
 
+                      {/* GIF */}
+                      {msg.gif && (
+                        <div className="rounded-xl overflow-hidden mb-1 max-w-[250px]">
+                          <img src={msg.gif.url} alt={msg.gif.title || 'GIF'} className="w-full h-auto rounded-xl" />
+                          <div className="flex items-center gap-1 px-2 py-1">
+                            <span className="text-[9px] font-bold text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded">GIF</span>
+                            {msg.gif.title && <span className="text-[9px] text-zinc-600 truncate">{msg.gif.title}</span>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Sticker */}
+                      {msg.sticker && (
+                        <div className="flex items-center justify-center py-1 mb-1">
+                          <span className="text-6xl hover:scale-110 transition-transform cursor-default" title={msg.sticker.label}>{msg.sticker.emoji}</span>
+                        </div>
+                      )}
+
                       <div className="pr-5 mt-0.5">
                         {msg.text && <span className="break-words leading-relaxed">{msg.text}</span>}
-                        {!msg.text && !msg.attachment && !msg.voiceNote && <span className="break-words leading-relaxed"></span>}
+                        {!msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && <span className="break-words leading-relaxed"></span>}
                         {msg.isStarred && <Star size={12} className="inline-block text-yellow-400 fill-current opacity-80 shrink-0 ml-1.5 mb-[2px]" />}
                       </div>
 
@@ -4371,66 +4547,210 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </div>
           )}
 
-          {/* EMOJI TRAY */}
+          {/* UNIFIED PICKER: Emoji / GIF / Sticker */}
           {showEmojiPicker && (
-            <div className="absolute bottom-[100%] left-0 w-full md:w-[350px] md:left-6 h-80 mb-2 bg-[#1a1a1c]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col z-[70] overflow-hidden animate-in slide-in-from-bottom-4">
-               {/* ACCURACY FIX: Added explicit close button header */}
-               <div className="flex items-center justify-between p-3 bg-black/20 border-b border-white/5">
-                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider pl-1">Emojis</span>
+            <div className="absolute bottom-[100%] left-0 w-full md:w-[380px] md:left-6 h-80 mb-2 bg-[#1a1a1c]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col z-[70] overflow-hidden animate-in slide-in-from-bottom-4">
+               {/* Header with tabs */}
+               <div className="flex items-center justify-between p-2.5 bg-black/20 border-b border-white/5">
+                 <div className="flex gap-1">
+                   {[
+                     { id: 'emoji', icon: <Smile size={15} />, label: 'Emojis' },
+                     { id: 'gif', icon: <span className="text-[11px] font-bold leading-none">GIF</span>, label: 'GIFs' },
+                     { id: 'sticker', icon: <Sticker size={15} />, label: 'Stickers' },
+                   ].map(tab => (
+                     <button 
+                       key={tab.id}
+                       type="button" 
+                       onClick={() => setPickerTab(tab.id)}
+                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                         pickerTab === tab.id 
+                           ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' 
+                           : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent'
+                       }`}
+                     >
+                       {tab.icon} {tab.label}
+                     </button>
+                   ))}
+                 </div>
                  <button 
                    type="button" 
                    onClick={() => setShowEmojiPicker(false)} 
                    className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                   title="Close Emojis"
                  >
-                   <X size={16} />
+                   <X size={14} />
                  </button>
                </div>
-               <div className="flex-1 overflow-y-auto p-4 scroll-smooth relative [&::-webkit-scrollbar]:hidden" id="emoji-scroll-container">
-                 {EMOJI_CATEGORIES.map(cat => (
-                    <div key={cat.id} id={`emoji-cat-${cat.id}`} className="mb-6">
-                      <h4 className="text-[10px] text-zinc-400 font-bold mb-3 uppercase tracking-wider sticky top-0 bg-[#1a1a1c]/95 py-1 z-10 backdrop-blur-md">{cat.name}</h4>
-                      <div className="grid grid-cols-7 gap-2">
-                         {cat.emojis.map(emoji => (
-                           <button 
-                             type="button" 
-                             key={emoji} 
-                             onClick={() => {
-                               setInputText(prev => prev + emoji);
-                               inputRef.current?.focus();
-                             }} 
-                             className="text-2xl hover:bg-white/10 rounded-lg p-1 transition-colors flex items-center justify-center hover:scale-110 active:scale-95"
+
+               {/* Emoji Tab */}
+               {pickerTab === 'emoji' && (
+                 <>
+                   <div className="flex-1 overflow-y-auto p-4 scroll-smooth relative [&::-webkit-scrollbar]:hidden" id="emoji-scroll-container">
+                     {EMOJI_CATEGORIES.map(cat => (
+                       <div key={cat.id} id={`emoji-cat-${cat.id}`} className="mb-6">
+                         <h4 className="text-[10px] text-zinc-400 font-bold mb-3 uppercase tracking-wider sticky top-0 bg-[#1a1a1c]/95 py-1 z-10 backdrop-blur-md">{cat.name}</h4>
+                         <div className="grid grid-cols-7 gap-2">
+                           {cat.emojis.map(emoji => (
+                             <button 
+                               type="button" 
+                               key={emoji} 
+                               onClick={() => {
+                                 setInputText(prev => prev + emoji);
+                                 inputRef.current?.focus();
+                               }} 
+                               className="text-2xl hover:bg-white/10 rounded-lg p-1 transition-colors flex items-center justify-center hover:scale-110 active:scale-95"
+                             >
+                               {emoji}
+                             </button>
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                   <div className="flex justify-around p-2 bg-black/40 border-t border-white/5">
+                     {EMOJI_CATEGORIES.map(cat => (
+                       <button 
+                         type="button" 
+                         key={`tab-${cat.id}`} 
+                         onClick={(e) => {
+                           e.preventDefault();
+                           const container = document.getElementById('emoji-scroll-container');
+                           const target = document.getElementById(`emoji-cat-${cat.id}`);
+                           if (container && target) {
+                             container.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+                           }
+                         }} 
+                         className="text-xl p-1.5 opacity-50 hover:opacity-100 transition-opacity hover:bg-white/5 rounded-lg"
+                         title={cat.name}
+                       >
+                         {cat.icon}
+                       </button>
+                     ))}
+                   </div>
+                 </>
+               )}
+
+               {/* GIF Tab — curated categories */}
+               {pickerTab === 'gif' && (
+                 <>
+                   <div className="p-2.5 border-b border-white/5">
+                     <div className="relative">
+                       <SearchIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                       <input 
+                         type="text"
+                         value={gifSearch}
+                         onChange={(e) => setGifSearch(e.target.value)}
+                         placeholder="Search GIFs..."
+                         className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500/40"
+                       />
+                     </div>
+                   </div>
+                   <div className="flex-1 overflow-y-auto p-2 [&::-webkit-scrollbar]:hidden">
+                     {filteredGifs.length === 0 ? (
+                       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
+                         <span className="text-3xl mb-2">🎬</span>
+                         <span className="text-xs">No GIFs match "{gifSearch}"</span>
+                       </div>
+                     ) : (
+                       filteredGifs.map(cat => (
+                         <div key={cat.id} className="mb-4">
+                           <h4 className="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider sticky top-0 bg-[#1a1a1c]/95 py-1 z-10 backdrop-blur-md">{cat.name}</h4>
+                           <div className="grid grid-cols-2 gap-1.5">
+                             {cat.gifs.map(gif => (
+                               <button
+                                 key={gif.id}
+                                 type="button"
+                                 onClick={() => sendGif(gif)}
+                                 className="rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer relative group"
+                               >
+                                 <img src={gif.url} alt={gif.title} className="w-full h-24 object-cover rounded-lg" loading="lazy" />
+                                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                   <span className="text-[9px] text-white font-medium">{gif.title}</span>
+                                 </div>
+                               </button>
+                             ))}
+                           </div>
+                         </div>
+                       ))
+                     )}
+                   </div>
+                 </>
+               )}
+
+               {/* Sticker Tab */}
+               {pickerTab === 'sticker' && (
+                 <div className="flex-1 overflow-y-auto p-3 [&::-webkit-scrollbar]:hidden">
+                   {/* Sticker Store Button */}
+                   <button
+                     type="button"
+                     onClick={() => setShowStickerStore(!showStickerStore)}
+                     className="w-full flex items-center justify-between p-2.5 mb-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 hover:border-indigo-500/40 transition-colors"
+                   >
+                     <div className="flex items-center gap-2">
+                       <Plus size={14} className="text-indigo-400" />
+                       <span className="text-[11px] text-indigo-400 font-semibold">Sticker Store</span>
+                       <span className="text-[9px] text-zinc-500">{STICKER_STORE_PACKS.length} packs available</span>
+                     </div>
+                     <ChevronRight size={14} className={`text-indigo-400 transition-transform ${showStickerStore ? 'rotate-90' : ''}`} />
+                   </button>
+
+                   {/* Sticker Store Panel */}
+                   {showStickerStore && (
+                     <div className="mb-4 bg-black/30 rounded-xl border border-white/[0.04] p-2.5 animate-in slide-in-from-top-2 duration-200">
+                       <h4 className="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider">Available Packs</h4>
+                       <div className="space-y-1.5">
+                         {STICKER_STORE_PACKS.map(pack => {
+                           const isInstalled = installedPacks.includes(pack.id);
+                           return (
+                             <div key={pack.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors">
+                               <span className="text-2xl shrink-0">{pack.preview}</span>
+                               <div className="flex-1 min-w-0">
+                                 <p className="text-xs text-white font-medium">{pack.name}</p>
+                                 <p className="text-[10px] text-zinc-500">{pack.description} · {pack.stickers.length} stickers</p>
+                               </div>
+                               <button
+                                 type="button"
+                                 onClick={() => {
+                                   setInstalledPacks(prev => 
+                                     isInstalled ? prev.filter(id => id !== pack.id) : [...prev, pack.id]
+                                   );
+                                 }}
+                                 className={`px-3 py-1 text-[10px] font-semibold rounded-full transition-all ${
+                                   isInstalled 
+                                     ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20' 
+                                     : 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/25 hover:bg-indigo-500/25'
+                                 }`}
+                               >
+                                 {isInstalled ? 'Remove' : 'Add'}
+                               </button>
+                             </div>
+                           );
+                         })}
+                       </div>
+                     </div>
+                   )}
+
+                   {/* Installed Sticker Packs */}
+                   {allStickerPacks.map(pack => (
+                     <div key={pack.id} className="mb-5">
+                       <h4 className="text-[10px] text-zinc-400 font-bold mb-2 uppercase tracking-wider sticky top-0 bg-[#1a1a1c]/95 py-1 z-10 backdrop-blur-md">{pack.name}</h4>
+                       <div className="grid grid-cols-4 gap-2">
+                         {pack.stickers.map(s => (
+                           <button
+                             key={s.id}
+                             type="button"
+                             onClick={() => sendSticker(s)}
+                             className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-white/[0.06] transition-colors group"
+                             title={s.label}
                            >
-                             {emoji}
+                             <span className="text-4xl group-hover:scale-110 transition-transform">{s.emoji}</span>
+                             <span className="text-[8px] text-zinc-600 group-hover:text-zinc-400 transition-colors">{s.label}</span>
                            </button>
                          ))}
-                      </div>
-                    </div>
-                 ))}
-               </div>
-               <div className="flex justify-around p-2 bg-black/40 border-t border-white/5">
-                  {EMOJI_CATEGORIES.map(cat => (
-                     <button 
-                       type="button" 
-                       key={`tab-${cat.id}`} 
-                       onClick={(e) => {
-                         e.preventDefault();
-                         const container = document.getElementById('emoji-scroll-container');
-                         const target = document.getElementById(`emoji-cat-${cat.id}`);
-                         if (container && target) {
-                           container.scrollTo({
-                             top: target.offsetTop,
-                             behavior: 'smooth'
-                           });
-                         }
-                       }} 
-                       className="text-xl p-1.5 opacity-50 hover:opacity-100 transition-opacity hover:bg-white/5 rounded-lg"
-                       title={cat.name}
-                     >
-                       {cat.icon}
-                     </button>
-                  ))}
-               </div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               )}
             </div>
           )}
 
