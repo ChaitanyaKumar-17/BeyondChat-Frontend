@@ -45,6 +45,7 @@ import {
   Timer,
   Shield,
   Eye,
+  EyeOff,
   FileText,
   Image as ImageIcon,
   Film,
@@ -432,6 +433,8 @@ const initialChats = [
       { id: 102, senderId: 0, text: 'Just opening it now.', timestamp: nowMs - 1 * DAY - 25 * MIN, status: 'read' },
       { id: 103, senderId: 1, text: 'That workout story was intense!', timestamp: nowMs - 5 * MIN, storyReply: { storyId: 'my-story-mock-1', storyText: 'Just finished a great workout! ' + E('1F4AA'), storyBg: gradients[2], storyOwnerName: 'You', storyOwnerId: 0 } },
       { id: 104, senderId: 1, text: 'The new design system looks incredible!', timestamp: nowMs - 2 * MIN },
+      { id: 105, senderId: 1, timestamp: nowMs - 90000, attachment: { name: 'sunset.jpg', size: 2400000, type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600', viewOnce: true } },
+      { id: 106, senderId: 0, timestamp: nowMs - 60000, status: 'read', attachment: { name: 'sketch_draft.png', size: 1800000, type: 'image/png', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600', viewOnce: true } },
     ]
   },
   {
@@ -3376,6 +3379,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   // File attachment state
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [viewOnceEnabled, setViewOnceEnabled] = useState(false);
+  const [viewOnceOpened, setViewOnceOpened] = useState({});
+  const [viewOnceViewing, setViewOnceViewing] = useState(null); // { msgId, url, type }
   const fileInputRef = useRef(null);
 
   const scrollContainerRef = useRef(null);
@@ -3551,6 +3557,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const handleSendFiles = () => {
     if (attachedFiles.length === 0) return;
     attachedFiles.forEach(af => {
+      const isMedia = af.type?.startsWith('image/') || af.type?.startsWith('video/');
       const payload = {
         id: Date.now() + Math.random(),
         senderId: currentUser.id,
@@ -3562,11 +3569,13 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           size: af.size,
           type: af.type,
           url: af.url,
+          viewOnce: isMedia && viewOnceEnabled,
         }
       };
       onSendMessage(chat.id, null, null, payload);
     });
     setAttachedFiles([]);
+    setViewOnceEnabled(false);
   };
 
   // --- VOICE RECORDING HANDLERS ---
@@ -4121,6 +4130,45 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       {msg.attachment && (() => {
                         const att = msg.attachment;
                         const IconComp = getFileIcon(att.type, att.name);
+                        const isViewOnce = att.viewOnce;
+                        const hasOpened = viewOnceOpened[msg.id];
+
+                        // View Once: opened/expired state
+                        if (isViewOnce && hasOpened) {
+                          return (
+                            <div className={`flex items-center gap-2.5 rounded-xl p-3 mb-1.5 min-w-[200px] ${isMe ? 'bg-indigo-700/20' : 'bg-white/[0.02]'}`}>
+                              <div className={`w-9 h-9 rounded-full flex items-center justify-center ${isMe ? 'bg-indigo-500/15' : 'bg-white/[0.04]'}`}>
+                                <EyeOff size={16} className="text-zinc-500" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-zinc-500 italic">{att.type?.startsWith('video/') ? 'Video' : 'Photo'} opened</p>
+                                <p className="text-[10px] text-zinc-600">View once</p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // View Once: unopened — click opens fullscreen viewer
+                        if (isViewOnce && !hasOpened) {
+                          return (
+                            <div 
+                              className="relative rounded-xl overflow-hidden mb-1.5 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewOnceViewing({ msgId: msg.id, url: att.url, type: att.type });
+                              }}
+                            >
+                              <div className="w-[200px] h-[140px] bg-gradient-to-br from-indigo-900/40 to-purple-900/40 flex flex-col items-center justify-center gap-2 border border-white/[0.06] rounded-xl hover:border-indigo-500/30 transition-colors">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isMe ? 'bg-white/10' : 'bg-indigo-500/15'}`}>
+                                  <Eye size={22} className={`${isMe ? 'text-white/70' : 'text-indigo-400/80'}`} />
+                                </div>
+                                <span className="text-xs text-white/70 font-medium">{att.type?.startsWith('video/') ? 'Video' : 'Photo'}</span>
+                                <span className="text-[10px] text-white/40 flex items-center gap-1"><Timer size={10} /> View once</span>
+                              </div>
+                            </div>
+                          );
+                        }
+
                         if (att.type?.startsWith('image/')) {
                           return (
                             <div className="rounded-xl overflow-hidden mb-1.5 max-w-[280px]">
@@ -4391,22 +4439,43 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <div className="bg-[#1a1a1c]/90 backdrop-blur-md border border-white/[0.05] rounded-2xl p-3 mb-2 animate-in slide-in-from-bottom-2 duration-200">
               <div className="flex items-center justify-between mb-2 px-1">
                 <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">{attachedFiles.length} file{attachedFiles.length > 1 ? 's' : ''} attached</span>
-                <button onClick={() => { attachedFiles.forEach(af => af.url && URL.revokeObjectURL(af.url)); setAttachedFiles([]); }} className="text-[10px] text-red-400 hover:text-red-300 transition-colors">Clear all</button>
+                <div className="flex items-center gap-3">
+                  {attachedFiles.some(af => af.type?.startsWith('image/') || af.type?.startsWith('video/')) && (
+                    <button 
+                      onClick={() => setViewOnceEnabled(!viewOnceEnabled)} 
+                      className={`flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full transition-all ${
+                        viewOnceEnabled 
+                          ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' 
+                          : 'text-zinc-500 hover:text-zinc-300 border border-transparent hover:border-white/10'
+                      }`}
+                    >
+                      {viewOnceEnabled ? <Eye size={12} /> : <EyeOff size={12} />}
+                      View once {viewOnceEnabled ? 'ON' : 'OFF'}
+                    </button>
+                  )}
+                  <button onClick={() => { attachedFiles.forEach(af => af.url && URL.revokeObjectURL(af.url)); setAttachedFiles([]); setViewOnceEnabled(false); }} className="text-[10px] text-red-400 hover:text-red-300 transition-colors">Clear all</button>
+                </div>
               </div>
               <div className="flex gap-2.5 overflow-x-auto pt-3 pb-1 [&::-webkit-scrollbar]:hidden">
                 {attachedFiles.map((af, i) => {
                   const IconComp = getFileIcon(af.type, af.name);
+                  const isMedia = af.type?.startsWith('image/') || af.type?.startsWith('video/');
                   return (
                     <div key={i} className="relative shrink-0">
                       {af.type?.startsWith('image/') ? (
-                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/10">
-                          <img src={af.url} alt={af.name} className="w-full h-full object-cover" />
+                        <div className={`w-20 h-20 rounded-xl overflow-hidden border ${viewOnceEnabled ? 'border-indigo-500/40' : 'border-white/10'}`}>
+                          <img src={af.url} alt={af.name} className={`w-full h-full object-cover ${viewOnceEnabled ? 'blur-[2px] opacity-70' : ''}`} />
+                          {viewOnceEnabled && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Eye size={16} className="text-indigo-400" />
+                            </div>
+                          )}
                         </div>
                       ) : af.type?.startsWith('video/') ? (
-                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/10 relative bg-black">
-                          <video src={af.url} className="w-full h-full object-cover" />
+                        <div className={`w-20 h-20 rounded-xl overflow-hidden border relative bg-black ${viewOnceEnabled ? 'border-indigo-500/40' : 'border-white/10'}`}>
+                          <video src={af.url} className={`w-full h-full object-cover ${viewOnceEnabled ? 'blur-[2px] opacity-70' : ''}`} />
                           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <Play size={18} className="text-white/80" />
+                            {viewOnceEnabled ? <Eye size={16} className="text-indigo-400" /> : <Play size={18} className="text-white/80" />}
                           </div>
                         </div>
                       ) : (
@@ -4422,7 +4491,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         <X size={10} />
                       </button>
                       <p className="text-[8px] text-zinc-500 truncate w-20 mt-1 text-center">{af.name}</p>
-                      <p className="text-[7px] text-zinc-600 w-20 text-center">{formatFileSize(af.size)}</p>
+                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? '👁 View once' : formatFileSize(af.size)}</p>
                     </div>
                   );
                 })}
@@ -5037,6 +5106,35 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         );
       })()}
 
+      {/* View Once Fullscreen Viewer */}
+      {viewOnceViewing && (
+        <div className="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-center animate-in fade-in duration-200">
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
+            <div className="flex items-center gap-2 text-white/60">
+              <Eye size={16} />
+              <span className="text-sm font-medium">View once</span>
+            </div>
+            <button 
+              onClick={() => {
+                setViewOnceOpened(prev => ({ ...prev, [viewOnceViewing.msgId]: true }));
+                setViewOnceViewing(null);
+              }}
+              className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="max-w-[90vw] max-h-[80vh] flex items-center justify-center">
+            {viewOnceViewing.type?.startsWith('video/') ? (
+              <video src={viewOnceViewing.url} controls autoPlay className="max-w-full max-h-[80vh] rounded-xl" />
+            ) : (
+              <img src={viewOnceViewing.url} alt="View once" className="max-w-full max-h-[80vh] object-contain rounded-xl" />
+            )}
+          </div>
+          <p className="text-white/30 text-xs mt-4">Close to dismiss — this media will no longer be available</p>
+        </div>
+      )}
+
       {showMessageInfo && (() => {
         const infoMsg = messages.find(m => m.id === showMessageInfo) || null;
         if (!infoMsg) return null;
@@ -5088,6 +5186,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               </section>
 
+              {/* Delivered To */}
               <section>
                 <div className="flex items-center gap-2 mb-3 px-1">
                   <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
@@ -5115,6 +5214,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               </section>
 
+              {/* Pending */}
               <section>
                 <div className="flex items-center gap-2 mb-3 px-1">
                   <div className="w-2 h-2 rounded-full bg-zinc-600"></div>
@@ -5372,6 +5472,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   );
 }
 
+// --- HELPERS ---
 
 function StoryRing({ stories, type }) {
   const count = stories.length;
@@ -5592,12 +5693,14 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Community Sidebar */}
       <div className={`absolute top-0 bottom-0 left-0 z-30 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
       }`}>
         <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
       </div>
 
+      {/* Community Groups List */}
       <div className={`absolute top-0 bottom-0 right-0 z-20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'left-[64px] opacity-100 translate-x-0 scale-100' : 'left-[64px] opacity-0 translate-x-[20%] pointer-events-none scale-105'
       }`}>
@@ -5639,6 +5742,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Create Community Modal */}
       {showCreateModal && (
         <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200 max-h-[80vh]">
