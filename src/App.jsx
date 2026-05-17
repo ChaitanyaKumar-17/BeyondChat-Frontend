@@ -54,7 +54,12 @@ import {
   Square,
   File as FileIcon,
   Sticker,
-  SearchIcon
+  SearchIcon,
+  Sparkles,
+  Wand2,
+  ArrowUpRight,
+  Type,
+  MessageCircle
 } from 'lucide-react';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
@@ -167,6 +172,212 @@ const STICKER_STORE_PACKS = [
     { id: 'sp1', emoji: '🚀', label: 'Rocket' }, { id: 'sp2', emoji: '🌍', label: 'Earth' }, { id: 'sp3', emoji: '🌕', label: 'Moon' }, { id: 'sp4', emoji: '⭐', label: 'Star' }, { id: 'sp5', emoji: '☄️', label: 'Comet' }, { id: 'sp6', emoji: '🪐', label: 'Saturn' }, { id: 'sp7', emoji: '👽', label: 'Alien' }, { id: 'sp8', emoji: '🛰️', label: 'Satellite' }, { id: 'sp9', emoji: '🌌', label: 'Galaxy' }, { id: 'sp10', emoji: '🔭', label: 'Telescope' }, { id: 'sp11', emoji: '👨‍🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '🌠', label: 'Shooting star' },
   ]},
 ];
+
+// ========================================================================
+// ON-DEVICE AI ENGINE — All processing happens client-side
+// Preserves E2E encryption: no message data leaves the device
+// ========================================================================
+
+// Magic Reply: context-aware suggestion generator
+const generateMagicReplies = (messages, currentUserId) => {
+  if (!messages || messages.length === 0) return [];
+  // Find last received message
+  const lastReceived = [...messages].reverse().find(m => m.senderId !== currentUserId && m.text);
+  if (!lastReceived) return [];
+  const text = lastReceived.text.toLowerCase();
+  const replies = [];
+
+  // Question detection
+  if (text.includes('?') || text.startsWith('how') || text.startsWith('what') || text.startsWith('when') || text.startsWith('where') || text.startsWith('why') || text.startsWith('do you') || text.startsWith('can you') || text.startsWith('would you') || text.startsWith('are you')) {
+    if (text.includes('how are') || text.includes('how\'s it') || text.includes('what\'s up') || text.includes('how have')) {
+      replies.push('I\'m great, thanks! 😊', 'All good here! How about you?', 'Pretty well, keeping busy!', 'Can\'t complain! 🙌');
+    } else if (text.includes('do you want') || text.includes('would you like') || text.includes('wanna')) {
+      replies.push('Sure, I\'d love to! ✨', 'Sounds great!', 'Maybe later?', 'Let me think about it');
+    } else if (text.includes('can you') || text.includes('could you')) {
+      replies.push('Of course!', 'Sure thing! 👍', 'I\'ll get right on it', 'Give me a moment');
+    } else if (text.includes('when') || text.includes('what time')) {
+      replies.push('How about tomorrow?', 'Let me check my schedule', 'Anytime works for me!', 'I\'ll let you know soon');
+    } else {
+      replies.push('Good question!', 'Let me think...', 'I\'ll look into it', 'Not sure, let me check');
+    }
+  }
+  // Greetings
+  else if (/^(hi|hey|hello|sup|yo|good morning|good evening|good afternoon)/i.test(text)) {
+    replies.push('Hey! 👋', 'Hi there! How\'s it going?', 'Hello! 😊', 'Hey, what\'s up?');
+  }
+  // Agreement / positive
+  else if (/\b(agree|yes|sure|absolutely|definitely|exactly|right|true|correct)\b/i.test(text)) {
+    replies.push('Glad we\'re on the same page! 🤝', '100% 🎯', 'Exactly my thoughts!', 'Couldn\'t agree more');
+  }
+  // Emotional / excitement
+  else if (/\b(amazing|awesome|incredible|fantastic|love|great|wonderful|excited|beautiful)\b/i.test(text) || /!{2,}/.test(text) || /😍|🎉|🔥|❤️|💯|🥳/.test(text)) {
+    replies.push('So excited! 🎉', 'That\'s amazing! 🔥', 'I love it! 💯', 'Right?! So good! ✨');
+  }
+  // Invitation / plans
+  else if (/\b(meet|hang|plan|join|come|go out|dinner|lunch|party|movie|event|trip)\b/i.test(text)) {
+    replies.push('Count me in! 🙋', 'Sounds fun!', 'When were you thinking?', 'I\'ll be there! 🎉');
+  }
+  // Compliment
+  else if (/\b(nice|looks? good|well done|congrats|proud|impressed|talented)\b/i.test(text)) {
+    replies.push('Thanks so much! 🙏', 'That means a lot! ❤️', 'You\'re too kind! 😊', 'Appreciate it!');
+  }
+  // Apology
+  else if (/\b(sorry|apologize|my bad|forgive|mistake)\b/i.test(text)) {
+    replies.push('No worries at all! 😊', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! 👍');
+  }
+  // Help / request
+  else if (/\b(help|need|urgent|asap|please|favor)\b/i.test(text)) {
+    replies.push('I\'m on it! 💪', 'Happy to help!', 'What do you need?', 'Let me see what I can do');
+  }
+  // Farewell
+  else if (/\b(bye|goodbye|see you|good night|take care|later|ttyl|gotta go)\b/i.test(text)) {
+    replies.push('See you! 👋', 'Take care! 😊', 'Talk soon!', 'Bye! Have a great one!');
+  }
+  // Work / project related
+  else if (/\b(deadline|meeting|project|task|update|review|code|design|deploy|bug|feature|sprint)\b/i.test(text)) {
+    replies.push('I\'ll review it now 👀', 'Great progress! 🚀', 'Let\'s sync on this', 'I\'ll update you shortly');
+  }
+  // Generic fallback with smart analysis
+  else {
+    const wordCount = text.split(/\s+/).length;
+    if (wordCount <= 3) {
+      replies.push('Tell me more! 🤔', 'Interesting!', '👍', 'Got it!');
+    } else if (wordCount <= 10) {
+      replies.push('That makes sense!', 'Totally agree 👍', 'Nice! 🙌', 'For sure!');
+    } else {
+      replies.push('Well said! 💯', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
+    }
+  }
+  return replies.slice(0, 4);
+};
+
+// AI Writing Assistant — text transformation tools
+const AI_WRITING_TOOLS = [
+  { id: 'improve', label: 'Improve', icon: 'sparkles', description: 'Enhance clarity & style' },
+  { id: 'shorten', label: 'Shorten', icon: 'scissors', description: 'Make it concise' },
+  { id: 'expand', label: 'Expand', icon: 'expand', description: 'Add more detail' },
+  { id: 'formal', label: 'Formal', icon: 'briefcase', description: 'Professional tone' },
+  { id: 'casual', label: 'Casual', icon: 'smile', description: 'Friendly & relaxed' },
+  { id: 'fix', label: 'Fix Grammar', icon: 'check', description: 'Correct errors' },
+];
+
+// On-device text transformer (no server calls)
+const applyAiWritingTool = (text, toolId) => {
+  if (!text.trim()) return text;
+  const sentences = text.replace(/([.!?])\s+/g, '$1|').split('|').filter(s => s.trim());
+
+  switch (toolId) {
+    case 'improve': {
+      const improvements = {
+        'good': 'excellent', 'bad': 'poor', 'big': 'significant', 'small': 'minor',
+        'nice': 'wonderful', 'like': 'appreciate', 'thing': 'aspect', 'stuff': 'elements',
+        'get': 'obtain', 'make': 'create', 'very': 'remarkably', 'really': 'truly',
+        'a lot': 'substantially', 'kind of': 'somewhat', 'sort of': 'rather',
+        'pretty good': 'impressive', 'looks good': 'looks excellent', 'i think': 'I believe',
+        'want to': 'would like to', 'need to': 'should', 'have to': 'must',
+      };
+      let result = text;
+      Object.entries(improvements).forEach(([key, val]) => {
+        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+        result = result.replace(regex, val);
+      });
+      // Capitalize first letter after period
+      result = result.replace(/(^|[.!?]\s+)([a-z])/g, (m, p, c) => p + c.toUpperCase());
+      return result;
+    }
+    case 'shorten': {
+      const fillers = /\b(actually|basically|literally|honestly|you know|I mean|kind of|sort of|just|really|very|quite|pretty much|in my opinion|I think that|I believe that|the fact that|it is important to note that|as a matter of fact|at the end of the day|needless to say)\b/gi;
+      let result = text.replace(fillers, '').replace(/\s{2,}/g, ' ').trim();
+      if (sentences.length > 2) {
+        result = sentences.slice(0, Math.ceil(sentences.length * 0.6)).join(' ');
+      }
+      return result;
+    }
+    case 'expand': {
+      let result = text;
+      if (!result.endsWith('.') && !result.endsWith('!') && !result.endsWith('?')) result += '.';
+      const lastSentence = sentences[sentences.length - 1]?.trim() || '';
+      if (lastSentence.includes('?')) {
+        result += ' I\'d love to hear your thoughts on this.';
+      } else if (/\b(great|good|nice|awesome|amazing)\b/i.test(lastSentence)) {
+        result += ' I\'m genuinely enthusiastic about where this is heading.';
+      } else if (/\b(help|support|assist)\b/i.test(lastSentence)) {
+        result += ' Please don\'t hesitate to reach out if you need anything else.';
+      } else {
+        result += ' Let me know your thoughts on this whenever you get a chance.';
+      }
+      return result;
+    }
+    case 'formal': {
+      const formalMap = {
+        'hi': 'Dear', 'hey': 'Hello', 'thanks': 'Thank you', 'thx': 'Thank you',
+        'gonna': 'going to', 'wanna': 'want to', 'gotta': 'have to', 'kinda': 'somewhat',
+        'yeah': 'Yes', 'yep': 'Yes', 'nope': 'No', 'ok': 'Understood', 'okay': 'Understood',
+        'cool': 'Excellent', 'awesome': 'Outstanding', 'lol': '', 'haha': '',
+        'btw': 'Additionally', 'fyi': 'For your information', 'asap': 'at your earliest convenience',
+        'i\'m': 'I am', 'don\'t': 'do not', 'can\'t': 'cannot', 'won\'t': 'will not',
+        'isn\'t': 'is not', 'aren\'t': 'are not', 'wasn\'t': 'was not',
+      };
+      let result = text;
+      Object.entries(formalMap).forEach(([key, val]) => {
+        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+        result = result.replace(regex, val);
+      });
+      result = result.replace(/(^|[.!?]\s+)([a-z])/g, (m, p, c) => p + c.toUpperCase());
+      result = result.replace(/!+/g, '.').replace(/\s{2,}/g, ' ').trim();
+      if (result && !result.endsWith('.') && !result.endsWith('?')) result += '.';
+      return result;
+    }
+    case 'casual': {
+      const casualMap = {
+        'Hello': 'Hey', 'Dear': 'Hi', 'Thank you': 'Thanks', 'Understood': 'Got it',
+        'Excellent': 'Awesome', 'Outstanding': 'Amazing', 'Additionally': 'Oh btw',
+        'However': 'But', 'Therefore': 'So', 'Furthermore': 'Plus',
+        'I am': 'I\'m', 'do not': 'don\'t', 'cannot': 'can\'t', 'will not': 'won\'t',
+        'is not': 'isn\'t', 'are not': 'aren\'t', 'I would': 'I\'d',
+        'at your earliest convenience': 'asap', 'For your information': 'FYI',
+        'Please': 'Pls', 'perhaps': 'maybe',
+      };
+      let result = text;
+      Object.entries(casualMap).forEach(([key, val]) => {
+        result = result.split(key).join(val);
+      });
+      if (result.endsWith('.') && !result.includes('?')) {
+        result = result.slice(0, -1) + '!';
+      }
+      return result;
+    }
+    case 'fix': {
+      let result = text;
+      // Capitalize first letter
+      result = result.charAt(0).toUpperCase() + result.slice(1);
+      // Fix capitalization after periods
+      result = result.replace(/([.!?])\s+([a-z])/g, (m, p, c) => p + ' ' + c.toUpperCase());
+      // Capitalize I
+      result = result.replace(/\bi\b/g, 'I');
+      // Fix common misspellings
+      const fixes = {
+        'teh': 'the', 'recieve': 'receive', 'wierd': 'weird', 'occured': 'occurred',
+        'definately': 'definitely', 'seperate': 'separate', 'occassion': 'occasion',
+        'accomodate': 'accommodate', 'untill': 'until', 'tommorow': 'tomorrow',
+        'neccessary': 'necessary', 'acheive': 'achieve', 'beleive': 'believe',
+        'calender': 'calendar', 'collegue': 'colleague', 'comming': 'coming',
+        'doesnot': 'does not', 'doesnt': 'doesn\'t', 'dont': 'don\'t',
+        'cant': 'can\'t', 'wont': 'won\'t', 'isnt': 'isn\'t', 'arent': 'aren\'t',
+        'thier': 'their', 'alot': 'a lot', 'noone': 'no one', 'eachother': 'each other',
+      };
+      Object.entries(fixes).forEach(([key, val]) => {
+        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+        result = result.replace(regex, val);
+      });
+      // Fix double spaces & missing period
+      result = result.replace(/\s{2,}/g, ' ').trim();
+      if (result && !/[.!?]$/.test(result)) result += '.';
+      return result;
+    }
+    default: return text;
+  }
+};
 
 const formatFileSize = (bytes) => {
   if (!bytes) return '0 B';
@@ -3484,6 +3695,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     return [...STICKER_PACKS, ...external];
   }, [installedPacks]);
 
+  // AI Features state
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [aiProcessing, setAiProcessing] = useState(false);
+
   // Curated GIF filtering (no API needed)
   const filteredGifs = useMemo(() => {
     const q = gifSearch.toLowerCase().trim();
@@ -3547,6 +3762,24 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
   const messages = chat.messages || [];
+
+  // Magic Reply — on-device contextual suggestions
+  const magicReplies = useMemo(() => {
+    return generateMagicReplies(messages, currentUser.id);
+  }, [messages, currentUser.id]);
+
+  // AI Writing Assistant handler
+  const handleAiTool = (toolId) => {
+    if (!inputText.trim()) return;
+    setAiProcessing(true);
+    // Simulate brief processing delay for perceived intelligence
+    setTimeout(() => {
+      const result = applyAiWritingTool(inputText, toolId);
+      setInputText(result);
+      setAiProcessing(false);
+      inputRef.current?.focus();
+    }, 300 + Math.random() * 200);
+  };
 
   const isReqSent = sentReqs?.some(r => r.id === chat.id);
   const isReqReceived = receivedReqs?.some(r => r.id === chat.id);
@@ -4855,46 +5088,133 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           ) : audioBlob ? (
             <VoiceReviewPlayer url={audioUrl} duration={recordingTime} onCancel={cancelRecording} onSend={sendVoiceMessage} />
           ) : (
-            <form 
-              onSubmit={handleSend}
-              className="flex items-center gap-2 bg-[#1e1e24] border border-white/[0.05] p-2 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10"
-            >
-              <button 
-                type="button" 
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className={`p-2 transition-colors rounded-full ${showEmojiPicker ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'}`}
-              >
-                <Smile size={20} />
-              </button>
-              <button 
-                type="button" 
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]"
-                title="Attach file (up to 2GB)"
-              >
-                <Paperclip size={20} />
-              </button>
-              
-              <input 
-                ref={inputRef}
-                type="text" 
-                value={inputText}
-                onChange={handleInputChange}
-                /* ACCURACY FIX: Removed onFocus={() => setShowEmojiPicker(false)} so it doesn't close when clicking emojis */
-                placeholder="Message..." 
-                className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
-              />
-              
-              {inputText.trim() || replyingTo || attachedFiles.length > 0 ? (
-                <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95">
-                  <Send size={18} />
-                </button>
-              ) : (
-                <button type="button" onClick={startRecording} className="p-2.5 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]" title="Record voice message">
-                  <Mic size={18} />
-                </button>
+            <>
+              {/* ✨ Magic Reply Suggestions — on-device AI */}
+              {magicReplies.length > 0 && !inputText.trim() && !showEmojiPicker && !replyingTo && (
+                <div className="flex gap-1.5 mb-2 px-2 overflow-x-auto [&::-webkit-scrollbar]:hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="flex items-center gap-1 shrink-0 mr-1">
+                    <Sparkles size={12} className="text-amber-400" />
+                    <span className="text-[9px] font-bold text-amber-400/70 uppercase tracking-wider">AI</span>
+                  </div>
+                  {magicReplies.map((reply, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        onSendMessage(chat.id, reply);
+                      }}
+                      className="shrink-0 px-3 py-1.5 text-xs text-white/80 bg-white/[0.04] border border-white/[0.08] rounded-full hover:bg-white/[0.08] hover:border-indigo-500/30 hover:text-white transition-all active:scale-95 whitespace-nowrap"
+                    >
+                      {reply}
+                    </button>
+                  ))}
+                </div>
               )}
-            </form>
+
+              {/* 🪄 AI Writing Assistant Panel */}
+              {showAiAssistant && inputText.trim() && (
+                <div className="mb-2 bg-[#1a1a1c]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] overflow-hidden animate-in slide-in-from-bottom-4 duration-200 z-[70]">
+                  <div className="flex items-center justify-between p-3 border-b border-white/5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                        <Wand2 size={12} className="text-white" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-white">AI Writing Assistant</span>
+                        <span className="text-[9px] text-zinc-500 ml-2 flex items-center gap-1 inline-flex">
+                          <Shield size={8} /> On-device · E2E safe
+                        </span>
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => setShowAiAssistant(false)} className="p-1 text-zinc-500 hover:text-white rounded-full hover:bg-white/5 transition-colors">
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {aiProcessing ? (
+                    <div className="flex items-center justify-center gap-2 p-4">
+                      <div className="w-4 h-4 border-2 border-amber-500/30 border-t-amber-400 rounded-full animate-spin" />
+                      <span className="text-xs text-amber-400/80 animate-pulse">Processing on device...</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-1.5 p-2.5">
+                      {AI_WRITING_TOOLS.map(tool => (
+                        <button
+                          key={tool.id}
+                          type="button"
+                          onClick={() => handleAiTool(tool.id)}
+                          className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06] transition-all group"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center group-hover:from-amber-500/20 group-hover:to-orange-500/20 transition-colors">
+                            {tool.id === 'improve' && <Sparkles size={14} className="text-amber-400" />}
+                            {tool.id === 'shorten' && <ArrowUpRight size={14} className="text-amber-400 rotate-180" />}
+                            {tool.id === 'expand' && <ArrowUpRight size={14} className="text-amber-400" />}
+                            {tool.id === 'formal' && <Type size={14} className="text-amber-400" />}
+                            {tool.id === 'casual' && <Smile size={14} className="text-amber-400" />}
+                            {tool.id === 'fix' && <Check size={14} className="text-amber-400" />}
+                          </div>
+                          <span className="text-[10px] font-medium text-white/80 group-hover:text-white">{tool.label}</span>
+                          <span className="text-[8px] text-zinc-600 group-hover:text-zinc-400">{tool.description}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <form 
+                onSubmit={handleSend}
+                className="flex items-center gap-2 bg-[#1e1e24] border border-white/[0.05] p-2 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10"
+              >
+                <button 
+                  type="button" 
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className={`p-2 transition-colors rounded-full ${showEmojiPicker ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'}`}
+                >
+                  <Smile size={20} />
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]"
+                  title="Attach file (up to 2GB)"
+                >
+                  <Paperclip size={20} />
+                </button>
+                
+                <input 
+                  ref={inputRef}
+                  type="text" 
+                  value={inputText}
+                  onChange={handleInputChange}
+                  /* ACCURACY FIX: Removed onFocus={() => setShowEmojiPicker(false)} so it doesn't close when clicking emojis */
+                  placeholder="Message..." 
+                  className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
+                />
+                
+                {/* AI Sparkle Button */}
+                <button 
+                  type="button" 
+                  onClick={() => setShowAiAssistant(!showAiAssistant)}
+                  className={`p-2 transition-all rounded-full relative ${showAiAssistant ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-400 hover:text-amber-400 hover:bg-amber-500/5'}`}
+                  title="AI Writing Assistant"
+                >
+                  <Sparkles size={18} />
+                  {!showAiAssistant && inputText.trim() && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  )}
+                </button>
+
+                {inputText.trim() || replyingTo || attachedFiles.length > 0 ? (
+                  <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95">
+                    <Send size={18} />
+                  </button>
+                ) : (
+                  <button type="button" onClick={startRecording} className="p-2.5 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]" title="Record voice message">
+                    <Mic size={18} />
+                  </button>
+                )}
+              </form>
+            </>
           )}
         </div>
       )}
@@ -6062,6 +6382,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Create Community Modal */}
       {showCreateModal && (
         <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200 max-h-[80vh]">
