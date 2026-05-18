@@ -379,6 +379,68 @@ const applyAiWritingTool = (text, toolId) => {
   }
 };
 
+// ========================================================================
+// ON-DEVICE PROFANITY FILTER — Client-side content moderation
+// No data leaves the device. Supports leet-speak normalization.
+// ========================================================================
+const PROFANITY_LIST = [
+  'fuck','shit','ass','bitch','damn','dick','bastard','crap','piss',
+  'cock','pussy','cunt','whore','slut','fag','nigger','nigga',
+  'retard','douche','wanker','twat','bollocks','arse','bugger',
+  'bloody','motherfucker','asshole','bullshit','goddamn','dammit',
+  'dumbass','jackass','dipshit','shithead','dickhead','bitchass',
+  'fucker','fucking','fucked','shitty','crappy','pissy','dicked',
+  'prick','screw you','stfu','gtfo','lmfao','wtf','af',
+  'suck my','blow me','eat shit','go to hell',
+  'porn','xxx','nude','naked','sex','penis','vagina','boob','tits',
+  'hentai','orgasm','fetish','erotic','kinky','dildo','viagra',
+  'kill yourself','kys','die','suicide','rape','molest',
+  'nazi','kkk','terrorist','bomb threat','shoot up',
+];
+
+// Normalize leet-speak: @ → a, $ → s, 0 → o, 1 → i, 3 → e, etc.
+const normalizeLeet = (str) => {
+  return str
+    .replace(/@/g, 'a').replace(/\$/g, 's').replace(/0/g, 'o')
+    .replace(/1/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a')
+    .replace(/5/g, 's').replace(/7/g, 't').replace(/8/g, 'b')
+    .replace(/\|/g, 'l').replace(/!/g, 'i').replace(/\+/g, 't')
+    .replace(/[_\-.*]+/g, ''); // Strip separators used to bypass filters
+};
+
+const containsProfanity = (text) => {
+  if (!text || typeof text !== 'string') return false;
+  const normalized = normalizeLeet(text.toLowerCase().trim());
+  // Check full phrases first
+  for (const word of PROFANITY_LIST) {
+    if (word.includes(' ')) {
+      if (normalized.includes(word)) return true;
+    }
+  }
+  // Word-boundary check for single words
+  const words = normalized.split(/[\s,.\-!?;:'"()\[\]{}]+/).filter(Boolean);
+  for (const w of words) {
+    for (const bad of PROFANITY_LIST) {
+      if (!bad.includes(' ') && (w === bad || w.includes(bad))) return true;
+    }
+  }
+  return false;
+};
+
+const sanitizeText = (text) => {
+  if (!text) return text;
+  let result = text;
+  const lower = text.toLowerCase();
+  for (const word of PROFANITY_LIST) {
+    const idx = lower.indexOf(word);
+    if (idx !== -1) {
+      const stars = '*'.repeat(word.length);
+      result = result.substring(0, idx) + stars + result.substring(idx + word.length);
+    }
+  }
+  return result;
+};
+
 const formatFileSize = (bytes) => {
   if (!bytes) return '0 B';
   const k = 1024;
@@ -1088,6 +1150,8 @@ export default function App() {
   }, []);
 
   const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null) => {
+    // On-device profanity filter — block messages containing profane language
+    if (text && containsProfanity(text)) return 'profanity';
     const group = groups.find(g => g.id === userId);
     const newMessage = customPayload || {
       id: Date.now(),
@@ -1251,6 +1315,11 @@ export default function App() {
   };
 
   const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
+    // Profanity filter for group name & description
+    if (containsProfanity(newName) || containsProfanity(newDesc)) {
+      showGlobalToast('⚠️ Inappropriate language detected. Please revise.');
+      return;
+    }
     const group = groups.find(g => g.id === groupId);
     if (group && group.name !== newName) appendSystemMessage(groupId, `changed the group name from "${group.name}" to "${newName}"`, currentUser.id);
     if (group && group.description !== newDesc) appendSystemMessage(groupId, `changed the group description`, currentUser.id);
@@ -2252,7 +2321,17 @@ function RequestsView({ sentReqs, receivedReqs, onAccept, onReject, onWithdraw }
 function CreateStoryModal({ onClose, onPost }) {
   const [text, setText] = useState('');
   const [bgIndex, setBgIndex] = useState(0);
+  const [storyProfanity, setStoryProfanity] = useState(false);
   const currentBg = gradients[bgIndex];
+
+  const handlePost = () => {
+    if (containsProfanity(text)) {
+      setStoryProfanity(true);
+      setTimeout(() => setStoryProfanity(false), 3000);
+      return;
+    }
+    onPost({ text, bgClass: currentBg, timestamp: Date.now() });
+  };
 
   return (
     <div className="fixed inset-0 z-[120] bg-[#0a0a0c]/90 backdrop-blur-sm flex items-center justify-center overflow-hidden">
@@ -2277,7 +2356,13 @@ function CreateStoryModal({ onClose, onPost }) {
           </button>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          {storyProfanity && (
+            <div className="flex items-center gap-2 mb-4 px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-full backdrop-blur-md animate-in fade-in duration-200">
+              <Shield size={12} className="text-red-300" />
+              <span className="text-xs text-red-200 font-medium">Inappropriate language — please revise</span>
+            </div>
+          )}
           <textarea 
             value={text}
             onChange={e => setText(e.target.value)}
@@ -2290,7 +2375,7 @@ function CreateStoryModal({ onClose, onPost }) {
 
         <div className="p-6 pb-12 flex justify-end items-center">
           <button 
-            onClick={() => onPost({ text, bgClass: currentBg, timestamp: Date.now() })} 
+            onClick={handlePost} 
             disabled={!text.trim()} 
             className="flex items-center gap-2 md:gap-2 bg-white text-black px-6 py-3 md:px-4 md:py-2 rounded-full font-bold md:font-semibold md:text-sm disabled:opacity-50 transition-transform active:scale-95 shadow-xl hover:bg-zinc-100 disabled:cursor-default"
           >
@@ -3224,6 +3309,13 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
   const handleSendMessage = (e) => {
     e?.preventDefault();
     if (replyText.trim()) {
+      // Profanity filter for story replies
+      if (containsProfanity(replyText)) {
+        setReplyText('');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 2500);
+        return;
+      }
       const storyContext = {
         storyId: currentStory.id,
         storyText: currentStory.text,
@@ -3698,6 +3790,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   // AI Features state
   const [showAiAssistant, setShowAiAssistant] = useState(false);
   const [aiProcessing, setAiProcessing] = useState(false);
+  const [profanityWarning, setProfanityWarning] = useState(false);
 
   // Curated GIF filtering (no API needed)
   const filteredGifs = useMemo(() => {
@@ -4089,7 +4182,18 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     }
     
     if (inputText.trim()) {
-      onSendMessage(chat.id, inputText, replyingTo);
+      // On-device profanity check
+      if (containsProfanity(inputText)) {
+        setProfanityWarning(true);
+        setTimeout(() => setProfanityWarning(false), 3000);
+        return;
+      }
+      const result = onSendMessage(chat.id, inputText, replyingTo);
+      if (result === 'profanity') {
+        setProfanityWarning(true);
+        setTimeout(() => setProfanityWarning(false), 3000);
+        return;
+      }
       setInputText('');
       setReplyingTo(null);
       setShowEmojiPicker(false);
@@ -5089,8 +5193,24 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <VoiceReviewPlayer url={audioUrl} duration={recordingTime} onCancel={cancelRecording} onSend={sendVoiceMessage} />
           ) : (
             <>
+              {/* ⚠️ Profanity Warning Toast */}
+              {profanityWarning && (
+                <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-3 mb-2 px-5 py-3 bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/30 rounded-2xl backdrop-blur-md shadow-lg shadow-red-500/5">
+                  <div className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                    <Shield size={14} className="text-red-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-red-400">Message blocked</p>
+                    <p className="text-[10px] text-red-400/70">Inappropriate language detected — please revise your message</p>
+                  </div>
+                  <button type="button" onClick={() => setProfanityWarning(false)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors shrink-0">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
               {/* ✨ Magic Reply Suggestions — on-device AI */}
-              {magicReplies.length > 0 && !inputText.trim() && !showEmojiPicker && !replyingTo && (
+              {magicReplies.length > 0 && !inputText.trim() && !showEmojiPicker && !replyingTo && !profanityWarning && (
                 <div className="flex gap-1.5 mb-2 px-2 overflow-x-auto [&::-webkit-scrollbar]:hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
                   <div className="flex items-center gap-1 shrink-0 mr-1">
                     <Sparkles size={12} className="text-amber-400" />
