@@ -1294,6 +1294,11 @@ export default function App() {
   };
 
   const handleCreateGroup = (name, memberIds) => {
+    // Profanity filter for group name
+    if (containsProfanity(name)) {
+      showGlobalToast('⚠️ Group name contains inappropriate language. Please choose a different name.');
+      return;
+    }
     if (memberIds.length + 1 > 1024) {
       showGlobalToast("A group can have a maximum of 1024 members.");
       return;
@@ -1827,6 +1832,7 @@ function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) 
   const [mode, setMode] = useState('select-type'); // 'select-type', 'select-members', 'name-group'
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [groupName, setGroupName] = useState('');
+  const [groupProfanity, setGroupProfanity] = useState(false);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -1883,7 +1889,14 @@ function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) 
         )}
         {mode === 'name-group' && (
           <button 
-            onClick={() => onCreateGroup(groupName, selectedFriends)}
+            onClick={() => {
+              if (containsProfanity(groupName)) {
+                setGroupProfanity(true);
+                setTimeout(() => setGroupProfanity(false), 3000);
+                return;
+              }
+              onCreateGroup(groupName, selectedFriends);
+            }}
             disabled={!groupName.trim()}
             className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-full text-sm font-medium transition-colors cursor-pointer disabled:cursor-default"
           >
@@ -1962,11 +1975,17 @@ function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) 
             <input 
               type="text" 
               value={groupName}
-              onChange={e => setGroupName(e.target.value)}
+              onChange={e => { setGroupName(e.target.value); setGroupProfanity(false); }}
               placeholder="Group Subject"
               autoFocus
-              className="w-full max-w-sm bg-transparent border-b border-white/20 text-center text-2xl text-white placeholder-zinc-600 py-2 focus:outline-none focus:border-indigo-500 transition-colors cursor-text"
+              className={`w-full max-w-sm bg-transparent border-b text-center text-2xl text-white placeholder-zinc-600 py-2 focus:outline-none transition-colors cursor-text ${groupProfanity ? 'border-red-500' : 'border-white/20 focus:border-indigo-500'}`}
             />
+            {groupProfanity && (
+              <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 mt-3 px-4 py-2 bg-red-500/10 border border-red-500/25 rounded-full">
+                <Shield size={12} className="text-red-400" />
+                <span className="text-xs text-red-400 font-medium">Group name contains inappropriate language</span>
+              </div>
+            )}
             
             <div className="w-full max-w-sm mt-8">
               <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4 text-center">Selected Members ({selectedFriends.length})</h3>
@@ -2358,9 +2377,9 @@ function CreateStoryModal({ onClose, onPost }) {
 
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           {storyProfanity && (
-            <div className="flex items-center gap-2 mb-4 px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-full backdrop-blur-md animate-in fade-in duration-200">
-              <Shield size={12} className="text-red-300" />
-              <span className="text-xs text-red-200 font-medium">Inappropriate language — please revise</span>
+            <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 mb-4 px-5 py-2.5 bg-[#1a1a1c]/95 border border-red-500/40 rounded-full shadow-2xl shadow-black/40">
+              <Shield size={14} className="text-red-400" />
+              <span className="text-sm text-red-300 font-semibold">⚠️ Inappropriate language — please revise</span>
             </div>
           )}
           <textarea 
@@ -3184,6 +3203,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
 
   const [floatingIcons, setFloatingIcons] = useState([]);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('Message delivered');
 
   const isMyStory = friend.isMine;
   
@@ -3312,6 +3332,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
       // Profanity filter for story replies
       if (containsProfanity(replyText)) {
         setReplyText('');
+        setToastMessage('⚠️ Message blocked — inappropriate language');
         setShowToast(true);
         setTimeout(() => setShowToast(false), 2500);
         return;
@@ -3326,6 +3347,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
       if (onSendMessage) onSendMessage(friend.id, replyText, null, null, storyContext);
       setReplyText('');
       setIsInputFocused(false);
+      setToastMessage('Message delivered');
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2500);
     }
@@ -3375,8 +3397,8 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         </div>
 
         {showToast && (
-          <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[110] bg-zinc-900/90 backdrop-blur-xl border border-white/10 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl animate-in fade-in slide-in-from-top-4 zoom-in-95 duration-300">
-            Message delivered
+          <div className={`absolute top-24 left-1/2 -translate-x-1/2 z-[110] backdrop-blur-xl border text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl ${toastMessage.includes('blocked') ? 'bg-red-900/90 border-red-500/30 text-red-200' : 'bg-zinc-900/90 border-white/10'}`} style={{ animation: 'slideUp 0.3s ease-out' }}>
+            {toastMessage}
           </div>
         )}
 
@@ -4205,11 +4227,21 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
   const handleSaveName = () => {
     if (!editName.trim()) return;
+    if (containsProfanity(editName)) {
+      setProfanityWarning(true);
+      setTimeout(() => setProfanityWarning(false), 3000);
+      return;
+    }
     onUpdateGroupInfo(chat.id, editName, chat.description);
     setIsEditingName(false);
   };
 
   const handleSaveDesc = () => {
+    if (containsProfanity(editDesc)) {
+      setProfanityWarning(true);
+      setTimeout(() => setProfanityWarning(false), 3000);
+      return;
+    }
     onUpdateGroupInfo(chat.id, chat.name, editDesc);
     setIsEditingDesc(false);
   };
@@ -5354,6 +5386,14 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 <Hash size={40} />
               </div>
               
+              {/* Profanity warning for group name/desc editing */}
+              {profanityWarning && (
+                <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 mb-3 px-4 py-2.5 bg-red-500/10 border border-red-500/25 rounded-2xl w-full max-w-sm mx-auto">
+                  <Shield size={14} className="text-red-400 shrink-0" />
+                  <span className="text-xs text-red-400 font-medium">Inappropriate language detected — please revise</span>
+                </div>
+              )}
+
               {isEditingName ? (
                 <div className="w-full max-w-sm mt-2 flex flex-col gap-1 mx-auto">
                   <div className="flex items-center gap-2 bg-[#1a1a1c] p-2 rounded-2xl border border-white/[0.05]">
@@ -6364,6 +6404,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
   const [createStep, setCreateStep] = useState('select');
   const [selectedGroupIds, setSelectedGroupIds] = useState([]);
   const [newCommunityName, setNewCommunityName] = useState('');
+  const [communityProfanity, setCommunityProfanity] = useState(false);
   
   useEffect(() => {
     if (activeCommunityId) {
@@ -6379,6 +6420,12 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
 
   const handleCreateCommunity = () => {
     if (!newCommunityName.trim() || selectedGroupIds.length < 2) return;
+    // Profanity filter for community name
+    if (containsProfanity(newCommunityName)) {
+      setCommunityProfanity(true);
+      setTimeout(() => setCommunityProfanity(false), 3000);
+      return;
+    }
     const name = newCommunityName.trim();
     const short = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     const colors = ['bg-violet-600', 'bg-teal-600', 'bg-sky-600', 'bg-pink-600', 'bg-lime-600', 'bg-fuchsia-600'];
@@ -6549,11 +6596,17 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
                   <input 
                     type="text"
                     value={newCommunityName}
-                    onChange={(e) => setNewCommunityName(e.target.value)}
+                    onChange={(e) => { setNewCommunityName(e.target.value); setCommunityProfanity(false); }}
                     placeholder="e.g. Design Collective"
-                    className="w-full bg-white/5 border border-white/10 text-white placeholder-zinc-500 rounded-2xl py-3 px-4 text-[15px] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                    className={`w-full bg-white/5 border text-white placeholder-zinc-500 rounded-2xl py-3 px-4 text-[15px] focus:outline-none focus:ring-2 transition-all ${communityProfanity ? 'border-red-500/50 focus:ring-red-500/30 focus:border-red-500/50' : 'border-white/10 focus:ring-indigo-500/50 focus:border-indigo-500/50'}`}
                     autoFocus
                   />
+                  {communityProfanity && (
+                    <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/25 rounded-full">
+                      <Shield size={12} className="text-red-400" />
+                      <span className="text-xs text-red-400 font-medium">Community name contains inappropriate language</span>
+                    </div>
+                  )}
                   <div className="text-xs text-zinc-500">
                     <span className="text-indigo-400">{selectedGroupIds.length}</span> groups selected + 1 Announcements channel
                   </div>
