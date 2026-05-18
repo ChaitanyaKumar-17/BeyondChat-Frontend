@@ -2346,7 +2346,6 @@ function CreateStoryModal({ onClose, onPost }) {
   const handlePost = () => {
     if (containsProfanity(text)) {
       setStoryProfanity(true);
-      setTimeout(() => setStoryProfanity(false), 3000);
       return;
     }
     onPost({ text, bgClass: currentBg, timestamp: Date.now() });
@@ -2375,16 +2374,12 @@ function CreateStoryModal({ onClose, onPost }) {
           </button>
         </div>
 
+          {/* Profanity warning removed from here — now at the bottom near Post Story */}
+
         <div className="flex-1 flex flex-col items-center justify-center p-8">
-          {storyProfanity && (
-            <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 mb-4 px-5 py-2.5 bg-[#1a1a1c]/95 border border-red-500/40 rounded-full shadow-2xl shadow-black/40">
-              <Shield size={14} className="text-red-400" />
-              <span className="text-sm text-red-300 font-semibold">⚠️ Inappropriate language — please revise</span>
-            </div>
-          )}
           <textarea 
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={e => { setText(e.target.value); if (storyProfanity) setStoryProfanity(false); }}
             placeholder="Tap to type..."
             autoFocus
             className="w-full bg-transparent text-center text-3xl sm:text-4xl font-bold text-white placeholder-white/50 focus:outline-none resize-none drop-shadow-lg cursor-text break-words"
@@ -2392,7 +2387,13 @@ function CreateStoryModal({ onClose, onPost }) {
           />
         </div>
 
-        <div className="p-6 pb-12 flex justify-end items-center">
+        <div className="p-6 pb-12 flex flex-col items-end gap-2">
+          {storyProfanity && (
+            <div style={{ animation: 'slideUp 0.2s ease-out' }} className="inline-flex items-center gap-2 px-4 py-2 bg-black/80 backdrop-blur-xl border border-red-500/25 rounded-full whitespace-nowrap self-center">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
+              <span className="text-[12px] text-red-300/90 font-medium">Inappropriate language — please revise</span>
+            </div>
+          )}
           <button 
             onClick={handlePost} 
             disabled={!text.trim()} 
@@ -3334,7 +3335,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         setReplyText('');
         setToastMessage('⚠️ Message blocked — inappropriate language');
         setShowToast(true);
-        setTimeout(() => setShowToast(false), 2500);
+        setTimeout(() => setShowToast(false), 4500);
         return;
       }
       const storyContext = {
@@ -3397,8 +3398,16 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         </div>
 
         {showToast && (
-          <div className={`absolute top-24 left-1/2 -translate-x-1/2 z-[110] backdrop-blur-xl border text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl ${toastMessage.includes('blocked') ? 'bg-red-900/90 border-red-500/30 text-red-200' : 'bg-zinc-900/90 border-white/10'}`} style={{ animation: 'slideUp 0.3s ease-out' }}>
-            {toastMessage}
+          <div 
+            className={`absolute top-32 left-1/2 -translate-x-1/2 z-[110] whitespace-nowrap max-w-[90%] inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium tracking-tight shadow-[0_8px_32px_rgba(0,0,0,0.4)] ${
+              toastMessage.includes('blocked') 
+                ? 'bg-black/80 backdrop-blur-xl border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.15)]' 
+                : 'bg-black/80 backdrop-blur-xl border border-white/10'
+            }`}
+            style={{ animation: 'slideUp 0.3s ease-out' }}
+          >
+            {toastMessage.includes('blocked') && <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />}
+            <span className={toastMessage.includes('blocked') ? 'text-red-300/90' : 'text-white/90'}>{toastMessage.includes('blocked') ? 'Message blocked — inappropriate language' : 'Message delivered'}</span>
           </div>
         )}
 
