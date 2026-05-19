@@ -3477,7 +3477,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
         </div>
 
         <div key={`text-${currentStory.id}`} className="flex-1 flex items-center justify-center relative z-20 animate-in fade-in duration-300 pointer-events-none">
-          <div className={`text-3xl sm:text-4xl font-bold text-white/90 text-center px-6 leading-relaxed drop-shadow-lg break-words`}>
+          <div className={`text-xl sm:text-2xl font-bold text-white/90 text-center px-10 leading-relaxed drop-shadow-lg break-words`}>
              {currentStory.text}
           </div>
         </div>
@@ -4409,7 +4409,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      <header className="px-6 py-4 flex items-center justify-between border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
+      <header className="px-6 py-4 flex items-center justify-between border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-30 flex-none relative">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <button onClick={onBack} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full flex-shrink-0">
             <ArrowLeft size={18} />
@@ -4452,8 +4452,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </button>
             {showMoreMenu && (
               <>
-                <div className="fixed inset-0 z-[110]" onClick={() => setShowMoreMenu(false)}></div>
-                <div className="absolute top-12 right-0 bg-[#1a1a1c] border border-white/10 rounded-xl shadow-2xl w-48 z-[120] animate-in fade-in zoom-in-95 overflow-hidden flex flex-col py-1">
+                <div className="fixed inset-0 z-[190]" onClick={() => setShowMoreMenu(false)}></div>
+                <div className="absolute top-12 right-0 bg-[#1a1a1c] border border-white/10 rounded-xl shadow-2xl w-48 z-[200] animate-in fade-in zoom-in-95 overflow-hidden flex flex-col py-1">
                   <button onClick={() => { setShowMoreMenu(false); setReportStep('category'); }} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition-colors text-red-400 font-medium text-sm text-left">
                     <Flag size={16} /> Report {chat.isGroup ? 'Group' : 'User'}
                   </button>
