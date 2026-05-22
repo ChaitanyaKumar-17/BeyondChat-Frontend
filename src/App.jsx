@@ -6429,7 +6429,6 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
 
   const handleCreateCommunity = () => {
     if (!newCommunityName.trim() || selectedGroupIds.length < 2) return;
-    // Profanity filter for community name
     if (containsProfanity(newCommunityName)) {
       setCommunityProfanity(true);
       setTimeout(() => setCommunityProfanity(false), 3000);
