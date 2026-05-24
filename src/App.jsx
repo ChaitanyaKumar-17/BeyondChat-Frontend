@@ -5995,7 +5995,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               </section>
 
-              {/* Delivered To */}
               <section>
                 <div className="flex items-center gap-2 mb-3 px-1">
                   <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
