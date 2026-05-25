@@ -5915,7 +5915,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         );
       })()}
 
-      {/* View Once Fullscreen Viewer */}
       {viewOnceViewing && (
         <div className="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-center animate-in fade-in duration-200">
           <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
