@@ -5792,7 +5792,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               </section>
 
-              {/* Starred Messages */}
               {userStarred.length > 0 && (
                 <section>
                   <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Starred Messages</h3>
