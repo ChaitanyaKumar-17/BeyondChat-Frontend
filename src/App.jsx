@@ -5352,7 +5352,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
                 />
                 
-                {/* AI Sparkle Button */}
                 <button 
                   type="button" 
                   onClick={() => setShowAiAssistant(!showAiAssistant)}
