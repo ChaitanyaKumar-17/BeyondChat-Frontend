@@ -59,7 +59,23 @@ import {
   Wand2,
   ArrowUpRight,
   Type,
-  MessageCircle
+  MessageCircle,
+  BarChart3,
+  ListTodo,
+  CheckSquare,
+  Calendar,
+  Clock,
+  Paintbrush,
+  StickyNote,
+  Eraser,
+  Undo2,
+  Layers,
+  Move,
+  Circle,
+  CheckCircle2,
+  CheckCircle,
+  AlertCircle,
+  GripVertical
 } from 'lucide-react';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
@@ -1149,9 +1165,9 @@ export default function App() {
     }));
   }, []);
 
-  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null) => {
+  const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null, meta = null) => {
     // On-device profanity filter — block messages containing profane language
-    if (text && containsProfanity(text)) return 'profanity';
+    if (text && containsProfanity(text) && !meta?.poll) return 'profanity';
     const group = groups.find(g => g.id === userId);
     const newMessage = customPayload || {
       id: Date.now(),
@@ -1162,7 +1178,8 @@ export default function App() {
       isStarred: false,
       status: 'sent',
       ...(group ? { receipts: (group.memberIds || []).filter(mid => mid !== currentUser.id).map(mid => ({ userId: mid, status: 'pending' })) } : {}),
-      ...(storyReply ? { storyReply } : {})
+      ...(storyReply ? { storyReply } : {}),
+      ...(meta ? { meta } : {})
     };
 
     setChatDetails(prev => {
@@ -3769,6 +3786,151 @@ function VoiceReviewPlayer({ url, duration, onCancel, onSend }) {
   );
 }
 
+// ═══════════════════════════════════════════════════════════
+// 📊 CREATE POLL MODAL
+// ═══════════════════════════════════════════════════════════
+function CreatePollModal({ onClose, onCreatePoll }) {
+  const [question, setQuestion] = useState('');
+  const [options, setOptions] = useState(['', '']);
+  const [allowMultiple, setAllowMultiple] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
+
+  const addOption = () => { if (options.length < 10) setOptions([...options, '']); };
+  const removeOption = (i) => { if (options.length > 2) setOptions(options.filter((_, idx) => idx !== i)); };
+  const updateOption = (i, val) => { const o = [...options]; o[i] = val; setOptions(o); };
+
+  const canCreate = question.trim() && options.filter(o => o.trim()).length >= 2;
+
+  const handleCreate = () => {
+    if (!canCreate) return;
+    onCreatePoll({
+      id: `poll_${Date.now()}`,
+      question: question.trim(),
+      options: options.filter(o => o.trim()).map((text, i) => ({ id: i, text: text.trim(), votes: [] })),
+      allowMultiple,
+      isAnonymous,
+      createdAt: Date.now(),
+      closed: false,
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[130] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-[#1a1a1c] border border-white/10 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg"><BarChart3 size={18} className="text-white" /></div>
+            <h3 className="text-white font-semibold text-base">Create Poll</h3>
+          </div>
+          <button onClick={onClose} className="p-2 text-zinc-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"><X size={18} /></button>
+        </div>
+
+        <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto [&::-webkit-scrollbar]:hidden">
+          <div>
+            <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-1.5 block">Question</label>
+            <input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Ask a question..." className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500/50 transition-colors" autoFocus />
+          </div>
+
+          <div>
+            <label className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mb-1.5 block">Options</label>
+            <div className="space-y-2">
+              {options.map((opt, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center shrink-0"><span className="text-[10px] text-zinc-500 font-bold">{i + 1}</span></div>
+                  <input value={opt} onChange={e => updateOption(i, e.target.value)} placeholder={`Option ${i + 1}`} className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-colors" />
+                  {options.length > 2 && <button onClick={() => removeOption(i)} className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><X size={14} /></button>}
+                </div>
+              ))}
+            </div>
+            {options.length < 10 && (
+              <button onClick={addOption} className="mt-2 flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors"><Plus size={14} /> Add option</button>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 pt-2 border-t border-white/[0.04]">
+            <label className="flex items-center justify-between cursor-pointer group">
+              <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">Allow multiple selections</span>
+              <div className={`w-10 h-6 rounded-full transition-colors relative ${allowMultiple ? 'bg-indigo-500' : 'bg-white/10'}`} onClick={() => setAllowMultiple(!allowMultiple)}>
+                <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${allowMultiple ? 'left-5' : 'left-1'}`} />
+              </div>
+            </label>
+            <label className="flex items-center justify-between cursor-pointer group">
+              <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">Anonymous votes</span>
+              <div className={`w-10 h-6 rounded-full transition-colors relative ${isAnonymous ? 'bg-indigo-500' : 'bg-white/10'}`} onClick={() => setIsAnonymous(!isAnonymous)}>
+                <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${isAnonymous ? 'left-5' : 'left-1'}`} />
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div className="p-5 border-t border-white/[0.06] flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Cancel</button>
+          <button onClick={handleCreate} disabled={!canCreate} className="px-5 py-2 text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-default shadow-lg shadow-indigo-500/20">Create Poll</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// 📋 TASK PANEL COMPONENT
+// ═══════════════════════════════════════════════════════════
+function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends }) {
+  const [filter, setFilter] = useState('all'); // all, todo, in-progress, done
+  const priorities = { high: 'text-red-400 bg-red-500/10', medium: 'text-amber-400 bg-amber-500/10', low: 'text-emerald-400 bg-emerald-500/10' };
+  const statuses = { todo: { label: 'To Do', color: 'text-zinc-400' }, 'in-progress': { label: 'In Progress', color: 'text-amber-400' }, done: { label: 'Done', color: 'text-emerald-400' } };
+
+  const filtered = tasks.filter(t => filter === 'all' || t.status === filter);
+  const counts = { all: tasks.length, todo: tasks.filter(t => t.status === 'todo').length, 'in-progress': tasks.filter(t => t.status === 'in-progress').length, done: tasks.filter(t => t.status === 'done').length };
+
+  return (
+    <div className="absolute inset-0 z-[80] bg-[#121214] flex flex-col animate-in slide-in-from-right-8 duration-300">
+      <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
+        <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full"><ArrowLeft size={18} /></button>
+        <div className="flex items-center gap-2"><ListTodo size={18} className="text-indigo-400" /><h2 className="text-base font-medium text-white">Tasks</h2></div>
+        <span className="ml-auto text-xs text-zinc-500 bg-white/5 px-2.5 py-1 rounded-full">{tasks.length} total</span>
+      </header>
+
+      <div className="flex gap-1 px-4 py-3 border-b border-white/[0.04] overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        {Object.entries(counts).map(([key, count]) => (
+          <button key={key} onClick={() => setFilter(key)} className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap ${filter === key ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent'}`}>
+            {key === 'all' ? 'All' : key === 'in-progress' ? 'In Progress' : key.charAt(0).toUpperCase() + key.slice(1)} ({count})
+          </button>
+        ))}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 [&::-webkit-scrollbar]:hidden">
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-zinc-500 pb-10">
+            <CheckCircle size={40} className="mb-3 text-zinc-600" />
+            <p className="text-sm font-medium">No tasks {filter !== 'all' ? `marked as "${filter}"` : 'yet'}</p>
+            <p className="text-xs text-zinc-600 mt-1">Convert any message into a task</p>
+          </div>
+        ) : filtered.map(task => (
+          <div key={task.id} className="bg-[#1a1a1c] border border-white/[0.04] rounded-xl p-4 hover:border-white/[0.08] transition-colors group">
+            <div className="flex items-start gap-3">
+              <button onClick={() => onUpdateTask(task.id, { status: task.status === 'done' ? 'todo' : task.status === 'todo' ? 'in-progress' : 'done' })} className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${task.status === 'done' ? 'bg-emerald-500 border-emerald-500' : task.status === 'in-progress' ? 'border-amber-400 bg-amber-500/20' : 'border-white/20 hover:border-white/40'}`}>
+                {task.status === 'done' && <Check size={12} className="text-white" />}
+                {task.status === 'in-progress' && <div className="w-2 h-2 rounded-sm bg-amber-400" />}
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-medium ${task.status === 'done' ? 'text-zinc-500 line-through' : 'text-white'}`}>{task.title}</p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priorities[task.priority]}`}>{task.priority}</span>
+                  {task.dueDate && <span className="text-[10px] text-zinc-500 flex items-center gap-1"><Calendar size={10} />{new Date(task.dueDate).toLocaleDateString()}</span>}
+                  {task.assignee && <span className="text-[10px] text-zinc-500">→ {friends.find(f => f.id === task.assignee)?.name || 'You'}</span>}
+                </div>
+              </div>
+              <button onClick={() => onDeleteTask(task.id)} className="p-1.5 text-zinc-600 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
@@ -3822,6 +3984,45 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [showAiAssistant, setShowAiAssistant] = useState(false);
   const [aiProcessing, setAiProcessing] = useState(false);
   const [profanityWarning, setProfanityWarning] = useState(false);
+
+  // ═══ Polls, Tasks, Canvas state ═══
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
+  const [chatTasks, setChatTasks] = useState([]);
+  const [showTaskPanel, setShowTaskPanel] = useState(false);
+  const [showCanvas, setShowCanvas] = useState(false);
+  const [createTaskFromMsg, setCreateTaskFromMsg] = useState(null); // msg object
+
+  const handleCreatePoll = (poll) => {
+    onSendMessage(chat.id, `📊 Poll: ${poll.question}`, null, null, null, { type: 'poll', poll });
+  };
+
+  const handleVotePoll = (msgId, optionId) => {
+    // Handled via message update - toggle vote on option
+    const msg = messages.find(m => m.id === msgId);
+    if (!msg?.meta?.poll || msg.meta.poll.closed) return;
+    const poll = { ...msg.meta.poll, options: msg.meta.poll.options.map(opt => {
+      const hasVoted = opt.votes.includes(currentUser.id);
+      if (opt.id === optionId) {
+        return { ...opt, votes: hasVoted ? opt.votes.filter(v => v !== currentUser.id) : [...opt.votes, currentUser.id] };
+      }
+      if (!msg.meta.poll.allowMultiple && !hasVoted) {
+        return { ...opt, votes: opt.votes.filter(v => v !== currentUser.id) };
+      }
+      return opt;
+    })};
+    msg.meta = { ...msg.meta, poll };
+  };
+
+  const handleCreateTask = (msg, priority = 'medium') => {
+    const newTask = { id: `task_${Date.now()}`, title: msg.text.slice(0, 120), msgId: msg.id, status: 'todo', priority, assignee: null, dueDate: null, createdAt: Date.now() };
+    setChatTasks(prev => [newTask, ...prev]);
+    setCreateTaskFromMsg(null);
+    setActiveMsgId(null);
+  };
+
+  const handleUpdateTask = (taskId, updates) => setChatTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updates } : t));
+  const handleDeleteTask = (taskId) => setChatTasks(prev => prev.filter(t => t.id !== taskId));
+  const pendingTaskCount = chatTasks.filter(t => t.status !== 'done').length;
 
   // Curated GIF filtering (no API needed)
   const filteredGifs = useMemo(() => {
@@ -4442,6 +4643,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         <div className="flex items-center gap-1 md:gap-3 flex-shrink-0 ml-2">
           <button className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors"><Phone size={18} /></button>
           <button className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors"><Video size={18} /></button>
+          <button onClick={() => setShowTaskPanel(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative" title="Tasks">
+            <ListTodo size={18} />
+            {pendingTaskCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-indigo-500 text-[9px] text-white font-bold flex items-center justify-center">{pendingTaskCount}</span>}
+          </button>
+          <button onClick={() => setShowCanvas(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors" title="Canvas"><Paintbrush size={18} /></button>
           <div className="w-px h-5 bg-white/[0.06] mx-1"></div>
           <div className="relative">
             <button 
@@ -4591,6 +4797,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       </button>
                       <button onClick={(e) => { e.stopPropagation(); onForwardMessage(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                         <Forward size={16}/> Forward
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleCreateTask(msg); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                        <ListTodo size={16}/> Create Task
                       </button>
                       {isAdmin && chat.isGroup && (
                         <button onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
@@ -4783,8 +4992,44 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       )}
 
                       <div className="pr-5 mt-0.5">
-                        {msg.text && <span className="break-words leading-relaxed">{msg.text}</span>}
-                        {!msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && <span className="break-words leading-relaxed"></span>}
+                        {/* 📊 Poll Card */}
+                        {msg.meta?.poll && (() => {
+                          const poll = msg.meta.poll;
+                          const totalVotes = poll.options.reduce((sum, o) => sum + o.votes.length, 0);
+                          const myVotes = poll.options.filter(o => o.votes.includes(currentUser.id)).map(o => o.id);
+                          return (
+                            <div className="mb-2 -mx-1">
+                              <div className="flex items-center gap-2 mb-3">
+                                <BarChart3 size={14} className="text-indigo-400 shrink-0" />
+                                <span className="text-sm font-semibold text-white">{poll.question}</span>
+                              </div>
+                              <div className="space-y-1.5">
+                                {poll.options.map(opt => {
+                                  const pct = totalVotes > 0 ? Math.round((opt.votes.length / totalVotes) * 100) : 0;
+                                  const voted = myVotes.includes(opt.id);
+                                  return (
+                                    <button key={opt.id} onClick={(e) => { e.stopPropagation(); if (!poll.closed) handleVotePoll(msg.id, opt.id); }} disabled={poll.closed} className={`w-full text-left rounded-lg p-2.5 relative overflow-hidden transition-all ${voted ? 'border border-indigo-500/40 bg-indigo-500/10' : 'border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'} ${poll.closed ? 'cursor-default' : 'cursor-pointer'}`}>
+                                      <div className="absolute inset-0 rounded-lg transition-all" style={{ width: `${pct}%`, background: voted ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)' }} />
+                                      <div className="relative flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          {voted && <CheckCircle2 size={14} className="text-indigo-400 shrink-0" />}
+                                          <span className={`text-xs font-medium truncate ${voted ? 'text-indigo-300' : 'text-zinc-300'}`}>{opt.text}</span>
+                                        </div>
+                                        <span className="text-[10px] text-zinc-500 font-mono shrink-0">{pct}%</span>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/[0.04]">
+                                <span className="text-[10px] text-zinc-500">{totalVotes} vote{totalVotes !== 1 ? 's' : ''} · {poll.allowMultiple ? 'Multi-select' : 'Single choice'}{poll.isAnonymous ? ' · Anonymous' : ''}</span>
+                                {poll.closed && <span className="text-[10px] text-red-400 font-medium">Closed</span>}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                        {msg.text && !msg.meta?.poll && <span className="break-words leading-relaxed">{msg.text}</span>}
+                        {!msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && <span className="break-words leading-relaxed"></span>}
                         {msg.isStarred && <Star size={12} className="inline-block text-yellow-400 fill-current opacity-80 shrink-0 ml-1.5 mb-[2px]" />}
                       </div>
 
@@ -5357,7 +5602,14 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 >
                   <Paperclip size={20} />
                 </button>
-                
+                <button 
+                  type="button" 
+                  onClick={() => setShowCreatePoll(true)}
+                  className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]"
+                  title="Create Poll"
+                >
+                  <BarChart3 size={20} />
+                </button>
                 <input 
                   ref={inputRef}
                   type="text" 
@@ -5697,6 +5949,85 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           </div>
         </div>
       )}
+
+      {/* 📊 Create Poll Modal */}
+      {showCreatePoll && <CreatePollModal onClose={() => setShowCreatePoll(false)} onCreatePoll={handleCreatePoll} />}
+
+      {/* 📋 Task Panel */}
+      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} />}
+
+      {/* 🎨 Canvas Panel */}
+      {showCanvas && (() => {
+        const CanvasPanel = () => {
+          const [notes, setNotes] = useState([
+            { id: 1, text: 'Brainstorm ideas here...', x: 40, y: 40, color: 'from-indigo-500/20 to-violet-500/20 border-indigo-500/30', w: 200 },
+          ]);
+          const [newNote, setNewNote] = useState('');
+          const [dragId, setDragId] = useState(null);
+          const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+          const noteColors = [
+            'from-indigo-500/20 to-violet-500/20 border-indigo-500/30',
+            'from-amber-500/20 to-orange-500/20 border-amber-500/30',
+            'from-emerald-500/20 to-teal-500/20 border-emerald-500/30',
+            'from-pink-500/20 to-rose-500/20 border-pink-500/30',
+            'from-cyan-500/20 to-sky-500/20 border-cyan-500/30',
+          ];
+
+          const addNote = () => {
+            if (!newNote.trim()) return;
+            setNotes(prev => [...prev, { id: Date.now(), text: newNote.trim(), x: 40 + Math.random() * 300, y: 40 + Math.random() * 200, color: noteColors[prev.length % noteColors.length], w: 200 }]);
+            setNewNote('');
+          };
+
+          const handleMouseDown = (e, id) => {
+            setDragId(id);
+            setDragStart({ x: e.clientX, y: e.clientY });
+          };
+          const handleMouseMove = (e) => {
+            if (!dragId) return;
+            const dx = e.clientX - dragStart.x;
+            const dy = e.clientY - dragStart.y;
+            setNotes(prev => prev.map(n => n.id === dragId ? { ...n, x: n.x + dx, y: n.y + dy } : n));
+            setDragStart({ x: e.clientX, y: e.clientY });
+          };
+
+          return (
+            <div className="absolute inset-0 z-[90] bg-[#0a0a0c] flex flex-col animate-in slide-in-from-right-8 duration-300">
+              <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
+                <button onClick={() => setShowCanvas(false)} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full"><ArrowLeft size={18} /></button>
+                <div className="flex items-center gap-2"><Paintbrush size={18} className="text-amber-400" /><h2 className="text-base font-medium text-white">Canvas</h2></div>
+                <span className="ml-auto text-xs text-zinc-500 bg-white/5 px-2.5 py-1 rounded-full">{notes.length} notes</span>
+              </header>
+
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.04]">
+                <input value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && addNote()} placeholder="Add a note..." className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500/50" />
+                <button onClick={addNote} disabled={!newNote.trim()} className="px-3 py-2 bg-amber-500/20 text-amber-400 rounded-lg text-xs font-medium hover:bg-amber-500/30 transition-colors disabled:opacity-40"><Plus size={14} /></button>
+              </div>
+
+              <div className="flex-1 relative overflow-hidden bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjAuNSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvc3ZnPg==')]" onMouseMove={handleMouseMove} onMouseUp={() => setDragId(null)} onMouseLeave={() => setDragId(null)}>
+                {notes.map(note => (
+                  <div key={note.id} className={`absolute bg-gradient-to-br ${note.color} border rounded-xl p-4 shadow-lg cursor-move select-none hover:shadow-xl transition-shadow group`} style={{ left: note.x, top: note.y, width: note.w }} onMouseDown={e => handleMouseDown(e, note.id)}>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <GripVertical size={14} className="text-white/20 shrink-0 mt-0.5" />
+                      <button onClick={() => setNotes(prev => prev.filter(n => n.id !== note.id))} className="p-1 text-white/20 hover:text-red-400 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+                    </div>
+                    <p className="text-sm text-white/80 leading-relaxed break-words">{note.text}</p>
+                    <span className="text-[9px] text-white/20 mt-2 block">You</span>
+                  </div>
+                ))}
+                {notes.length === 0 && (
+                  <div className="flex flex-col items-center justify-center h-full text-zinc-600">
+                    <StickyNote size={48} className="mb-3" />
+                    <p className="text-sm font-medium">Empty canvas</p>
+                    <p className="text-xs mt-1">Add notes to start brainstorming</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        };
+        return <CanvasPanel />;
+      })()}
 
       {/* Individual User Info Panel */}
       {showDetails && !chat.isGroup && (() => {
