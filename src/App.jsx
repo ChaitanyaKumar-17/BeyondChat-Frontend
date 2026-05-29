@@ -4452,7 +4452,6 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             </button>
             {showMoreMenu && (
               <>
-                <div className="fixed inset-0 z-[190]" onClick={() => setShowMoreMenu(false)}></div>
                 <div className="absolute top-12 right-0 bg-[#1a1a1c] border border-white/10 rounded-xl shadow-2xl w-48 z-[200] animate-in fade-in zoom-in-95 overflow-hidden flex flex-col py-1">
                   <button onClick={() => { setShowMoreMenu(false); setReportStep('category'); }} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition-colors text-red-400 font-medium text-sm text-left">
                     <Flag size={16} /> Report {chat.isGroup ? 'Group' : 'User'}
@@ -4475,6 +4474,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           </div>
         </div>
       </header>
+
+      {/* Backdrop for closing the more menu - placed outside header to escape its stacking context */}
+      {showMoreMenu && (
+        <div className="fixed inset-0 z-[25]" onClick={() => setShowMoreMenu(false)}></div>
+      )}
 
       {chat.pinnedMessage && (
         <div className="px-6 py-2.5 bg-[#1a1a1c]/95 border-b border-white/[0.04] flex items-center justify-between z-10 flex-none cursor-pointer hover:bg-white/[0.02] transition-colors">
