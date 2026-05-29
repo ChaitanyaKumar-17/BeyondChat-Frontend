@@ -4548,7 +4548,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           const isNearBottom = idx >= groupedMessages.length - 3;
 
           return (
-            <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'} ${activeMsgId === msg.id ? 'relative z-50' : 'relative z-10'}`}>
+            <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2 group/msg ${hasReactions ? 'mb-4' : 'mb-1'} ${activeMsgId === msg.id ? 'relative z-[60]' : 'relative'}`}>
               {!isMe && (
                 <div className="w-8">
                   {msg.showAvatar && <img src={chat.isGroup ? (friends.find(f=>f.id===msg.senderId)?.avatar || chat.avatar) : chat.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />}
@@ -4560,9 +4560,20 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   className={`flex items-center gap-2 group/msgwrap relative ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
                 >
                   
-                  {/* Message Actions Dropdown */}
-                  {!msg.isDeleted && activeMsgId === msg.id && (
-                    <div className={`absolute ${isNearBottom ? 'bottom-[105%]' : 'top-[105%]'} ${isMe ? 'right-0' : 'left-0'} bg-[#1a1a1c] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] animate-in fade-in zoom-in-95 flex flex-col py-1.5 min-w-[160px]`}>
+                  {!msg.isDeleted && activeMsgId === msg.id && (() => {
+                    // Smart positioning: check if message is in the top or bottom half of the scroll container
+                    const msgEl = document.getElementById(`message-${msg.id}`);
+                    const scrollEl = scrollContainerRef.current;
+                    let showAbove = isNearBottom;
+                    if (msgEl && scrollEl) {
+                      const msgRect = msgEl.getBoundingClientRect();
+                      const scrollRect = scrollEl.getBoundingClientRect();
+                      const msgCenter = msgRect.top + msgRect.height / 2;
+                      const scrollCenter = scrollRect.top + scrollRect.height / 2;
+                      showAbove = msgCenter > scrollCenter;
+                    }
+                    return (
+                    <div className={`absolute ${showAbove ? 'bottom-full mb-2' : 'top-full mt-2'} ${isMe ? 'right-0' : 'left-0'} bg-[#1a1a1c] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] animate-in fade-in zoom-in-95 flex flex-col py-1.5 min-w-[160px]`}>
                       <button onClick={(e) => { e.stopPropagation(); onToggleStarMessage(chat.id, msg.id); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                         <Star size={16} className={msg.isStarred ? 'text-yellow-400 fill-yellow-400' : ''}/> {msg.isStarred ? 'Unstar Message' : 'Star Message'}
                       </button>
@@ -4597,7 +4608,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         <Trash2 size={16}/> Delete Message
                       </button>
                     </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Reaction Quick-Select Popup */}
                   {reactionPopupId === msg.id && (
@@ -5324,7 +5336,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
               <form 
                 onSubmit={handleSend}
-                className="flex items-center gap-2 bg-[#1e1e24] border border-white/[0.05] p-2 rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-10"
+                className="flex items-center gap-2 bg-[#1e1e24] border border-white/[0.05] p-2 rounded-full relative z-10"
               >
                 <button 
                   type="button" 
@@ -5352,6 +5364,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
                 />
                 
+                {/* AI Sparkle Button */}
                 <button 
                   type="button" 
                   onClick={() => setShowAiAssistant(!showAiAssistant)}
@@ -5791,6 +5804,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               </section>
 
+              {/* Starred Messages */}
               {userStarred.length > 0 && (
                 <section>
                   <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Starred Messages</h3>
@@ -5913,6 +5927,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         );
       })()}
 
+      {/* View Once Fullscreen Viewer */}
       {viewOnceViewing && (
         <div className="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-center animate-in fade-in duration-200">
           <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
@@ -5992,6 +6007,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               </section>
 
+              {/* Delivered To */}
               <section>
                 <div className="flex items-center gap-2 mb-3 px-1">
                   <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
@@ -6277,6 +6293,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   );
 }
 
+// --- HELPERS ---
 
 function StoryRing({ stories, type }) {
   const count = stories.length;
@@ -6424,6 +6441,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
 
   const handleCreateCommunity = () => {
     if (!newCommunityName.trim() || selectedGroupIds.length < 2) return;
+    // Profanity filter for community name
     if (containsProfanity(newCommunityName)) {
       setCommunityProfanity(true);
       setTimeout(() => setCommunityProfanity(false), 3000);
@@ -6503,12 +6521,14 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Community Sidebar */}
       <div className={`absolute top-0 bottom-0 left-0 z-30 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
       }`}>
         <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
       </div>
 
+      {/* Community Groups List */}
       <div className={`absolute top-0 bottom-0 right-0 z-20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'left-[64px] opacity-100 translate-x-0 scale-100' : 'left-[64px] opacity-0 translate-x-[20%] pointer-events-none scale-105'
       }`}>
