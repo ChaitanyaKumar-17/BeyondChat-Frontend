@@ -3996,21 +3996,74 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     onSendMessage(chat.id, `📊 Poll: ${poll.question}`, null, null, null, { type: 'poll', poll });
   };
 
+  const [pollVotes, setPollVotes] = useState({}); // { [msgId]: { [optionId]: [userIds] } }
+  const [viewPollVoters, setViewPollVoters] = useState(null); // { msgId, optionId }
+  const [editPollMsgId, setEditPollMsgId] = useState(null); // msgId being edited
+  const [editPollNewOpt, setEditPollNewOpt] = useState('');
+  const [showRecentPolls, setShowRecentPolls] = useState(false);
+
+  // Get all poll messages for "recent polls" feature
+  const pollMessages = useMemo(() => (chat.messages || []).filter(m => m.meta?.poll).slice(-5).reverse(), [chat.messages]);
+
+  // Edit poll: add new option
+  const handleAddPollOption = (msgId) => {
+    if (!editPollNewOpt.trim()) return;
+    const msg = (chat.messages || []).find(m => m.id === msgId);
+    if (!msg?.meta?.poll) return;
+    const newOptId = Math.max(...msg.meta.poll.options.map(o => o.id), -1) + 1;
+    msg.meta.poll.options.push({ id: newOptId, text: editPollNewOpt.trim(), votes: [] });
+    setEditPollNewOpt('');
+    // Force re-render by toggling a poll vote state key
+    setPollVotes(prev => ({ ...prev, [`_refresh_${Date.now()}`]: true }));
+  };
+
+  // Edit poll: toggle setting
+  const handleTogglePollSetting = (msgId, setting) => {
+    const msg = (chat.messages || []).find(m => m.id === msgId);
+    if (!msg?.meta?.poll) return;
+    msg.meta.poll[setting] = !msg.meta.poll[setting];
+    setPollVotes(prev => ({ ...prev, [`_refresh_${Date.now()}`]: true }));
+  };
+
+  // Get voter name helper
+  const getVoterName = (userId) => {
+    if (userId === currentUser.id) return 'You';
+    return friends.find(f => f.id === userId)?.name || 'Unknown';
+  };
+
   const handleVotePoll = (msgId, optionId) => {
-    // Handled via message update - toggle vote on option
-    const msg = messages.find(m => m.id === msgId);
+    const msg = (chat.messages || []).find(m => m.id === msgId);
     if (!msg?.meta?.poll || msg.meta.poll.closed) return;
-    const poll = { ...msg.meta.poll, options: msg.meta.poll.options.map(opt => {
-      const hasVoted = opt.votes.includes(currentUser.id);
-      if (opt.id === optionId) {
-        return { ...opt, votes: hasVoted ? opt.votes.filter(v => v !== currentUser.id) : [...opt.votes, currentUser.id] };
+    const isMulti = msg.meta.poll.allowMultiple;
+
+    setPollVotes(prev => {
+      const msgVotes = { ...prev[msgId] };
+      // Initialize from poll data if first interaction
+      if (Object.keys(msgVotes).length === 0) {
+        msg.meta.poll.options.forEach(o => { msgVotes[o.id] = [...o.votes]; });
       }
-      if (!msg.meta.poll.allowMultiple && !hasVoted) {
-        return { ...opt, votes: opt.votes.filter(v => v !== currentUser.id) };
+      const currentVotes = msgVotes[optionId] || [];
+      const hasVoted = currentVotes.includes(currentUser.id);
+
+      if (hasVoted) {
+        // Un-vote
+        msgVotes[optionId] = currentVotes.filter(v => v !== currentUser.id);
+      } else {
+        // Vote — if single select, clear all other votes first
+        if (!isMulti) {
+          Object.keys(msgVotes).forEach(key => {
+            msgVotes[key] = (msgVotes[key] || []).filter(v => v !== currentUser.id);
+          });
+        }
+        msgVotes[optionId] = [...(msgVotes[optionId] || []), currentUser.id];
       }
-      return opt;
-    })};
-    msg.meta = { ...msg.meta, poll };
+      return { ...prev, [msgId]: msgVotes };
+    });
+  };
+
+  // Helper to get effective votes for a poll option (local state overrides original)
+  const getPollOptionVotes = (msgId, optionId, originalVotes) => {
+    return pollVotes[msgId]?.[optionId] ?? originalVotes;
   };
 
   const handleCreateTask = (msg, priority = 'medium') => {
@@ -4648,6 +4701,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             {pendingTaskCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-indigo-500 text-[9px] text-white font-bold flex items-center justify-center">{pendingTaskCount}</span>}
           </button>
           <button onClick={() => setShowCanvas(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors" title="Canvas"><Paintbrush size={18} /></button>
+          <button onClick={() => setShowRecentPolls(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative" title="Recent Polls">
+            <BarChart3 size={18} />
+            {pollMessages.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-violet-500 text-[9px] text-white font-bold flex items-center justify-center">{pollMessages.length}</span>}
+          </button>
           <div className="w-px h-5 bg-white/[0.06] mx-1"></div>
           <div className="relative">
             <button 
@@ -4995,34 +5052,79 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         {/* 📊 Poll Card */}
                         {msg.meta?.poll && (() => {
                           const poll = msg.meta.poll;
-                          const totalVotes = poll.options.reduce((sum, o) => sum + o.votes.length, 0);
-                          const myVotes = poll.options.filter(o => o.votes.includes(currentUser.id)).map(o => o.id);
+                          const isMine = msg.senderId === currentUser.id;
+                          const isEditing = editPollMsgId === msg.id;
+                          const optionsWithVotes = poll.options.map(o => ({ ...o, votes: getPollOptionVotes(msg.id, o.id, o.votes) }));
+                          const totalVotes = optionsWithVotes.reduce((sum, o) => sum + o.votes.length, 0);
+                          const myVotes = optionsWithVotes.filter(o => o.votes.includes(currentUser.id)).map(o => o.id);
+                          const optColors = ['from-emerald-400 to-teal-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-pink-400 to-rose-500', 'from-cyan-400 to-sky-500', 'from-lime-400 to-green-500', 'from-fuchsia-400 to-pink-500', 'from-blue-400 to-indigo-500', 'from-red-400 to-orange-500', 'from-teal-400 to-cyan-500'];
+                          const showingVoters = viewPollVoters?.msgId === msg.id ? viewPollVoters.optionId : null;
                           return (
-                            <div className="mb-2 -mx-1">
-                              <div className="flex items-center gap-2 mb-3">
-                                <BarChart3 size={14} className="text-indigo-400 shrink-0" />
-                                <span className="text-sm font-semibold text-white">{poll.question}</span>
+                            <div className="mb-2 -mx-1 bg-[#0d0d10] rounded-xl p-3.5 border border-white/[0.08]">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0"><BarChart3 size={12} className="text-white" /></div>
+                                  <span className="text-sm font-bold text-white truncate">{poll.question}</span>
+                                </div>
+                                {isMine && !poll.closed && (
+                                  <button onClick={(e) => { e.stopPropagation(); setEditPollMsgId(isEditing ? null : msg.id); }} className={`p-1 rounded-md transition-colors shrink-0 ${isEditing ? 'text-indigo-400 bg-indigo-500/10' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`} title="Edit poll"><Pencil size={12} /></button>
+                                )}
                               </div>
-                              <div className="space-y-1.5">
-                                {poll.options.map(opt => {
+                              {/* Edit Panel (creator only) */}
+                              {isEditing && (
+                                <div className="mb-3 p-2.5 bg-white/[0.03] rounded-lg border border-white/[0.06] space-y-2 animate-in fade-in duration-200">
+                                  <div className="flex items-center gap-2">
+                                    <input value={editPollNewOpt} onChange={e => setEditPollNewOpt(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddPollOption(msg.id)} placeholder="Add new option..." className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50" onClick={e => e.stopPropagation()} />
+                                    <button onClick={(e) => { e.stopPropagation(); handleAddPollOption(msg.id); }} className="px-2 py-1.5 bg-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold hover:bg-indigo-500/30"><Plus size={12} /></button>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'allowMultiple'); }} className={`text-[10px] px-2 py-1 rounded-md transition-colors ${poll.allowMultiple ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-zinc-500'}`}>{poll.allowMultiple ? '✓ Multi' : 'Multi'}</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'isAnonymous'); }} className={`text-[10px] px-2 py-1 rounded-md transition-colors ${poll.isAnonymous ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-zinc-500'}`}>{poll.isAnonymous ? '✓ Anon' : 'Anon'}</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'closed'); }} className="text-[10px] px-2 py-1 rounded-md bg-red-500/10 text-red-400 hover:bg-red-500/20">Close poll</button>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="space-y-2">
+                                {optionsWithVotes.map((opt, oi) => {
                                   const pct = totalVotes > 0 ? Math.round((opt.votes.length / totalVotes) * 100) : 0;
                                   const voted = myVotes.includes(opt.id);
+                                  const barColor = optColors[oi % optColors.length];
+                                  const isShowingVoters = showingVoters === opt.id;
                                   return (
-                                    <button key={opt.id} onClick={(e) => { e.stopPropagation(); if (!poll.closed) handleVotePoll(msg.id, opt.id); }} disabled={poll.closed} className={`w-full text-left rounded-lg p-2.5 relative overflow-hidden transition-all ${voted ? 'border border-indigo-500/40 bg-indigo-500/10' : 'border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'} ${poll.closed ? 'cursor-default' : 'cursor-pointer'}`}>
-                                      <div className="absolute inset-0 rounded-lg transition-all" style={{ width: `${pct}%`, background: voted ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)' }} />
-                                      <div className="relative flex items-center justify-between gap-2">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                          {voted && <CheckCircle2 size={14} className="text-indigo-400 shrink-0" />}
-                                          <span className={`text-xs font-medium truncate ${voted ? 'text-indigo-300' : 'text-zinc-300'}`}>{opt.text}</span>
+                                    <div key={opt.id}>
+                                      <button onClick={(e) => { e.stopPropagation(); if (!poll.closed) handleVotePoll(msg.id, opt.id); }} disabled={poll.closed} className={`w-full text-left rounded-xl p-3 relative overflow-hidden transition-all ${voted ? 'ring-2 ring-emerald-400/50 bg-emerald-500/10' : 'bg-white/[0.04] hover:bg-white/[0.08]'} ${poll.closed ? 'cursor-default' : 'cursor-pointer active:scale-[0.98]'}`}>
+                                        <div className={`absolute inset-y-0 left-0 rounded-xl bg-gradient-to-r ${barColor} transition-all duration-500 ease-out`} style={{ width: `${pct}%`, opacity: 0.15 }} />
+                                        <div className="relative flex items-center justify-between gap-2">
+                                          <div className="flex items-center gap-2.5 min-w-0">
+                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${voted ? 'bg-emerald-500 border-emerald-500' : 'border-white/20'}`}>
+                                              {voted && <Check size={11} className="text-white" />}
+                                            </div>
+                                            <span className={`text-sm font-medium truncate ${voted ? 'text-white' : 'text-zinc-200'}`}>{opt.text}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 shrink-0">
+                                            <span className={`text-xs font-bold ${voted ? 'text-emerald-400' : 'text-zinc-400'}`}>{pct}%</span>
+                                            {!poll.isAnonymous && opt.votes.length > 0 && (
+                                              <button onClick={(e) => { e.stopPropagation(); setViewPollVoters(isShowingVoters ? null : { msgId: msg.id, optionId: opt.id }); }} className="text-[10px] text-zinc-500 hover:text-indigo-400 transition-colors underline">{opt.votes.length}</button>
+                                            )}
+                                            {(poll.isAnonymous || opt.votes.length === 0) && <span className="text-[10px] text-zinc-600">{opt.votes.length}</span>}
+                                          </div>
                                         </div>
-                                        <span className="text-[10px] text-zinc-500 font-mono shrink-0">{pct}%</span>
-                                      </div>
-                                    </button>
+                                      </button>
+                                      {/* Voter names (non-anonymous) */}
+                                      {!poll.isAnonymous && isShowingVoters && opt.votes.length > 0 && (
+                                        <div className="ml-8 mt-1 mb-1 flex flex-wrap gap-1 animate-in fade-in duration-200">
+                                          {opt.votes.map(uid => (
+                                            <span key={uid} className="text-[10px] px-2 py-0.5 bg-white/[0.04] border border-white/[0.06] rounded-full text-zinc-400">{getVoterName(uid)}</span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
                                   );
                                 })}
                               </div>
-                              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/[0.04]">
-                                <span className="text-[10px] text-zinc-500">{totalVotes} vote{totalVotes !== 1 ? 's' : ''} · {poll.allowMultiple ? 'Multi-select' : 'Single choice'}{poll.isAnonymous ? ' · Anonymous' : ''}</span>
+                              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/[0.06]">
+                                <span className="text-[10px] text-zinc-400 font-medium">{totalVotes} vote{totalVotes !== 1 ? 's' : ''} · {poll.allowMultiple ? 'Multi-select' : 'Single choice'}{poll.isAnonymous ? ' · Anonymous' : ''}</span>
+                                {myVotes.length > 0 && !poll.closed && <span className="text-[10px] text-emerald-400/60">Tap to change</span>}
                                 {poll.closed && <span className="text-[10px] text-red-400 font-medium">Closed</span>}
                               </div>
                             </div>
@@ -5955,6 +6057,58 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
       {/* 📋 Task Panel */}
       {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} />}
+
+      {/* 📊 Recent Polls Panel */}
+      {showRecentPolls && (
+        <div className="absolute inset-0 z-[80] bg-[#121214] flex flex-col animate-in slide-in-from-right-8 duration-300">
+          <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
+            <button onClick={() => setShowRecentPolls(false)} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full"><ArrowLeft size={18} /></button>
+            <div className="flex items-center gap-2"><BarChart3 size={18} className="text-violet-400" /><h2 className="text-base font-medium text-white">Recent Polls</h2></div>
+            <span className="ml-auto text-xs text-zinc-500 bg-white/5 px-2.5 py-1 rounded-full">{pollMessages.length} poll{pollMessages.length !== 1 ? 's' : ''}</span>
+          </header>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:hidden">
+            {pollMessages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-zinc-500 pb-10">
+                <BarChart3 size={40} className="mb-3 text-zinc-600" />
+                <p className="text-sm font-medium">No polls yet</p>
+                <p className="text-xs text-zinc-600 mt-1">Create a poll using the chart icon</p>
+              </div>
+            ) : pollMessages.map(pm => {
+              const poll = pm.meta.poll;
+              const optionsWV = poll.options.map(o => ({ ...o, votes: getPollOptionVotes(pm.id, o.id, o.votes) }));
+              const total = optionsWV.reduce((s, o) => s + o.votes.length, 0);
+              const optC = ['from-emerald-400 to-teal-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-pink-400 to-rose-500', 'from-cyan-400 to-sky-500'];
+              return (
+                <div key={pm.id} className="bg-[#1a1a1c] border border-white/[0.04] rounded-xl p-4 hover:border-white/[0.08] transition-colors">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0"><BarChart3 size={12} className="text-white" /></div>
+                    <span className="text-sm font-bold text-white">{poll.question}</span>
+                    {poll.closed && <span className="text-[9px] px-1.5 py-0.5 bg-red-500/10 text-red-400 rounded-md font-medium ml-auto">Closed</span>}
+                  </div>
+                  <div className="space-y-1.5">
+                    {optionsWV.map((opt, oi) => {
+                      const pct = total > 0 ? Math.round((opt.votes.length / total) * 100) : 0;
+                      return (
+                        <div key={opt.id} className="flex items-center gap-3">
+                          <div className="flex-1 h-7 bg-white/[0.03] rounded-lg relative overflow-hidden">
+                            <div className={`absolute inset-y-0 left-0 bg-gradient-to-r ${optC[oi % optC.length]} rounded-lg transition-all duration-500`} style={{ width: `${pct}%`, opacity: 0.2 }} />
+                            <span className="absolute inset-0 flex items-center px-3 text-xs text-zinc-300 font-medium truncate">{opt.text}</span>
+                          </div>
+                          <span className="text-xs text-zinc-400 font-mono w-10 text-right shrink-0">{pct}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/[0.04]">
+                    <span className="text-[10px] text-zinc-500">{total} vote{total !== 1 ? 's' : ''} · {new Date(pm.timestamp).toLocaleDateString()}</span>
+                    <button onClick={() => { setShowRecentPolls(false); const el = document.getElementById(`message-${pm.id}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }} className="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Jump to poll →</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 🎨 Canvas Panel */}
       {showCanvas && (() => {
