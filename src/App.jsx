@@ -5326,7 +5326,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       })()}
 
       {(chat.isGroup || chat.isConnected) && (
-        <div className="px-6 pb-6 pt-0 flex-none z-50 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, transparent 0%, #121214 40%)' }}>
+        <div className="px-6 pb-6 pt-0 flex-none z-50 bg-transparent flex flex-col relative">
           
           {/* Active Reply Banner */}
           {replyingTo && (
@@ -5651,7 +5651,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           ) : audioBlob ? (
             <VoiceReviewPlayer url={audioUrl} duration={recordingTime} onCancel={cancelRecording} onSend={sendVoiceMessage} />
           ) : (
-            <>
+            <div className="relative">
               {/* ⚠️ Profanity Warning Toast */}
               {profanityWarning && (
                 <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-3 mb-2 px-5 py-3 bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/30 rounded-2xl backdrop-blur-md shadow-lg shadow-red-500/5">
@@ -5670,7 +5670,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
               {/* ✨ Magic Reply Suggestions — on-device AI */}
               {magicReplies.length > 0 && !inputText.trim() && !showEmojiPicker && !replyingTo && !profanityWarning && (
-                <div className="flex gap-1.5 mb-2 px-2 overflow-x-auto [&::-webkit-scrollbar]:hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="absolute bottom-full left-0 right-0 px-4 pb-2 flex gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-auto">
                   <div className="flex items-center gap-1 shrink-0 mr-1">
                     <Sparkles size={12} className="text-amber-400" />
                     <span className="text-[9px] font-bold text-amber-400/70 uppercase tracking-wider">AI</span>
@@ -5682,7 +5682,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       onClick={() => {
                         onSendMessage(chat.id, reply);
                       }}
-                      className="shrink-0 px-3 py-1.5 text-xs text-white/80 bg-white/[0.04] border border-white/[0.08] rounded-full hover:bg-white/[0.08] hover:border-indigo-500/30 hover:text-white transition-all active:scale-95 whitespace-nowrap"
+                      className="shrink-0 px-3 py-1.5 text-xs text-white/80 bg-[#1e1e24]/90 backdrop-blur-md border border-white/[0.08] rounded-full hover:bg-white/[0.12] hover:border-indigo-500/30 hover:text-white transition-all active:scale-95 whitespace-nowrap shadow-sm"
                     >
                       {reply}
                     </button>
@@ -5800,7 +5800,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   </button>
                 )}
               </form>
-            </>
+            </div>
           )}
         </div>
       )}
