@@ -4883,9 +4883,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       <button onClick={(e) => { e.stopPropagation(); onForwardMessage(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                         <Forward size={16}/> Forward
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); handleCreateTask(msg); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                        <ListTodo size={16}/> Create Task
-                      </button>
+                      {msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && (
+                        <button onClick={(e) => { e.stopPropagation(); handleCreateTask(msg); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                          <ListTodo size={16}/> Create Task
+                        </button>
+                      )}
                       {isAdmin && chat.isGroup && (
                         <button onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                           <Pin size={16} className={chat.pinnedMessage?.id === msg.id ? 'text-indigo-400 fill-indigo-400' : ''}/> {chat.pinnedMessage?.id === msg.id ? 'Unpin Message' : 'Pin Message'}
@@ -5324,7 +5326,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       })()}
 
       {(chat.isGroup || chat.isConnected) && (
-        <div className="px-6 pb-6 pt-0 flex-none z-50 bg-transparent flex flex-col relative">
+        <div className="px-6 pb-6 pt-0 flex-none z-50 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, transparent 0%, #121214 40%)' }}>
           
           {/* Active Reply Banner */}
           {replyingTo && (
