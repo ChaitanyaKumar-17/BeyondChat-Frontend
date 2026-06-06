@@ -3876,10 +3876,9 @@ function CreatePollModal({ onClose, onCreatePoll }) {
 // ═══════════════════════════════════════════════════════════
 // 📋 TASK PANEL COMPONENT
 // ═══════════════════════════════════════════════════════════
-function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canManage }) {
+function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canManage, onJumpToMessage }) {
   const [filter, setFilter] = useState('all'); // all, todo, in-progress, done
   const priorities = { high: 'text-red-400 bg-red-500/10', medium: 'text-amber-400 bg-amber-500/10', low: 'text-emerald-400 bg-emerald-500/10' };
-  const statuses = { todo: { label: 'To Do', color: 'text-zinc-400' }, 'in-progress': { label: 'In Progress', color: 'text-amber-400' }, done: { label: 'Done', color: 'text-emerald-400' } };
 
   const filtered = tasks.filter(t => filter === 'all' || t.status === filter);
   const counts = { all: tasks.length, todo: tasks.filter(t => t.status === 'todo').length, 'in-progress': tasks.filter(t => t.status === 'in-progress').length, done: tasks.filter(t => t.status === 'done').length };
@@ -3908,21 +3907,21 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
             <p className="text-xs text-zinc-600 mt-1">Convert any message into a task</p>
           </div>
         ) : filtered.map(task => (
-          <div key={task.id} className="bg-[#1a1a1c] border border-white/[0.04] rounded-xl p-4 hover:border-white/[0.08] transition-colors group">
+          <div key={task.id} className="bg-[#1a1a1c] border border-white/[0.04] rounded-xl p-4 hover:border-white/[0.08] transition-colors group cursor-pointer" onClick={() => onJumpToMessage(task.msgId)}>
             <div className="flex items-start gap-3">
-              <button onClick={() => canManage && onUpdateTask(task.id, { status: task.status === 'done' ? 'todo' : task.status === 'todo' ? 'in-progress' : 'done' })} className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${task.status === 'done' ? 'bg-emerald-500 border-emerald-500' : task.status === 'in-progress' ? 'border-amber-400 bg-amber-500/20' : 'border-white/20 hover:border-white/40'}`}>
+              <button onClick={(e) => { e.stopPropagation(); canManage && onUpdateTask(task.id, { status: task.status === 'done' ? 'todo' : task.status === 'todo' ? 'in-progress' : 'done' }); }} className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${task.status === 'done' ? 'bg-emerald-500 border-emerald-500' : task.status === 'in-progress' ? 'border-amber-400 bg-amber-500/20' : 'border-white/20 hover:border-white/40'}`}>
                 {task.status === 'done' && <Check size={12} className="text-white" />}
                 {task.status === 'in-progress' && <div className="w-2 h-2 rounded-sm bg-amber-400" />}
               </button>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-medium ${task.status === 'done' ? 'text-zinc-500 line-through' : 'text-white'}`}>{task.title}</p>
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  {task.priority !== 'medium' && <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priorities[task.priority]}`}>{task.priority}</span>}
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priorities[task.priority]}`}>{task.priority}</span>
                   {task.dueDate && <span className="text-[10px] text-zinc-500 flex items-center gap-1"><Calendar size={10} />{new Date(task.dueDate).toLocaleDateString()}</span>}
                   {task.assignee && <span className="text-[10px] text-zinc-500">→ {friends.find(f => f.id === task.assignee)?.name || 'You'}</span>}
                 </div>
               </div>
-              {canManage && <button onClick={() => onDeleteTask(task.id)} className="p-1.5 text-zinc-600 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>}
+              {canManage && <button onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }} className="p-1.5 text-zinc-600 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>}
             </div>
           </div>
         ))}
@@ -4886,11 +4885,18 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       <button onClick={(e) => { e.stopPropagation(); onForwardMessage(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                         <Forward size={16}/> Forward
                       </button>
-                      {msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && (!chat.isGroup || isAdmin) && (
-                        <button onClick={(e) => { e.stopPropagation(); setTaskPriorityPrompt(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-                          <ListTodo size={16}/> Create Task
-                        </button>
-                      )}
+                      {msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && (!chat.isGroup || isAdmin) && (() => {
+                        const existingTask = chatTasks.find(t => t.msgId === msg.id);
+                        return existingTask ? (
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteTask(existingTask.id); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-red-500/10 text-sm text-red-400 hover:text-red-300 transition-colors">
+                            <Trash2 size={16}/> Remove Task
+                          </button>
+                        ) : (
+                          <button onClick={(e) => { e.stopPropagation(); setTaskPriorityPrompt(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                            <ListTodo size={16}/> Create Task
+                          </button>
+                        );
+                      })()}
                       {isAdmin && chat.isGroup && (
                         <button onClick={(e) => { e.stopPropagation(); onPinMessage(chat.id, msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                           <Pin size={16} className={chat.pinnedMessage?.id === msg.id ? 'text-indigo-400 fill-indigo-400' : ''}/> {chat.pinnedMessage?.id === msg.id ? 'Unpin Message' : 'Pin Message'}
@@ -6165,7 +6171,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       })()}
 
       {/* 📋 Task Panel */}
-      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} canManage={!chat.isGroup || isAdmin} />}
+      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} canManage={!chat.isGroup || isAdmin} onJumpToMessage={(msgId) => { setShowTaskPanel(false); setTimeout(() => { const el = document.getElementById(`message-${msgId}`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('ring-2', 'ring-indigo-500/50', 'rounded-xl'); setTimeout(() => el.classList.remove('ring-2', 'ring-indigo-500/50', 'rounded-xl'), 2000); } }, 300); }} />}
 
       {/* 📋 Task Priority Picker */}
       {taskPriorityPrompt && (
