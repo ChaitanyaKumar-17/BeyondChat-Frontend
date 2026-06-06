@@ -10,3 +10,15 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes msgHighlight {
+  0% { background-color: rgba(99, 102, 241, 0); }
+  15% { background-color: rgba(99, 102, 241, 0.12); }
+  85% { background-color: rgba(99, 102, 241, 0.08); }
+  100% { background-color: rgba(99, 102, 241, 0); }
+}
+
+.msg-highlight {
+  animation: msgHighlight 2s ease-in-out forwards;
+  border-radius: 1rem;
+}

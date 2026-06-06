@@ -3879,8 +3879,18 @@ function CreatePollModal({ onClose, onCreatePoll }) {
 function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canManage, onJumpToMessage }) {
   const [filter, setFilter] = useState('all'); // all, todo, in-progress, done
   const priorities = { high: 'text-red-400 bg-red-500/10', medium: 'text-amber-400 bg-amber-500/10', low: 'text-emerald-400 bg-emerald-500/10' };
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  const statusOrder = { 'in-progress': 0, todo: 1, done: 2 };
 
-  const filtered = tasks.filter(t => filter === 'all' || t.status === filter);
+  const filtered = tasks
+    .filter(t => filter === 'all' || t.status === filter)
+    .sort((a, b) => {
+      // Status sort: done goes last
+      const statusDiff = (statusOrder[a.status] ?? 1) - (statusOrder[b.status] ?? 1);
+      if (statusDiff !== 0) return statusDiff;
+      // Priority sort within same status group
+      return (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
+    });
   const counts = { all: tasks.length, todo: tasks.filter(t => t.status === 'todo').length, 'in-progress': tasks.filter(t => t.status === 'in-progress').length, done: tasks.filter(t => t.status === 'done').length };
 
   return (
@@ -6171,7 +6181,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       })()}
 
       {/* 📋 Task Panel */}
-      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} canManage={!chat.isGroup || isAdmin} onJumpToMessage={(msgId) => { setShowTaskPanel(false); setTimeout(() => { const el = document.getElementById(`message-${msgId}`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('ring-2', 'ring-indigo-500/50', 'rounded-xl'); setTimeout(() => el.classList.remove('ring-2', 'ring-indigo-500/50', 'rounded-xl'), 2000); } }, 300); }} />}
+      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} canManage={!chat.isGroup || isAdmin} onJumpToMessage={(msgId) => { setShowTaskPanel(false); setTimeout(() => { const el = document.getElementById(`message-${msgId}`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.remove('msg-highlight'); void el.offsetWidth; el.classList.add('msg-highlight'); setTimeout(() => el.classList.remove('msg-highlight'), 2200); } }, 300); }} />}
 
       {/* 📋 Task Priority Picker */}
       {taskPriorityPrompt && (
