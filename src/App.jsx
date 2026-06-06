@@ -4729,10 +4729,12 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             {pendingTaskCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-indigo-500 text-[9px] text-white font-bold flex items-center justify-center">{pendingTaskCount}</span>}
           </button>
           <button onClick={() => setShowCanvas(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors" title="Canvas"><Paintbrush size={18} /></button>
-          <button onClick={() => setShowRecentPolls(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative" title="Recent Polls">
-            <BarChart3 size={18} />
-            {pollMessages.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-violet-500 text-[9px] text-white font-bold flex items-center justify-center">{pollMessages.length}</span>}
-          </button>
+          {chat.isGroup && !chat.onlyAdminsCanMessage && (
+            <button onClick={() => setShowRecentPolls(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative" title="Recent Polls">
+              <BarChart3 size={18} />
+              {pollMessages.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-violet-500 text-[9px] text-white font-bold flex items-center justify-center">{pollMessages.length}</span>}
+            </button>
+          )}
           <div className="w-px h-5 bg-white/[0.06] mx-1"></div>
           <div className="relative">
             <button 
@@ -5759,14 +5761,16 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 >
                   <Paperclip size={20} />
                 </button>
-                <button 
-                  type="button" 
-                  onClick={() => setShowCreatePoll(true)}
-                  className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]"
-                  title="Create Poll"
-                >
-                  <BarChart3 size={20} />
-                </button>
+                {chat.isGroup && !chat.onlyAdminsCanMessage && (
+                  <button 
+                    type="button" 
+                    onClick={() => setShowCreatePoll(true)}
+                    className="p-2 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/[0.05]"
+                    title="Create Poll"
+                  >
+                    <BarChart3 size={20} />
+                  </button>
+                )}
                 <input 
                   ref={inputRef}
                   type="text" 
@@ -7163,6 +7167,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Create Community Modal */}
       {showCreateModal && (
         <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200 max-h-[80vh]">
