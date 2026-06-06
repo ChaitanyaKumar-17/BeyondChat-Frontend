@@ -3876,7 +3876,7 @@ function CreatePollModal({ onClose, onCreatePoll }) {
 // ═══════════════════════════════════════════════════════════
 // 📋 TASK PANEL COMPONENT
 // ═══════════════════════════════════════════════════════════
-function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends }) {
+function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canManage }) {
   const [filter, setFilter] = useState('all'); // all, todo, in-progress, done
   const priorities = { high: 'text-red-400 bg-red-500/10', medium: 'text-amber-400 bg-amber-500/10', low: 'text-emerald-400 bg-emerald-500/10' };
   const statuses = { todo: { label: 'To Do', color: 'text-zinc-400' }, 'in-progress': { label: 'In Progress', color: 'text-amber-400' }, done: { label: 'Done', color: 'text-emerald-400' } };
@@ -3910,19 +3910,19 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends }) {
         ) : filtered.map(task => (
           <div key={task.id} className="bg-[#1a1a1c] border border-white/[0.04] rounded-xl p-4 hover:border-white/[0.08] transition-colors group">
             <div className="flex items-start gap-3">
-              <button onClick={() => onUpdateTask(task.id, { status: task.status === 'done' ? 'todo' : task.status === 'todo' ? 'in-progress' : 'done' })} className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${task.status === 'done' ? 'bg-emerald-500 border-emerald-500' : task.status === 'in-progress' ? 'border-amber-400 bg-amber-500/20' : 'border-white/20 hover:border-white/40'}`}>
+              <button onClick={() => canManage && onUpdateTask(task.id, { status: task.status === 'done' ? 'todo' : task.status === 'todo' ? 'in-progress' : 'done' })} className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${task.status === 'done' ? 'bg-emerald-500 border-emerald-500' : task.status === 'in-progress' ? 'border-amber-400 bg-amber-500/20' : 'border-white/20 hover:border-white/40'}`}>
                 {task.status === 'done' && <Check size={12} className="text-white" />}
                 {task.status === 'in-progress' && <div className="w-2 h-2 rounded-sm bg-amber-400" />}
               </button>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-medium ${task.status === 'done' ? 'text-zinc-500 line-through' : 'text-white'}`}>{task.title}</p>
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priorities[task.priority]}`}>{task.priority}</span>
+                  {task.priority !== 'medium' && <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priorities[task.priority]}`}>{task.priority}</span>}
                   {task.dueDate && <span className="text-[10px] text-zinc-500 flex items-center gap-1"><Calendar size={10} />{new Date(task.dueDate).toLocaleDateString()}</span>}
                   {task.assignee && <span className="text-[10px] text-zinc-500">→ {friends.find(f => f.id === task.assignee)?.name || 'You'}</span>}
                 </div>
               </div>
-              <button onClick={() => onDeleteTask(task.id)} className="p-1.5 text-zinc-600 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>
+              {canManage && <button onClick={() => onDeleteTask(task.id)} className="p-1.5 text-zinc-600 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>}
             </div>
           </div>
         ))}
@@ -3991,6 +3991,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [showCanvas, setShowCanvas] = useState(false);
   const [createTaskFromMsg, setCreateTaskFromMsg] = useState(null); // msg object
+  const [taskPriorityPrompt, setTaskPriorityPrompt] = useState(null); // msg object awaiting priority selection
 
   const handleCreatePoll = (poll) => {
     onSendMessage(chat.id, `📊 Poll: ${poll.question}`, null, null, null, { type: 'poll', poll });
@@ -4729,7 +4730,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             {pendingTaskCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-indigo-500 text-[9px] text-white font-bold flex items-center justify-center">{pendingTaskCount}</span>}
           </button>
           <button onClick={() => setShowCanvas(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors" title="Canvas"><Paintbrush size={18} /></button>
-          {chat.isGroup && !chat.onlyAdminsCanMessage && (
+          {chat.isGroup && (
             <button onClick={() => setShowRecentPolls(true)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative" title="Recent Polls">
               <BarChart3 size={18} />
               {pollMessages.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-violet-500 text-[9px] text-white font-bold flex items-center justify-center">{pollMessages.length}</span>}
@@ -4885,8 +4886,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       <button onClick={(e) => { e.stopPropagation(); onForwardMessage(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-sm text-zinc-300 hover:text-white transition-colors">
                         <Forward size={16}/> Forward
                       </button>
-                      {msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && (
-                        <button onClick={(e) => { e.stopPropagation(); handleCreateTask(msg); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                      {msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && (!chat.isGroup || isAdmin) && (
+                        <button onClick={(e) => { e.stopPropagation(); setTaskPriorityPrompt(msg); setActiveMsgId(null); }} className="flex items-center gap-3 px-4 py-2 hover:bg-indigo-500/10 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
                           <ListTodo size={16}/> Create Task
                         </button>
                       )}
@@ -5761,7 +5762,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 >
                   <Paperclip size={20} />
                 </button>
-                {chat.isGroup && !chat.onlyAdminsCanMessage && (
+                {chat.isGroup && (
                   <button 
                     type="button" 
                     onClick={() => setShowCreatePoll(true)}
@@ -6164,7 +6165,49 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
       })()}
 
       {/* 📋 Task Panel */}
-      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} />}
+      {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} canManage={!chat.isGroup || isAdmin} />}
+
+      {/* 📋 Task Priority Picker */}
+      {taskPriorityPrompt && (
+        <div className="absolute inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setTaskPriorityPrompt(null)}>
+          <div className="bg-[#141418] border border-white/[0.06] rounded-2xl w-full max-w-[320px] shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-white/[0.04]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center"><ListTodo size={14} className="text-white" /></div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Create Task</h3>
+                  <p className="text-[10px] text-zinc-500 mt-0.5 truncate max-w-[220px]">{taskPriorityPrompt.text?.slice(0, 60)}{taskPriorityPrompt.text?.length > 60 ? '...' : ''}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider mb-3">Select Priority</p>
+              <div className="space-y-2">
+                {[
+                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: '🔴' },
+                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: '🟡' },
+                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: '🟢' },
+                ].map(p => (
+                  <button
+                    key={p.key}
+                    onClick={() => { handleCreateTask(taskPriorityPrompt, p.key); setTaskPriorityPrompt(null); }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04] hover:border-white/[0.1] transition-all active:scale-[0.98]`}
+                  >
+                    <span className="text-base">{p.icon}</span>
+                    <div className="text-left flex-1">
+                      <span className="text-sm font-semibold text-white block">{p.label}</span>
+                      <span className="text-[10px] text-zinc-500">{p.desc}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="px-4 pb-4">
+              <button onClick={() => setTaskPriorityPrompt(null)} className="w-full py-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 📊 Recent Polls Panel */}
       {showRecentPolls && (
