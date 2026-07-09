@@ -82,7 +82,7 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 
 // Curated GIF categories with direct GIPHY CDN URLs (no API key needed)
 const CURATED_GIF_CATEGORIES = [
-  { id: 'reactions', name: '🔥 Reactions', gifs: [
+  { id: 'reactions', name: 'Ã°Å¸â€Â¥ Reactions', gifs: [
     { id: 'g1', title: 'Thumbs Up', url: 'https://media.giphy.com/media/111ebonMs90YLu/giphy.gif' },
     { id: 'g2', title: 'Mind Blown', url: 'https://media.giphy.com/media/xT0xeJpnrWC3XWblEk/giphy.gif' },
     { id: 'g3', title: 'Wow', url: 'https://media.giphy.com/media/l0MYGb1LuZ3n7dRnO/giphy.gif' },
@@ -90,7 +90,7 @@ const CURATED_GIF_CATEGORIES = [
     { id: 'g5', title: 'Eye Roll', url: 'https://media.giphy.com/media/Pn1gZzAY38kbm/giphy.gif' },
     { id: 'g6', title: 'Facepalm', url: 'https://media.giphy.com/media/XsUtdIeJ0MWMo/giphy.gif' },
   ]},
-  { id: 'funny', name: '😂 Funny', gifs: [
+  { id: 'funny', name: 'Ã°Å¸Ëœâ€š Funny', gifs: [
     { id: 'g7', title: 'LOL', url: 'https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif' },
     { id: 'g8', title: 'Dancing', url: 'https://media.giphy.com/media/l0HlNQ03J5JxX2rGM/giphy.gif' },
     { id: 'g9', title: 'Laughing', url: 'https://media.giphy.com/media/ZqlvCTNHpqrio/giphy.gif' },
@@ -98,7 +98,7 @@ const CURATED_GIF_CATEGORIES = [
     { id: 'g11', title: 'Sarcastic', url: 'https://media.giphy.com/media/AoBgxayGMHlIs/giphy.gif' },
     { id: 'g12', title: 'Awkward', url: 'https://media.giphy.com/media/l41lGvinEgARjB2HC/giphy.gif' },
   ]},
-  { id: 'love', name: '❤️ Love', gifs: [
+  { id: 'love', name: 'Ã¢ÂÂ¤Ã¯Â¸Â Love', gifs: [
     { id: 'g13', title: 'Heart', url: 'https://media.giphy.com/media/l4pTdcifPZLpDjL1e/giphy.gif' },
     { id: 'g14', title: 'Kiss', url: 'https://media.giphy.com/media/G6sJqVpD1U4jC/giphy.gif' },
     { id: 'g15', title: 'Hug', url: 'https://media.giphy.com/media/XpgOZHuDfIkoM/giphy.gif' },
@@ -106,7 +106,7 @@ const CURATED_GIF_CATEGORIES = [
     { id: 'g17', title: 'Blush', url: 'https://media.giphy.com/media/26vUxJ9rqfwuIEkTu/giphy.gif' },
     { id: 'g18', title: 'Heart Pop', url: 'https://media.giphy.com/media/3oEjI4sFlp73fvEYgw/giphy.gif' },
   ]},
-  { id: 'celebrate', name: '🎉 Celebrations', gifs: [
+  { id: 'celebrate', name: 'Ã°Å¸Å½â€° Celebrations', gifs: [
     { id: 'g19', title: 'Party', url: 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif' },
     { id: 'g20', title: 'Confetti', url: 'https://media.giphy.com/media/g9582DNuQppxC/giphy.gif' },
     { id: 'g21', title: 'High Five', url: 'https://media.giphy.com/media/3oEjHV0z8S7WM4MwnK/giphy.gif' },
@@ -114,7 +114,7 @@ const CURATED_GIF_CATEGORIES = [
     { id: 'g23', title: 'Success', url: 'https://media.giphy.com/media/a0h7sAqON67nO/giphy.gif' },
     { id: 'g24', title: 'Fireworks', url: 'https://media.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif' },
   ]},
-  { id: 'animals', name: '🐾 Animals', gifs: [
+  { id: 'animals', name: 'Ã°Å¸ÂÂ¾ Animals', gifs: [
     { id: 'g25', title: 'Cute Cat', url: 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif' },
     { id: 'g26', title: 'Happy Dog', url: 'https://media.giphy.com/media/mCRJDo24UvJMA/giphy.gif' },
     { id: 'g27', title: 'Panda Roll', url: 'https://media.giphy.com/media/EatwJZRUIv41G/giphy.gif' },
@@ -126,71 +126,71 @@ const CURATED_GIF_CATEGORIES = [
 
 const STICKER_PACKS = [
   { id: 'emotions', name: 'Emotions', builtin: true, stickers: [
-    { id: 'e1', emoji: '😂', label: 'Crying laughing' }, { id: 'e2', emoji: '😍', label: 'Heart eyes' },
-    { id: 'e3', emoji: '🥺', label: 'Pleading' }, { id: 'e4', emoji: '😱', label: 'Shocked' },
-    { id: 'e5', emoji: '🤯', label: 'Mind blown' }, { id: 'e6', emoji: '😎', label: 'Cool' },
-    { id: 'e7', emoji: '🥳', label: 'Party' }, { id: 'e8', emoji: '😴', label: 'Sleepy' },
-    { id: 'e9', emoji: '🤗', label: 'Hugging' }, { id: 'e10', emoji: '😤', label: 'Frustrated' },
-    { id: 'e11', emoji: '🤣', label: 'ROFL' }, { id: 'e12', emoji: '😇', label: 'Angel' },
+    { id: 'e1', emoji: 'Ã°Å¸Ëœâ€š', label: 'Crying laughing' }, { id: 'e2', emoji: 'Ã°Å¸ËœÂ', label: 'Heart eyes' },
+    { id: 'e3', emoji: 'Ã°Å¸Â¥Âº', label: 'Pleading' }, { id: 'e4', emoji: 'Ã°Å¸ËœÂ±', label: 'Shocked' },
+    { id: 'e5', emoji: 'Ã°Å¸Â¤Â¯', label: 'Mind blown' }, { id: 'e6', emoji: 'Ã°Å¸ËœÅ½', label: 'Cool' },
+    { id: 'e7', emoji: 'Ã°Å¸Â¥Â³', label: 'Party' }, { id: 'e8', emoji: 'Ã°Å¸ËœÂ´', label: 'Sleepy' },
+    { id: 'e9', emoji: 'Ã°Å¸Â¤â€”', label: 'Hugging' }, { id: 'e10', emoji: 'Ã°Å¸ËœÂ¤', label: 'Frustrated' },
+    { id: 'e11', emoji: 'Ã°Å¸Â¤Â£', label: 'ROFL' }, { id: 'e12', emoji: 'Ã°Å¸Ëœâ€¡', label: 'Angel' },
   ]},
   { id: 'reactions', name: 'Reactions', builtin: true, stickers: [
-    { id: 'r1', emoji: '👍', label: 'Thumbs up' }, { id: 'r2', emoji: '👏', label: 'Clap' },
-    { id: 'r3', emoji: '🔥', label: 'Fire' }, { id: 'r4', emoji: '💯', label: '100' },
-    { id: 'r5', emoji: '❤️', label: 'Heart' }, { id: 'r6', emoji: '💀', label: 'Dead' },
-    { id: 'r7', emoji: '🙏', label: 'Pray' }, { id: 'r8', emoji: '✨', label: 'Sparkle' },
-    { id: 'r9', emoji: '💪', label: 'Strong' }, { id: 'r10', emoji: '🤝', label: 'Handshake' },
-    { id: 'r11', emoji: '👀', label: 'Eyes' }, { id: 'r12', emoji: '🫡', label: 'Salute' },
+    { id: 'r1', emoji: 'Ã°Å¸â€˜Â', label: 'Thumbs up' }, { id: 'r2', emoji: 'Ã°Å¸â€˜Â', label: 'Clap' },
+    { id: 'r3', emoji: 'Ã°Å¸â€Â¥', label: 'Fire' }, { id: 'r4', emoji: 'Ã°Å¸â€™Â¯', label: '100' },
+    { id: 'r5', emoji: 'Ã¢ÂÂ¤Ã¯Â¸Â', label: 'Heart' }, { id: 'r6', emoji: 'Ã°Å¸â€™â‚¬', label: 'Dead' },
+    { id: 'r7', emoji: 'Ã°Å¸â„¢Â', label: 'Pray' }, { id: 'r8', emoji: 'Ã¢Å“Â¨', label: 'Sparkle' },
+    { id: 'r9', emoji: 'Ã°Å¸â€™Âª', label: 'Strong' }, { id: 'r10', emoji: 'Ã°Å¸Â¤Â', label: 'Handshake' },
+    { id: 'r11', emoji: 'Ã°Å¸â€˜â‚¬', label: 'Eyes' }, { id: 'r12', emoji: 'Ã°Å¸Â«Â¡', label: 'Salute' },
   ]},
   { id: 'animals', name: 'Animals', builtin: true, stickers: [
-    { id: 'a1', emoji: '🐶', label: 'Dog' }, { id: 'a2', emoji: '🐱', label: 'Cat' },
-    { id: 'a3', emoji: '🐻', label: 'Bear' }, { id: 'a4', emoji: '🦊', label: 'Fox' },
-    { id: 'a5', emoji: '🐼', label: 'Panda' }, { id: 'a6', emoji: '🦁', label: 'Lion' },
-    { id: 'a7', emoji: '🐸', label: 'Frog' }, { id: 'a8', emoji: '🦋', label: 'Butterfly' },
-    { id: 'a9', emoji: '🐧', label: 'Penguin' }, { id: 'a10', emoji: '🦄', label: 'Unicorn' },
-    { id: 'a11', emoji: '🐣', label: 'Chick' }, { id: 'a12', emoji: '🐙', label: 'Octopus' },
+    { id: 'a1', emoji: 'Ã°Å¸ÂÂ¶', label: 'Dog' }, { id: 'a2', emoji: 'Ã°Å¸ÂÂ±', label: 'Cat' },
+    { id: 'a3', emoji: 'Ã°Å¸ÂÂ»', label: 'Bear' }, { id: 'a4', emoji: 'Ã°Å¸Â¦Å ', label: 'Fox' },
+    { id: 'a5', emoji: 'Ã°Å¸ÂÂ¼', label: 'Panda' }, { id: 'a6', emoji: 'Ã°Å¸Â¦Â', label: 'Lion' },
+    { id: 'a7', emoji: 'Ã°Å¸ÂÂ¸', label: 'Frog' }, { id: 'a8', emoji: 'Ã°Å¸Â¦â€¹', label: 'Butterfly' },
+    { id: 'a9', emoji: 'Ã°Å¸ÂÂ§', label: 'Penguin' }, { id: 'a10', emoji: 'Ã°Å¸Â¦â€ž', label: 'Unicorn' },
+    { id: 'a11', emoji: 'Ã°Å¸ÂÂ£', label: 'Chick' }, { id: 'a12', emoji: 'Ã°Å¸Ââ„¢', label: 'Octopus' },
   ]},
   { id: 'food', name: 'Food', builtin: true, stickers: [
-    { id: 'f1', emoji: '🍕', label: 'Pizza' }, { id: 'f2', emoji: '🍔', label: 'Burger' },
-    { id: 'f3', emoji: '☕', label: 'Coffee' }, { id: 'f4', emoji: '🍰', label: 'Cake' },
-    { id: 'f5', emoji: '🍣', label: 'Sushi' }, { id: 'f6', emoji: '🌮', label: 'Taco' },
-    { id: 'f7', emoji: '🍩', label: 'Donut' }, { id: 'f8', emoji: '🧁', label: 'Cupcake' },
-    { id: 'f9', emoji: '🍿', label: 'Popcorn' }, { id: 'f10', emoji: '🥤', label: 'Drink' },
-    { id: 'f11', emoji: '🍦', label: 'Ice cream' }, { id: 'f12', emoji: '🧋', label: 'Boba' },
+    { id: 'f1', emoji: 'Ã°Å¸Ââ€¢', label: 'Pizza' }, { id: 'f2', emoji: 'Ã°Å¸Ââ€', label: 'Burger' },
+    { id: 'f3', emoji: 'Ã¢Ëœâ€¢', label: 'Coffee' }, { id: 'f4', emoji: 'Ã°Å¸ÂÂ°', label: 'Cake' },
+    { id: 'f5', emoji: 'Ã°Å¸ÂÂ£', label: 'Sushi' }, { id: 'f6', emoji: 'Ã°Å¸Å’Â®', label: 'Taco' },
+    { id: 'f7', emoji: 'Ã°Å¸ÂÂ©', label: 'Donut' }, { id: 'f8', emoji: 'Ã°Å¸Â§Â', label: 'Cupcake' },
+    { id: 'f9', emoji: 'Ã°Å¸ÂÂ¿', label: 'Popcorn' }, { id: 'f10', emoji: 'Ã°Å¸Â¥Â¤', label: 'Drink' },
+    { id: 'f11', emoji: 'Ã°Å¸ÂÂ¦', label: 'Ice cream' }, { id: 'f12', emoji: 'Ã°Å¸Â§â€¹', label: 'Boba' },
   ]},
   { id: 'gestures', name: 'Gestures', builtin: true, stickers: [
-    { id: 'g1', emoji: '✌️', label: 'Peace' }, { id: 'g2', emoji: '🤙', label: 'Call me' },
-    { id: 'g3', emoji: '🫶', label: 'Heart hands' }, { id: 'g4', emoji: '🤌', label: 'Pinch' },
-    { id: 'g5', emoji: '👋', label: 'Wave' }, { id: 'g6', emoji: '🫣', label: 'Peeking' },
-    { id: 'g7', emoji: '🤫', label: 'Shush' }, { id: 'g8', emoji: '🫠', label: 'Melting' },
-    { id: 'g9', emoji: '💃', label: 'Dance' }, { id: 'g10', emoji: '🕺', label: 'Groove' },
-    { id: 'g11', emoji: '🙌', label: 'Celebration' }, { id: 'g12', emoji: '🤷', label: 'Shrug' },
+    { id: 'g1', emoji: 'Ã¢Å“Å’Ã¯Â¸Â', label: 'Peace' }, { id: 'g2', emoji: 'Ã°Å¸Â¤â„¢', label: 'Call me' },
+    { id: 'g3', emoji: 'Ã°Å¸Â«Â¶', label: 'Heart hands' }, { id: 'g4', emoji: 'Ã°Å¸Â¤Å’', label: 'Pinch' },
+    { id: 'g5', emoji: 'Ã°Å¸â€˜â€¹', label: 'Wave' }, { id: 'g6', emoji: 'Ã°Å¸Â«Â£', label: 'Peeking' },
+    { id: 'g7', emoji: 'Ã°Å¸Â¤Â«', label: 'Shush' }, { id: 'g8', emoji: 'Ã°Å¸Â«Â ', label: 'Melting' },
+    { id: 'g9', emoji: 'Ã°Å¸â€™Æ’', label: 'Dance' }, { id: 'g10', emoji: 'Ã°Å¸â€¢Âº', label: 'Groove' },
+    { id: 'g11', emoji: 'Ã°Å¸â„¢Å’', label: 'Celebration' }, { id: 'g12', emoji: 'Ã°Å¸Â¤Â·', label: 'Shrug' },
   ]},
 ];
 
 // External sticker packs available in the store
 const STICKER_STORE_PACKS = [
-  { id: 'weather', name: 'Weather', preview: '🌤️', description: 'Sun, rain, snow & more', stickers: [
-    { id: 'w1', emoji: '☀️', label: 'Sunny' }, { id: 'w2', emoji: '🌧️', label: 'Rainy' }, { id: 'w3', emoji: '⛈️', label: 'Storm' }, { id: 'w4', emoji: '❄️', label: 'Snow' }, { id: 'w5', emoji: '🌈', label: 'Rainbow' }, { id: 'w6', emoji: '🌪️', label: 'Tornado' }, { id: 'w7', emoji: '🌙', label: 'Moon' }, { id: 'w8', emoji: '⭐', label: 'Star' }, { id: 'w9', emoji: '🌊', label: 'Wave' }, { id: 'w10', emoji: '🔥', label: 'Hot' }, { id: 'w11', emoji: '🥶', label: 'Cold' }, { id: 'w12', emoji: '🌅', label: 'Sunset' },
+  { id: 'weather', name: 'Weather', preview: 'Ã°Å¸Å’Â¤Ã¯Â¸Â', description: 'Sun, rain, snow & more', stickers: [
+    { id: 'w1', emoji: 'Ã¢Ëœâ‚¬Ã¯Â¸Â', label: 'Sunny' }, { id: 'w2', emoji: 'Ã°Å¸Å’Â§Ã¯Â¸Â', label: 'Rainy' }, { id: 'w3', emoji: 'Ã¢â€ºË†Ã¯Â¸Â', label: 'Storm' }, { id: 'w4', emoji: 'Ã¢Ââ€žÃ¯Â¸Â', label: 'Snow' }, { id: 'w5', emoji: 'Ã°Å¸Å’Ë†', label: 'Rainbow' }, { id: 'w6', emoji: 'Ã°Å¸Å’ÂªÃ¯Â¸Â', label: 'Tornado' }, { id: 'w7', emoji: 'Ã°Å¸Å’â„¢', label: 'Moon' }, { id: 'w8', emoji: 'Ã¢Â­Â', label: 'Star' }, { id: 'w9', emoji: 'Ã°Å¸Å’Å ', label: 'Wave' }, { id: 'w10', emoji: 'Ã°Å¸â€Â¥', label: 'Hot' }, { id: 'w11', emoji: 'Ã°Å¸Â¥Â¶', label: 'Cold' }, { id: 'w12', emoji: 'Ã°Å¸Å’â€¦', label: 'Sunset' },
   ]},
-  { id: 'sports', name: 'Sports', preview: '⚽', description: 'Goals, hoops & touchdowns', stickers: [
-    { id: 's1', emoji: '⚽', label: 'Soccer' }, { id: 's2', emoji: '🏀', label: 'Basketball' }, { id: 's3', emoji: '🏈', label: 'Football' }, { id: 's4', emoji: '⚾', label: 'Baseball' }, { id: 's5', emoji: '🎾', label: 'Tennis' }, { id: 's6', emoji: '🏐', label: 'Volleyball' }, { id: 's7', emoji: '🥊', label: 'Boxing' }, { id: 's8', emoji: '🏆', label: 'Trophy' }, { id: 's9', emoji: '🥇', label: 'Gold medal' }, { id: 's10', emoji: '🎯', label: 'Bullseye' }, { id: 's11', emoji: '🏋️', label: 'Weights' }, { id: 's12', emoji: '🚴', label: 'Cycling' },
+  { id: 'sports', name: 'Sports', preview: 'Ã¢Å¡Â½', description: 'Goals, hoops & touchdowns', stickers: [
+    { id: 's1', emoji: 'Ã¢Å¡Â½', label: 'Soccer' }, { id: 's2', emoji: 'Ã°Å¸Ââ‚¬', label: 'Basketball' }, { id: 's3', emoji: 'Ã°Å¸ÂË†', label: 'Football' }, { id: 's4', emoji: 'Ã¢Å¡Â¾', label: 'Baseball' }, { id: 's5', emoji: 'Ã°Å¸Å½Â¾', label: 'Tennis' }, { id: 's6', emoji: 'Ã°Å¸ÂÂ', label: 'Volleyball' }, { id: 's7', emoji: 'Ã°Å¸Â¥Å ', label: 'Boxing' }, { id: 's8', emoji: 'Ã°Å¸Ââ€ ', label: 'Trophy' }, { id: 's9', emoji: 'Ã°Å¸Â¥â€¡', label: 'Gold medal' }, { id: 's10', emoji: 'Ã°Å¸Å½Â¯', label: 'Bullseye' }, { id: 's11', emoji: 'Ã°Å¸Ââ€¹Ã¯Â¸Â', label: 'Weights' }, { id: 's12', emoji: 'Ã°Å¸Å¡Â´', label: 'Cycling' },
   ]},
-  { id: 'travel', name: 'Travel', preview: '✈️', description: 'Planes, places & adventure', stickers: [
-    { id: 't1', emoji: '✈️', label: 'Plane' }, { id: 't2', emoji: '🗺️', label: 'Map' }, { id: 't3', emoji: '🏖️', label: 'Beach' }, { id: 't4', emoji: '⛰️', label: 'Mountain' }, { id: 't5', emoji: '🏰', label: 'Castle' }, { id: 't6', emoji: '🗽', label: 'Statue' }, { id: 't7', emoji: '🚗', label: 'Car' }, { id: 't8', emoji: '🚂', label: 'Train' }, { id: 't9', emoji: '⛵', label: 'Sailboat' }, { id: 't10', emoji: '🎒', label: 'Backpack' }, { id: 't11', emoji: '📸', label: 'Camera' }, { id: 't12', emoji: '🧳', label: 'Luggage' },
+  { id: 'travel', name: 'Travel', preview: 'Ã¢Å“Ë†Ã¯Â¸Â', description: 'Planes, places & adventure', stickers: [
+    { id: 't1', emoji: 'Ã¢Å“Ë†Ã¯Â¸Â', label: 'Plane' }, { id: 't2', emoji: 'Ã°Å¸â€”ÂºÃ¯Â¸Â', label: 'Map' }, { id: 't3', emoji: 'Ã°Å¸Ââ€“Ã¯Â¸Â', label: 'Beach' }, { id: 't4', emoji: 'Ã¢â€ºÂ°Ã¯Â¸Â', label: 'Mountain' }, { id: 't5', emoji: 'Ã°Å¸ÂÂ°', label: 'Castle' }, { id: 't6', emoji: 'Ã°Å¸â€”Â½', label: 'Statue' }, { id: 't7', emoji: 'Ã°Å¸Å¡â€”', label: 'Car' }, { id: 't8', emoji: 'Ã°Å¸Å¡â€š', label: 'Train' }, { id: 't9', emoji: 'Ã¢â€ºÂµ', label: 'Sailboat' }, { id: 't10', emoji: 'Ã°Å¸Å½â€™', label: 'Backpack' }, { id: 't11', emoji: 'Ã°Å¸â€œÂ¸', label: 'Camera' }, { id: 't12', emoji: 'Ã°Å¸Â§Â³', label: 'Luggage' },
   ]},
-  { id: 'music', name: 'Music', preview: '🎵', description: 'Beats, notes & instruments', stickers: [
-    { id: 'm1', emoji: '🎵', label: 'Music' }, { id: 'm2', emoji: '🎸', label: 'Guitar' }, { id: 'm3', emoji: '🎹', label: 'Piano' }, { id: 'm4', emoji: '🥁', label: 'Drums' }, { id: 'm5', emoji: '🎤', label: 'Mic' }, { id: 'm6', emoji: '🎧', label: 'Headphones' }, { id: 'm7', emoji: '🎺', label: 'Trumpet' }, { id: 'm8', emoji: '🎻', label: 'Violin' }, { id: 'm9', emoji: '🎶', label: 'Notes' }, { id: 'm10', emoji: '📻', label: 'Radio' }, { id: 'm11', emoji: '🔊', label: 'Speaker' }, { id: 'm12', emoji: '💿', label: 'CD' },
+  { id: 'music', name: 'Music', preview: 'Ã°Å¸Å½Âµ', description: 'Beats, notes & instruments', stickers: [
+    { id: 'm1', emoji: 'Ã°Å¸Å½Âµ', label: 'Music' }, { id: 'm2', emoji: 'Ã°Å¸Å½Â¸', label: 'Guitar' }, { id: 'm3', emoji: 'Ã°Å¸Å½Â¹', label: 'Piano' }, { id: 'm4', emoji: 'Ã°Å¸Â¥Â', label: 'Drums' }, { id: 'm5', emoji: 'Ã°Å¸Å½Â¤', label: 'Mic' }, { id: 'm6', emoji: 'Ã°Å¸Å½Â§', label: 'Headphones' }, { id: 'm7', emoji: 'Ã°Å¸Å½Âº', label: 'Trumpet' }, { id: 'm8', emoji: 'Ã°Å¸Å½Â»', label: 'Violin' }, { id: 'm9', emoji: 'Ã°Å¸Å½Â¶', label: 'Notes' }, { id: 'm10', emoji: 'Ã°Å¸â€œÂ»', label: 'Radio' }, { id: 'm11', emoji: 'Ã°Å¸â€Å ', label: 'Speaker' }, { id: 'm12', emoji: 'Ã°Å¸â€™Â¿', label: 'CD' },
   ]},
-  { id: 'tech', name: 'Tech', preview: '💻', description: 'Gadgets, code & innovation', stickers: [
-    { id: 'tc1', emoji: '💻', label: 'Laptop' }, { id: 'tc2', emoji: '📱', label: 'Phone' }, { id: 'tc3', emoji: '🤖', label: 'Robot' }, { id: 'tc4', emoji: '🎮', label: 'Gaming' }, { id: 'tc5', emoji: '⌨️', label: 'Keyboard' }, { id: 'tc6', emoji: '🖥️', label: 'Desktop' }, { id: 'tc7', emoji: '📡', label: 'Satellite' }, { id: 'tc8', emoji: '🔋', label: 'Battery' }, { id: 'tc9', emoji: '💡', label: 'Idea' }, { id: 'tc10', emoji: '⚡', label: 'Lightning' }, { id: 'tc11', emoji: '🛸', label: 'UFO' }, { id: 'tc12', emoji: '🧬', label: 'DNA' },
+  { id: 'tech', name: 'Tech', preview: 'Ã°Å¸â€™Â»', description: 'Gadgets, code & innovation', stickers: [
+    { id: 'tc1', emoji: 'Ã°Å¸â€™Â»', label: 'Laptop' }, { id: 'tc2', emoji: 'Ã°Å¸â€œÂ±', label: 'Phone' }, { id: 'tc3', emoji: 'Ã°Å¸Â¤â€“', label: 'Robot' }, { id: 'tc4', emoji: 'Ã°Å¸Å½Â®', label: 'Gaming' }, { id: 'tc5', emoji: 'Ã¢Å’Â¨Ã¯Â¸Â', label: 'Keyboard' }, { id: 'tc6', emoji: 'Ã°Å¸â€“Â¥Ã¯Â¸Â', label: 'Desktop' }, { id: 'tc7', emoji: 'Ã°Å¸â€œÂ¡', label: 'Satellite' }, { id: 'tc8', emoji: 'Ã°Å¸â€â€¹', label: 'Battery' }, { id: 'tc9', emoji: 'Ã°Å¸â€™Â¡', label: 'Idea' }, { id: 'tc10', emoji: 'Ã¢Å¡Â¡', label: 'Lightning' }, { id: 'tc11', emoji: 'Ã°Å¸â€ºÂ¸', label: 'UFO' }, { id: 'tc12', emoji: 'Ã°Å¸Â§Â¬', label: 'DNA' },
   ]},
-  { id: 'space', name: 'Space', preview: '🚀', description: 'Rockets, planets & galaxies', stickers: [
-    { id: 'sp1', emoji: '🚀', label: 'Rocket' }, { id: 'sp2', emoji: '🌍', label: 'Earth' }, { id: 'sp3', emoji: '🌕', label: 'Moon' }, { id: 'sp4', emoji: '⭐', label: 'Star' }, { id: 'sp5', emoji: '☄️', label: 'Comet' }, { id: 'sp6', emoji: '🪐', label: 'Saturn' }, { id: 'sp7', emoji: '👽', label: 'Alien' }, { id: 'sp8', emoji: '🛰️', label: 'Satellite' }, { id: 'sp9', emoji: '🌌', label: 'Galaxy' }, { id: 'sp10', emoji: '🔭', label: 'Telescope' }, { id: 'sp11', emoji: '👨‍🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '🌠', label: 'Shooting star' },
+  { id: 'space', name: 'Space', preview: 'Ã°Å¸Å¡â‚¬', description: 'Rockets, planets & galaxies', stickers: [
+    { id: 'sp1', emoji: 'Ã°Å¸Å¡â‚¬', label: 'Rocket' }, { id: 'sp2', emoji: 'Ã°Å¸Å’Â', label: 'Earth' }, { id: 'sp3', emoji: 'Ã°Å¸Å’â€¢', label: 'Moon' }, { id: 'sp4', emoji: 'Ã¢Â­Â', label: 'Star' }, { id: 'sp5', emoji: 'Ã¢Ëœâ€žÃ¯Â¸Â', label: 'Comet' }, { id: 'sp6', emoji: 'Ã°Å¸ÂªÂ', label: 'Saturn' }, { id: 'sp7', emoji: 'Ã°Å¸â€˜Â½', label: 'Alien' }, { id: 'sp8', emoji: 'Ã°Å¸â€ºÂ°Ã¯Â¸Â', label: 'Satellite' }, { id: 'sp9', emoji: 'Ã°Å¸Å’Å’', label: 'Galaxy' }, { id: 'sp10', emoji: 'Ã°Å¸â€Â­', label: 'Telescope' }, { id: 'sp11', emoji: 'Ã°Å¸â€˜Â¨Ã¢â‚¬ÂÃ°Å¸Å¡â‚¬', label: 'Astronaut' }, { id: 'sp12', emoji: 'Ã°Å¸Å’Â ', label: 'Shooting star' },
   ]},
 ];
 
 // ========================================================================
-// ON-DEVICE AI ENGINE — All processing happens client-side
+// ON-DEVICE AI ENGINE Ã¢â‚¬â€ All processing happens client-side
 // Preserves E2E encryption: no message data leaves the device
 // ========================================================================
 
@@ -206,11 +206,11 @@ const generateMagicReplies = (messages, currentUserId) => {
   // Question detection
   if (text.includes('?') || text.startsWith('how') || text.startsWith('what') || text.startsWith('when') || text.startsWith('where') || text.startsWith('why') || text.startsWith('do you') || text.startsWith('can you') || text.startsWith('would you') || text.startsWith('are you')) {
     if (text.includes('how are') || text.includes('how\'s it') || text.includes('what\'s up') || text.includes('how have')) {
-      replies.push('I\'m great, thanks! 😊', 'All good here! How about you?', 'Pretty well, keeping busy!', 'Can\'t complain! 🙌');
+      replies.push('I\'m great, thanks! Ã°Å¸ËœÅ ', 'All good here! How about you?', 'Pretty well, keeping busy!', 'Can\'t complain! Ã°Å¸â„¢Å’');
     } else if (text.includes('do you want') || text.includes('would you like') || text.includes('wanna')) {
-      replies.push('Sure, I\'d love to! ✨', 'Sounds great!', 'Maybe later?', 'Let me think about it');
+      replies.push('Sure, I\'d love to! Ã¢Å“Â¨', 'Sounds great!', 'Maybe later?', 'Let me think about it');
     } else if (text.includes('can you') || text.includes('could you')) {
-      replies.push('Of course!', 'Sure thing! 👍', 'I\'ll get right on it', 'Give me a moment');
+      replies.push('Of course!', 'Sure thing! Ã°Å¸â€˜Â', 'I\'ll get right on it', 'Give me a moment');
     } else if (text.includes('when') || text.includes('what time')) {
       replies.push('How about tomorrow?', 'Let me check my schedule', 'Anytime works for me!', 'I\'ll let you know soon');
     } else {
@@ -219,55 +219,55 @@ const generateMagicReplies = (messages, currentUserId) => {
   }
   // Greetings
   else if (/^(hi|hey|hello|sup|yo|good morning|good evening|good afternoon)/i.test(text)) {
-    replies.push('Hey! 👋', 'Hi there! How\'s it going?', 'Hello! 😊', 'Hey, what\'s up?');
+    replies.push('Hey! Ã°Å¸â€˜â€¹', 'Hi there! How\'s it going?', 'Hello! Ã°Å¸ËœÅ ', 'Hey, what\'s up?');
   }
   // Agreement / positive
   else if (/\b(agree|yes|sure|absolutely|definitely|exactly|right|true|correct)\b/i.test(text)) {
-    replies.push('Glad we\'re on the same page! 🤝', '100% 🎯', 'Exactly my thoughts!', 'Couldn\'t agree more');
+    replies.push('Glad we\'re on the same page! Ã°Å¸Â¤Â', '100% Ã°Å¸Å½Â¯', 'Exactly my thoughts!', 'Couldn\'t agree more');
   }
   // Emotional / excitement
-  else if (/\b(amazing|awesome|incredible|fantastic|love|great|wonderful|excited|beautiful)\b/i.test(text) || /!{2,}/.test(text) || /😍|🎉|🔥|❤️|💯|🥳/.test(text)) {
-    replies.push('So excited! 🎉', 'That\'s amazing! 🔥', 'I love it! 💯', 'Right?! So good! ✨');
+  else if (/\b(amazing|awesome|incredible|fantastic|love|great|wonderful|excited|beautiful)\b/i.test(text) || /!{2,}/.test(text) || /Ã°Å¸ËœÂ|Ã°Å¸Å½â€°|Ã°Å¸â€Â¥|Ã¢ÂÂ¤Ã¯Â¸Â|Ã°Å¸â€™Â¯|Ã°Å¸Â¥Â³/.test(text)) {
+    replies.push('So excited! Ã°Å¸Å½â€°', 'That\'s amazing! Ã°Å¸â€Â¥', 'I love it! Ã°Å¸â€™Â¯', 'Right?! So good! Ã¢Å“Â¨');
   }
   // Invitation / plans
   else if (/\b(meet|hang|plan|join|come|go out|dinner|lunch|party|movie|event|trip)\b/i.test(text)) {
-    replies.push('Count me in! 🙋', 'Sounds fun!', 'When were you thinking?', 'I\'ll be there! 🎉');
+    replies.push('Count me in! Ã°Å¸â„¢â€¹', 'Sounds fun!', 'When were you thinking?', 'I\'ll be there! Ã°Å¸Å½â€°');
   }
   // Compliment
   else if (/\b(nice|looks? good|well done|congrats|proud|impressed|talented)\b/i.test(text)) {
-    replies.push('Thanks so much! 🙏', 'That means a lot! ❤️', 'You\'re too kind! 😊', 'Appreciate it!');
+    replies.push('Thanks so much! Ã°Å¸â„¢Â', 'That means a lot! Ã¢ÂÂ¤Ã¯Â¸Â', 'You\'re too kind! Ã°Å¸ËœÅ ', 'Appreciate it!');
   }
   // Apology
   else if (/\b(sorry|apologize|my bad|forgive|mistake)\b/i.test(text)) {
-    replies.push('No worries at all! 😊', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! 👍');
+    replies.push('No worries at all! Ã°Å¸ËœÅ ', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! Ã°Å¸â€˜Â');
   }
   // Help / request
   else if (/\b(help|need|urgent|asap|please|favor)\b/i.test(text)) {
-    replies.push('I\'m on it! 💪', 'Happy to help!', 'What do you need?', 'Let me see what I can do');
+    replies.push('I\'m on it! Ã°Å¸â€™Âª', 'Happy to help!', 'What do you need?', 'Let me see what I can do');
   }
   // Farewell
   else if (/\b(bye|goodbye|see you|good night|take care|later|ttyl|gotta go)\b/i.test(text)) {
-    replies.push('See you! 👋', 'Take care! 😊', 'Talk soon!', 'Bye! Have a great one!');
+    replies.push('See you! Ã°Å¸â€˜â€¹', 'Take care! Ã°Å¸ËœÅ ', 'Talk soon!', 'Bye! Have a great one!');
   }
   // Work / project related
   else if (/\b(deadline|meeting|project|task|update|review|code|design|deploy|bug|feature|sprint)\b/i.test(text)) {
-    replies.push('I\'ll review it now 👀', 'Great progress! 🚀', 'Let\'s sync on this', 'I\'ll update you shortly');
+    replies.push('I\'ll review it now Ã°Å¸â€˜â‚¬', 'Great progress! Ã°Å¸Å¡â‚¬', 'Let\'s sync on this', 'I\'ll update you shortly');
   }
   // Generic fallback with smart analysis
   else {
     const wordCount = text.split(/\s+/).length;
     if (wordCount <= 3) {
-      replies.push('Tell me more! 🤔', 'Interesting!', '👍', 'Got it!');
+      replies.push('Tell me more! Ã°Å¸Â¤â€', 'Interesting!', 'Ã°Å¸â€˜Â', 'Got it!');
     } else if (wordCount <= 10) {
-      replies.push('That makes sense!', 'Totally agree 👍', 'Nice! 🙌', 'For sure!');
+      replies.push('That makes sense!', 'Totally agree Ã°Å¸â€˜Â', 'Nice! Ã°Å¸â„¢Å’', 'For sure!');
     } else {
-      replies.push('Well said! 💯', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
+      replies.push('Well said! Ã°Å¸â€™Â¯', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
     }
   }
   return replies.slice(0, 4);
 };
 
-// AI Writing Assistant — text transformation tools
+// AI Writing Assistant Ã¢â‚¬â€ text transformation tools
 const AI_WRITING_TOOLS = [
   { id: 'improve', label: 'Improve', icon: 'sparkles', description: 'Enhance clarity & style' },
   { id: 'shorten', label: 'Shorten', icon: 'scissors', description: 'Make it concise' },
@@ -396,7 +396,7 @@ const applyAiWritingTool = (text, toolId) => {
 };
 
 // ========================================================================
-// ON-DEVICE PROFANITY FILTER — Client-side content moderation
+// ON-DEVICE PROFANITY FILTER Ã¢â‚¬â€ Client-side content moderation
 // No data leaves the device. Supports leet-speak normalization.
 // ========================================================================
 const PROFANITY_LIST = [
@@ -414,7 +414,7 @@ const PROFANITY_LIST = [
   'nazi','kkk','terrorist','bomb threat','shoot up',
 ];
 
-// Normalize leet-speak: @ → a, $ → s, 0 → o, 1 → i, 3 → e, etc.
+// Normalize leet-speak: @ Ã¢â€ â€™ a, $ Ã¢â€ â€™ s, 0 Ã¢â€ â€™ o, 1 Ã¢â€ â€™ i, 3 Ã¢â€ â€™ e, etc.
 const normalizeLeet = (str) => {
   return str
     .replace(/@/g, 'a').replace(/\$/g, 's').replace(/0/g, 'o')
@@ -1166,7 +1166,7 @@ export default function App() {
   }, []);
 
   const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null, meta = null) => {
-    // On-device profanity filter — block messages containing profane language
+    // On-device profanity filter Ã¢â‚¬â€ block messages containing profane language
     if (text && containsProfanity(text) && !meta?.poll) return 'profanity';
     const group = groups.find(g => g.id === userId);
     const newMessage = customPayload || {
@@ -1195,7 +1195,7 @@ export default function App() {
     const isDisappearing = disappearingChats[userId]?.enabled;
     
     // Generate preview text for non-text messages
-    const previewText = text || (newMessage.attachment ? `📎 ${newMessage.attachment.name}` : (newMessage.voiceNote ? '🎙 Voice message' : (newMessage.gif ? 'GIF' : (newMessage.sticker ? newMessage.sticker.emoji : ''))));
+    const previewText = text || (newMessage.attachment ? `Ã°Å¸â€œÅ½ ${newMessage.attachment.name}` : (newMessage.voiceNote ? 'Ã°Å¸Å½â„¢ Voice message' : (newMessage.gif ? 'GIF' : (newMessage.sticker ? newMessage.sticker.emoji : ''))));
 
     setRecentConversations(prev => {
       const existingRecent = prev.find(c => c.id === userId);
@@ -1313,7 +1313,7 @@ export default function App() {
   const handleCreateGroup = (name, memberIds) => {
     // Profanity filter for group name
     if (containsProfanity(name)) {
-      showGlobalToast('⚠️ Group name contains inappropriate language. Please choose a different name.');
+      showGlobalToast('Ã¢Å¡Â Ã¯Â¸Â Group name contains inappropriate language. Please choose a different name.');
       return;
     }
     if (memberIds.length + 1 > 1024) {
@@ -1339,7 +1339,7 @@ export default function App() {
   const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
     // Profanity filter for group name & description
     if (containsProfanity(newName) || containsProfanity(newDesc)) {
-      showGlobalToast('⚠️ Inappropriate language detected. Please revise.');
+      showGlobalToast('Ã¢Å¡Â Ã¯Â¸Â Inappropriate language detected. Please revise.');
       return;
     }
     const group = groups.find(g => g.id === groupId);
@@ -2391,7 +2391,7 @@ function CreateStoryModal({ onClose, onPost }) {
           </button>
         </div>
 
-          {/* Profanity warning removed from here — now at the bottom near Post Story */}
+          {/* Profanity warning removed from here Ã¢â‚¬â€ now at the bottom near Post Story */}
 
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <textarea 
@@ -2408,7 +2408,7 @@ function CreateStoryModal({ onClose, onPost }) {
           {storyProfanity && (
             <div style={{ animation: 'slideUp 0.2s ease-out' }} className="inline-flex items-center gap-2 px-4 py-2 bg-black/80 backdrop-blur-xl border border-red-500/25 rounded-full whitespace-nowrap self-center">
               <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
-              <span className="text-[12px] text-red-300/90 font-medium">Inappropriate language — please revise</span>
+              <span className="text-[12px] text-red-300/90 font-medium">Inappropriate language Ã¢â‚¬â€ please revise</span>
             </div>
           )}
           <button 
@@ -2929,7 +2929,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
                                 <p className="text-xs text-zinc-500">{user.handle}</p>
                                 {mutuals.length > 0 && (
                                   <span className="flex items-center gap-1">
-                                    <span className="text-[10px] text-zinc-600">·</span>
+                                    <span className="text-[10px] text-zinc-600">Ã‚Â·</span>
                                     <span className="flex -space-x-1.5">
                                       {mutuals.slice(0, 3).map(mf => (
                                         <img key={mf.id} src={mf.avatar} alt={mf.name} className="w-4 h-4 rounded-full border border-[#0a0a0c]" />
@@ -3350,7 +3350,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
       // Profanity filter for story replies
       if (containsProfanity(replyText)) {
         setReplyText('');
-        setToastMessage('⚠️ Message blocked — inappropriate language');
+        setToastMessage('Ã¢Å¡Â Ã¯Â¸Â Message blocked Ã¢â‚¬â€ inappropriate language');
         setShowToast(true);
         setTimeout(() => setShowToast(false), 4500);
         return;
@@ -3424,7 +3424,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
             style={{ animation: 'slideUp 0.3s ease-out' }}
           >
             {toastMessage.includes('blocked') && <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />}
-            <span className={toastMessage.includes('blocked') ? 'text-red-300/90' : 'text-white/90'}>{toastMessage.includes('blocked') ? 'Message blocked — inappropriate language' : 'Message delivered'}</span>
+            <span className={toastMessage.includes('blocked') ? 'text-red-300/90' : 'text-white/90'}>{toastMessage.includes('blocked') ? 'Message blocked Ã¢â‚¬â€ inappropriate language' : 'Message delivered'}</span>
           </div>
         )}
 
@@ -3786,9 +3786,9 @@ function VoiceReviewPlayer({ url, duration, onCancel, onSend }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 📊 CREATE POLL MODAL
-// ═══════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// Ã°Å¸â€œÅ  CREATE POLL MODAL
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 function CreatePollModal({ onClose, onCreatePoll }) {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
@@ -3873,9 +3873,499 @@ function CreatePollModal({ onClose, onCreatePoll }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 📋 TASK PANEL COMPONENT
-// ═══════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// Ã°Å¸Å½Â¨ WHITEBOARD PANEL COMPONENT
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditors, setCanvasEditors, friends, onClose }) {
+  // Multi-canvas support
+  const [boards, setBoards] = useState([{ id: 1, name: 'Board 1', bgColor: '#fafaf9', data: null }]);
+  const [activeBoardId, setActiveBoardId] = useState(1);
+  const activeBoard = boards.find(b => b.id === activeBoardId) || boards[0];
+
+  const canvasRef = useRef(null);
+  const ctxRef = useRef(null);
+  const [tool, setTool] = useState('pen');
+  const [color, setColor] = useState('#1e1e2e');
+  const [strokeSize, setStrokeSize] = useState(3);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [history, setHistory] = useState([]); // per-board undo history
+  const [showEditorMgr, setShowEditorMgr] = useState(false);
+  const [renamingBoardId, setRenamingBoardId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
+  const renameInputRef = useRef(null);
+  const lastPos = useRef(null);
+  const switchingBoard = useRef(false);
+
+  const PEN_COLORS = [
+    { hex: '#1e1e2e', label: 'Dark' },
+    { hex: '#ffffff', label: 'White' },
+    { hex: '#ef4444', label: 'Red' },
+    { hex: '#f97316', label: 'Orange' },
+    { hex: '#eab308', label: 'Yellow' },
+    { hex: '#22c55e', label: 'Green' },
+    { hex: '#3b82f6', label: 'Blue' },
+    { hex: '#a855f7', label: 'Purple' },
+    { hex: '#ec4899', label: 'Pink' },
+  ];
+
+  const BG_COLORS = [
+    { hex: '#fafaf9', label: 'White' },
+    { hex: '#fffbeb', label: 'Cream' },
+    { hex: '#f0fdf4', label: 'Mint' },
+    { hex: '#f0f9ff', label: 'Sky' },
+    { hex: '#1e1e2e', label: 'Dark' },
+  ];
+
+  // Initialize canvas on mount
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctxRef.current = ctx;
+    // Restore saved data if any
+    if (activeBoard.data) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
+      img.src = activeBoard.data;
+    }
+  }, []);
+
+  // When switching boards: save current, restore next
+  const switchToBoard = (newId) => {
+    if (newId === activeBoardId) return;
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    // Save current board drawing
+    const currentData = canvas.toDataURL();
+    setBoards(prev => prev.map(b => b.id === activeBoardId ? { ...b, data: currentData } : b));
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Load new board drawing
+    const newBoard = boards.find(b => b.id === newId);
+    if (newBoard?.data) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, w, h);
+      img.src = newBoard.data;
+    }
+    setActiveBoardId(newId);
+    setHistory([]);
+  };
+
+  const addBoard = () => {
+    // Save current first
+    const canvas = canvasRef.current;
+    const currentData = canvas.toDataURL();
+    const newId = Date.now();
+    setBoards(prev => [
+      ...prev.map(b => b.id === activeBoardId ? { ...b, data: currentData } : b),
+      { id: newId, name: `Board ${prev.length + 1}`, bgColor: '#fafaf9', data: null },
+    ]);
+    // Clear canvas for new board
+    const ctx = ctxRef.current;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setActiveBoardId(newId);
+    setHistory([]);
+  };
+
+  const deleteBoard = (id) => {
+    if (boards.length === 1) return; // can't delete last
+    const remaining = boards.filter(b => b.id !== id);
+    const nextId = id === activeBoardId ? remaining[remaining.length - 1].id : activeBoardId;
+    setBoards(remaining);
+    if (id === activeBoardId) {
+      const ctx = ctxRef.current;
+      const canvas = canvasRef.current;
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const target = remaining.find(b => b.id === nextId);
+      if (target?.data) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, w, h);
+        img.src = target.data;
+      }
+      setActiveBoardId(nextId);
+      setHistory([]);
+    }
+  };
+
+  const setBgColorForActive = (hex) => {
+    setBoards(prev => prev.map(b => b.id === activeBoardId ? { ...b, bgColor: hex } : b));
+  };
+
+  const getPos = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  };
+
+  const saveHistory = () => {
+    const canvas = canvasRef.current;
+    setHistory(prev => [...prev.slice(-19), canvas.toDataURL()]);
+  };
+
+  const startDraw = (e) => {
+    if (!canUserEdit) return;
+    e.preventDefault();
+    saveHistory();
+    const ctx = ctxRef.current;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    lastPos.current = pos;
+    setIsDrawing(true);
+    if (tool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = strokeSize * 6;
+    } else if (tool === 'marker') {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 0.45;
+      ctx.lineWidth = strokeSize * 3;
+      ctx.strokeStyle = color;
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = strokeSize;
+      ctx.strokeStyle = color;
+    }
+  };
+
+  const draw = (e) => {
+    if (!isDrawing || !canUserEdit) return;
+    e.preventDefault();
+    const ctx = ctxRef.current;
+    const pos = getPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastPos.current = pos;
+  };
+
+  const endDraw = () => {
+    if (!isDrawing) return;
+    const ctx = ctxRef.current;
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    setIsDrawing(false);
+    lastPos.current = null;
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const dpr = window.devicePixelRatio || 1;
+    const prev = history[history.length - 1];
+    setHistory(h => h.slice(0, -1));
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width / dpr, canvas.height / dpr);
+    };
+    img.src = prev;
+  };
+
+  const handleClear = () => {
+    if (!canUserEdit) return;
+    saveHistory();
+    const ctx = ctxRef.current;
+    const canvas = canvasRef.current;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const toolBtn = (id, icon, label) => (
+    <button
+      key={id}
+      onClick={() => setTool(id)}
+      title={label}
+      className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-xl transition-all ${
+        tool === id ? 'bg-indigo-500/20 text-indigo-300 ring-1 ring-indigo-500/40' : 'text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+      }`}
+    >
+      {icon}
+      <span className="text-[9px] font-semibold uppercase tracking-wider">{label}</span>
+    </button>
+  );
+
+  return (
+    <div className="absolute inset-0 z-[90] flex flex-col animate-in slide-in-from-right-8 duration-300" style={{ background: '#0f0f13' }}>
+      {/* Header */}
+      <header className="px-4 py-3 flex items-center gap-3 border-b border-white/[0.05] bg-[#0f0f13]/90 backdrop-blur-md z-10 flex-none">
+        <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors bg-white/[0.06] p-2 rounded-full">
+          <ArrowLeft size={17} />
+        </button>
+        <div className="flex items-center gap-2">
+          <Paintbrush size={16} className="text-violet-400" />
+          <h2 className="text-sm font-semibold text-white tracking-tight">Whiteboard</h2>
+        </div>
+        {chat.isGroup && (
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+            canUserEdit ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-500/15 text-zinc-400'
+          }`}>
+            {canUserEdit ? 'Can Edit' : 'View Only'}
+          </span>
+        )}
+        <div className="ml-auto flex items-center gap-2">
+          {/* Background color picker */}
+          <div className="flex items-center gap-1 bg-white/[0.04] rounded-xl p-1.5 border border-white/[0.06]">
+            {BG_COLORS.map(b => (
+              <button
+                key={b.hex}
+                onClick={() => setBgColorForActive(b.hex)}
+                title={`Background: ${b.label}`}
+                className={`w-5 h-5 rounded-md border-2 transition-transform hover:scale-110 ${
+                  activeBoard.bgColor === b.hex ? 'border-white/60 scale-110' : 'border-transparent'
+                }`}
+                style={{ background: b.hex }}
+              />
+            ))}
+          </div>
+          {isAdmin && chat.isGroup && (
+            <button onClick={() => setShowEditorMgr(v => !v)} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.06] rounded-full transition-colors" title="Manage editors">
+              <Users size={16} />
+            </button>
+          )}
+          {canUserEdit && (
+            <button onClick={handleUndo} disabled={history.length === 0} className="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.06] rounded-full transition-colors disabled:opacity-30" title="Undo">
+              <Undo2 size={16} />
+            </button>
+          )}
+          {canUserEdit && (
+            <button onClick={handleClear} className="p-2 text-zinc-400 hover:text-red-400 hover:bg-red-500/[0.08] rounded-full transition-colors" title="Clear board">
+              <Trash2 size={16} />
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* Board tabs */}
+      <div className="flex items-center gap-1 px-3 py-2 border-b border-white/[0.04] bg-[#0f0f13]/80 overflow-x-auto [&::-webkit-scrollbar]:hidden flex-none">
+        {boards.map(b => {
+          const isActive = b.id === activeBoardId;
+          const isRenaming = renamingBoardId === b.id;
+          return (
+            <div
+              key={b.id}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex-shrink-0 group ${
+                isActive
+                  ? 'bg-indigo-500/20 text-indigo-300 ring-1 ring-indigo-500/30'
+                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04] cursor-pointer'
+              }`}
+              onClick={() => {
+                if (isRenaming) return;
+                if (isActive) {
+                  // Second click on active tab → start rename
+                  setRenameValue(b.name);
+                  setRenamingBoardId(b.id);
+                  setTimeout(() => renameInputRef.current?.select(), 30);
+                } else {
+                  switchToBoard(b.id);
+                }
+              }}
+            >
+              <div className="w-3 h-3 rounded-full border border-white/20 flex-shrink-0" style={{ background: b.bgColor }} />
+              {isRenaming ? (
+                <input
+                  ref={renameInputRef}
+                  value={renameValue}
+                  onChange={e => setRenameValue(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const trimmed = renameValue.trim();
+                      if (trimmed) setBoards(prev => prev.map(bd => bd.id === b.id ? { ...bd, name: trimmed } : bd));
+                      setRenamingBoardId(null);
+                    } else if (e.key === 'Escape') {
+                      setRenamingBoardId(null);
+                    }
+                  }}
+                  onBlur={() => {
+                    const trimmed = renameValue.trim();
+                    if (trimmed) setBoards(prev => prev.map(bd => bd.id === b.id ? { ...bd, name: trimmed } : bd));
+                    setRenamingBoardId(null);
+                  }}
+                  onClick={e => e.stopPropagation()}
+                  className="bg-transparent border-b border-indigo-400 outline-none text-indigo-200 w-20 text-xs"
+                  autoFocus
+                />
+              ) : (
+                <span>{b.name}</span>
+              )}
+              {isActive && !isRenaming && (
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setRenameValue(b.name);
+                    setRenamingBoardId(b.id);
+                    setTimeout(() => renameInputRef.current?.select(), 30);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-0.5 text-indigo-400/60 hover:text-indigo-300 transition-all rounded"
+                  title="Rename board"
+                >
+                  <Pencil size={9} />
+                </button>
+              )}
+              {boards.length > 1 && !isRenaming && (
+                <button
+                  onClick={e => { e.stopPropagation(); deleteBoard(b.id); }}
+                  className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 transition-all rounded"
+                >
+                  <X size={10} />
+                </button>
+              )}
+            </div>
+          );
+        })}
+        {canUserEdit && (
+          <button
+            onClick={addBoard}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-zinc-500 hover:text-white hover:bg-white/[0.05] transition-all flex-shrink-0"
+            title="Add new board"
+          >
+            <Plus size={13} /> New
+          </button>
+        )}
+      </div>
+
+      {/* Drawing toolbar */}
+      {canUserEdit && (
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-white/[0.04] bg-[#0f0f13]/80 flex-none flex-wrap">
+          <div className="flex items-center gap-1 bg-white/[0.04] rounded-xl p-1 border border-white/[0.05]">
+            {toolBtn('pen', <Pencil size={15} />, 'Pen')}
+            {toolBtn('marker', <Paintbrush size={15} />, 'Marker')}
+            {toolBtn('eraser', <Eraser size={15} />, 'Eraser')}
+          </div>
+          <div className="w-px h-7 bg-white/[0.06]" />
+          <div className="flex items-center gap-2">
+            {[2, 4, 8, 14].map(sz => (
+              <button
+                key={sz}
+                onClick={() => setStrokeSize(sz)}
+                title={`Size ${sz}`}
+                className={`flex items-center justify-center rounded-full transition-all hover:scale-110 ${
+                  strokeSize === sz ? 'ring-2 ring-indigo-400' : 'ring-1 ring-white/10'
+                }`}
+                style={{ width: Math.max(10, sz * 1.8), height: Math.max(10, sz * 1.8), background: tool === 'eraser' ? '#6b7280' : color }}
+              />
+            ))}
+          </div>
+          <div className="w-px h-7 bg-white/[0.06]" />
+          <div className="flex items-center gap-1.5">
+            {PEN_COLORS.map(c => (
+              <button
+                key={c.hex}
+                onClick={() => { setColor(c.hex); if (tool === 'eraser') setTool('pen'); }}
+                title={c.label}
+                className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${
+                  color === c.hex && tool !== 'eraser' ? 'border-white scale-125 ring-2 ring-white/30' : 'border-white/20'
+                }`}
+                style={{ background: c.hex }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Canvas area â€” background is CSS only, canvas is transparent */}
+      <div className="flex-1 relative overflow-hidden transition-colors duration-300" style={{ background: activeBoard.bgColor }}>
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 touch-none"
+          style={{ cursor: !canUserEdit ? 'not-allowed' : tool === 'eraser' ? 'cell' : 'crosshair' }}
+          onMouseDown={startDraw} onMouseMove={draw} onMouseUp={endDraw} onMouseLeave={endDraw}
+          onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={endDraw}
+        />
+        {/* Subtle dot grid */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: `radial-gradient(circle, ${activeBoard.bgColor === '#1e1e2e' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)'} 1px, transparent 1px)`,
+          backgroundSize: '28px 28px',
+        }} />
+        {!canUserEdit && (
+          <div className="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none">
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md text-zinc-300 text-xs px-4 py-2 rounded-full">
+              <Eye size={13} /> View only â€” ask an admin to grant edit access
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Admin: Editor management overlay */}
+      {showEditorMgr && isAdmin && chat.isGroup && (
+        <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end" onClick={() => setShowEditorMgr(false)}>
+          <div className="w-full bg-[#141418] border-t border-white/[0.06] rounded-t-3xl p-5 animate-in slide-in-from-bottom-4 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-white font-bold text-sm">Edit Access Control</h3>
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  {canvasEditors.length === 0 ? 'Everyone can edit' : `${canvasEditors.length} member${canvasEditors.length > 1 ? 's' : ''} can edit`}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCanvasEditors([])}
+                  className={`text-[11px] px-3 py-1.5 rounded-full font-semibold transition-all ${
+                    canvasEditors.length === 0 ? 'bg-indigo-500/20 text-indigo-300 ring-1 ring-indigo-500/30' : 'text-zinc-500 hover:text-white hover:bg-white/[0.06]'
+                  }`}
+                >
+                  All members
+                </button>
+                <button onClick={() => setShowEditorMgr(false)} className="p-1.5 text-zinc-400 hover:text-white"><X size={16} /></button>
+              </div>
+            </div>
+            <div className="space-y-2 max-h-60 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+              {(chat.memberIds || []).filter(id => id !== currentUser.id).map(memberId => {
+                const member = friends.find(f => f.id === memberId) || { id: memberId, name: 'Member', avatar: null };
+                const canEdit = canvasEditors.length === 0 || canvasEditors.includes(memberId);
+                return (
+                  <div key={memberId} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                    <img src={member.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${memberId}`} alt={member.name} className="w-9 h-9 rounded-full object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{member.name}</p>
+                      <p className="text-[10px] text-zinc-500">{canEdit ? 'Can edit' : 'View only'}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (canvasEditors.length === 0) {
+                          setCanvasEditors((chat.memberIds || []).filter(id => id !== memberId && id !== currentUser.id));
+                        } else if (canvasEditors.includes(memberId)) {
+                          setCanvasEditors(prev => prev.filter(id => id !== memberId));
+                        } else {
+                          setCanvasEditors(prev => [...prev, memberId]);
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
+                        canEdit ? 'bg-emerald-500/15 text-emerald-400 hover:bg-red-500/15 hover:text-red-400' : 'bg-zinc-500/10 text-zinc-400 hover:bg-emerald-500/15 hover:text-emerald-400'
+                      }`}
+                    >
+                      {canEdit ? 'Revoke' : 'Grant'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// Ã°Å¸â€œâ€¹ TASK PANEL COMPONENT
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canManage, onJumpToMessage }) {
   const [filter, setFilter] = useState('all'); // all, todo, in-progress, done
   const priorities = { high: 'text-red-400 bg-red-500/10', medium: 'text-amber-400 bg-amber-500/10', low: 'text-emerald-400 bg-emerald-500/10' };
@@ -3928,7 +4418,7 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priorities[task.priority]}`}>{task.priority}</span>
                   {task.dueDate && <span className="text-[10px] text-zinc-500 flex items-center gap-1"><Calendar size={10} />{new Date(task.dueDate).toLocaleDateString()}</span>}
-                  {task.assignee && <span className="text-[10px] text-zinc-500">→ {friends.find(f => f.id === task.assignee)?.name || 'You'}</span>}
+                  {task.assignee && <span className="text-[10px] text-zinc-500">Ã¢â€ â€™ {friends.find(f => f.id === task.assignee)?.name || 'You'}</span>}
                 </div>
               </div>
               {canManage && <button onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }} className="p-1.5 text-zinc-600 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>}
@@ -3994,16 +4484,17 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const [aiProcessing, setAiProcessing] = useState(false);
   const [profanityWarning, setProfanityWarning] = useState(false);
 
-  // ═══ Polls, Tasks, Canvas state ═══
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â Polls, Tasks, Canvas state Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [chatTasks, setChatTasks] = useState([]);
   const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [showCanvas, setShowCanvas] = useState(false);
+  const [canvasEditors, setCanvasEditors] = useState([]); // userIds allowed to draw; empty = all allowed
   const [createTaskFromMsg, setCreateTaskFromMsg] = useState(null); // msg object
   const [taskPriorityPrompt, setTaskPriorityPrompt] = useState(null); // msg object awaiting priority selection
 
   const handleCreatePoll = (poll) => {
-    onSendMessage(chat.id, `📊 Poll: ${poll.question}`, null, null, null, { type: 'poll', poll });
+    onSendMessage(chat.id, `Ã°Å¸â€œÅ  Poll: ${poll.question}`, null, null, null, { type: 'poll', poll });
   };
 
   const [pollVotes, setPollVotes] = useState({}); // { [msgId]: { [optionId]: [userIds] } }
@@ -4042,7 +4533,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     const msg = (chat.messages || []).find(m => m.id === msgId);
     if (!msg?.meta?.poll) return;
     msg.meta.poll.question = editPollTitle.trim();
-    msg.text = `📊 Poll: ${editPollTitle.trim()}`;
+    msg.text = `Ã°Å¸â€œÅ  Poll: ${editPollTitle.trim()}`;
     setPollVotes(prev => ({ ...prev, [`_refresh_${Date.now()}`]: true }));
   };
 
@@ -4087,7 +4578,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         // Un-vote
         msgVotes[optionId] = currentVotes.filter(v => v !== currentUser.id);
       } else {
-        // Vote — if single select, clear all other votes first
+        // Vote Ã¢â‚¬â€ if single select, clear all other votes first
         if (!isMulti) {
           Object.keys(msgVotes).forEach(key => {
             msgVotes[key] = (msgVotes[key] || []).filter(v => v !== currentUser.id);
@@ -4179,7 +4670,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const inputRef = useRef(null);
   const messages = chat.messages || [];
 
-  // Magic Reply — on-device contextual suggestions
+  // Magic Reply Ã¢â‚¬â€ on-device contextual suggestions
   const magicReplies = useMemo(() => {
     return generateMagicReplies(messages, currentUser.id);
   }, [messages, currentUser.id]);
@@ -4210,7 +4701,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     return () => clearInterval(timer);
   }, []);
 
-  // Simulate receipt progression: sent → delivered → read
+  // Simulate receipt progression: sent Ã¢â€ â€™ delivered Ã¢â€ â€™ read
   // Respects per-member online/offline status in groups
   useEffect(() => {
     const myMsgs = messages.filter(m => m.senderId === currentUser.id && m.status && m.status !== 'read');
@@ -5020,7 +5511,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                           );
                         }
 
-                        // View Once: unopened — click opens fullscreen viewer
+                        // View Once: unopened Ã¢â‚¬â€ click opens fullscreen viewer
                         if (isViewOnce && !hasOpened) {
                           return (
                             <div 
@@ -5103,7 +5594,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       )}
 
                       <div className={msg.meta?.poll ? 'mt-0.5' : 'pr-5 mt-0.5'}>
-                        {/* 📊 Poll Card */}
+                        {/* Ã°Å¸â€œÅ  Poll Card */}
                         {msg.meta?.poll && (() => {
                           const poll = msg.meta.poll;
                           const isMine = msg.senderId === currentUser.id;
@@ -5125,7 +5616,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                                       ) : (
                                         <span className="text-[15px] font-bold text-white block leading-snug">{poll.question}</span>
                                       )}
-                                      <span className="text-[10px] text-zinc-500 mt-0.5 block">{poll.allowMultiple ? 'Select multiple' : 'Select one'}{poll.isAnonymous ? ' · Anonymous' : ''}</span>
+                                      <span className="text-[10px] text-zinc-500 mt-0.5 block">{poll.allowMultiple ? 'Select multiple' : 'Select one'}{poll.isAnonymous ? ' Ã‚Â· Anonymous' : ''}</span>
                                     </div>
                                   </div>
                                   {isMine && !poll.closed && !isEditing && (
@@ -5150,8 +5641,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                                       <button onClick={(e) => { e.stopPropagation(); handleAddPollOption(msg.id); }} className="px-2.5 py-1.5 bg-indigo-500/20 text-indigo-400 rounded-lg text-xs font-bold hover:bg-indigo-500/30 transition-colors"><Plus size={12} /></button>
                                     </div>
                                     <div className="flex items-center gap-2 pt-2 border-t border-white/[0.04]">
-                                      <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'allowMultiple'); }} className={`text-[10px] px-2.5 py-1 rounded-lg font-medium transition-colors ${poll.allowMultiple ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-zinc-500'}`}>{poll.allowMultiple ? '✓ Multi' : 'Multi'}</button>
-                                      <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'isAnonymous'); }} className={`text-[10px] px-2.5 py-1 rounded-lg font-medium transition-colors ${poll.isAnonymous ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-zinc-500'}`}>{poll.isAnonymous ? '✓ Anon' : 'Anon'}</button>
+                                      <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'allowMultiple'); }} className={`text-[10px] px-2.5 py-1 rounded-lg font-medium transition-colors ${poll.allowMultiple ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-zinc-500'}`}>{poll.allowMultiple ? 'Ã¢Å“â€œ Multi' : 'Multi'}</button>
+                                      <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'isAnonymous'); }} className={`text-[10px] px-2.5 py-1 rounded-lg font-medium transition-colors ${poll.isAnonymous ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-zinc-500'}`}>{poll.isAnonymous ? 'Ã¢Å“â€œ Anon' : 'Anon'}</button>
                                       <button onClick={(e) => { e.stopPropagation(); handleTogglePollSetting(msg.id, 'closed'); }} className="text-[10px] px-2.5 py-1 rounded-lg font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 ml-auto">Close</button>
                                     </div>
                                     {/* Save / Cancel */}
@@ -5444,7 +5935,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                  </>
                )}
 
-               {/* GIF Tab — curated categories */}
+               {/* GIF Tab Ã¢â‚¬â€ curated categories */}
                {pickerTab === 'gif' && (
                  <>
                    <div className="p-2.5 border-b border-white/5">
@@ -5462,7 +5953,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                    <div className="flex-1 overflow-y-auto p-2 [&::-webkit-scrollbar]:hidden">
                      {filteredGifs.length === 0 ? (
                        <div className="flex flex-col items-center justify-center h-full text-zinc-500">
-                         <span className="text-3xl mb-2">🎬</span>
+                         <span className="text-3xl mb-2">Ã°Å¸Å½Â¬</span>
                          <span className="text-xs">No GIFs match "{gifSearch}"</span>
                        </div>
                      ) : (
@@ -5520,7 +6011,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                                <span className="text-2xl shrink-0">{pack.preview}</span>
                                <div className="flex-1 min-w-0">
                                  <p className="text-xs text-white font-medium">{pack.name}</p>
-                                 <p className="text-[10px] text-zinc-500">{pack.description} · {pack.stickers.length} stickers</p>
+                                 <p className="text-[10px] text-zinc-500">{pack.description} Ã‚Â· {pack.stickers.length} stickers</p>
                                </div>
                                <button
                                  type="button"
@@ -5626,7 +6117,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         <X size={10} />
                       </button>
                       <p className="text-[8px] text-zinc-500 truncate w-20 mt-1 text-center">{af.name}</p>
-                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? '👁 View once' : formatFileSize(af.size)}</p>
+                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? 'Ã°Å¸â€˜Â View once' : formatFileSize(af.size)}</p>
                     </div>
                   );
                 })}
@@ -5671,7 +6162,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <VoiceReviewPlayer url={audioUrl} duration={recordingTime} onCancel={cancelRecording} onSend={sendVoiceMessage} />
           ) : (
             <div className="relative">
-              {/* ⚠️ Profanity Warning Toast */}
+              {/* Ã¢Å¡Â Ã¯Â¸Â Profanity Warning Toast */}
               {profanityWarning && (
                 <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-3 mb-2 px-5 py-3 bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/30 rounded-2xl backdrop-blur-md shadow-lg shadow-red-500/5">
                   <div className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
@@ -5679,7 +6170,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-red-400">Message blocked</p>
-                    <p className="text-[10px] text-red-400/70">Inappropriate language detected — please revise your message</p>
+                    <p className="text-[10px] text-red-400/70">Inappropriate language detected Ã¢â‚¬â€ please revise your message</p>
                   </div>
                   <button type="button" onClick={() => setProfanityWarning(false)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors shrink-0">
                     <X size={14} />
@@ -5687,7 +6178,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               )}
 
-              {/* ✨ Magic Reply Suggestions — on-device AI */}
+              {/* Ã¢Å“Â¨ Magic Reply Suggestions Ã¢â‚¬â€ on-device AI */}
               {magicReplies.length > 0 && !inputText.trim() && !showEmojiPicker && !replyingTo && !profanityWarning && (
                 <div className="absolute bottom-full left-0 right-0 px-4 pb-2 flex gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-auto">
                   <div className="flex items-center gap-1 shrink-0 mr-1">
@@ -5709,7 +6200,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               )}
 
-              {/* 🪄 AI Writing Assistant Panel */}
+              {/* Ã°Å¸Âªâ€ž AI Writing Assistant Panel */}
               {showAiAssistant && inputText.trim() && (
                 <div className="mb-2 bg-[#1a1a1c]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] overflow-hidden animate-in slide-in-from-bottom-4 duration-200 z-[70]">
                   <div className="flex items-center justify-between p-3 border-b border-white/5">
@@ -5720,7 +6211,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       <div>
                         <span className="text-xs font-semibold text-white">AI Writing Assistant</span>
                         <span className="text-[9px] text-zinc-500 ml-2 flex items-center gap-1 inline-flex">
-                          <Shield size={8} /> On-device · E2E safe
+                          <Shield size={8} /> On-device Ã‚Â· E2E safe
                         </span>
                       </div>
                     </div>
@@ -5845,7 +6336,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               {profanityWarning && (
                 <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 mb-3 px-4 py-2.5 bg-red-500/10 border border-red-500/25 rounded-2xl w-full max-w-sm mx-auto">
                   <Shield size={14} className="text-red-400 shrink-0" />
-                  <span className="text-xs text-red-400 font-medium">Inappropriate language detected — please revise</span>
+                  <span className="text-xs text-red-400 font-medium">Inappropriate language detected Ã¢â‚¬â€ please revise</span>
                 </div>
               )}
 
@@ -6128,10 +6619,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      {/* 📊 Create Poll Modal */}
+      {/* Ã°Å¸â€œÅ  Create Poll Modal */}
       {showCreatePoll && <CreatePollModal onClose={() => setShowCreatePoll(false)} onCreatePoll={handleCreatePoll} />}
 
-      {/* 📊 Poll Voters Overlay */}
+      {/* Ã°Å¸â€œÅ  Poll Voters Overlay */}
       {viewPollVotersMsgId && (() => {
         const voterMsg = (chat.messages || []).find(m => m.id === viewPollVotersMsgId);
         if (!voterMsg?.meta?.poll) return null;
@@ -6147,7 +6638,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center"><Users size={14} className="text-white" /></div>
                   <div>
                     <h3 className="text-sm font-bold text-white">Poll Voters</h3>
-                    <p className="text-[10px] text-zinc-500">{vTotal} total vote{vTotal !== 1 ? 's' : ''} · {vPoll.question}</p>
+                    <p className="text-[10px] text-zinc-500">{vTotal} total vote{vTotal !== 1 ? 's' : ''} Ã‚Â· {vPoll.question}</p>
                   </div>
                 </div>
                 <button onClick={() => setViewPollVotersMsgId(null)} className="p-1.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors"><X size={16} /></button>
@@ -6180,10 +6671,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         );
       })()}
 
-      {/* 📋 Task Panel */}
+      {/* Ã°Å¸â€œâ€¹ Task Panel */}
       {showTaskPanel && <TaskPanel tasks={chatTasks} onClose={() => setShowTaskPanel(false)} onUpdateTask={handleUpdateTask} onDeleteTask={handleDeleteTask} friends={friends} canManage={!chat.isGroup || isAdmin} onJumpToMessage={(msgId) => { setShowTaskPanel(false); setTimeout(() => { const el = document.getElementById(`message-${msgId}`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.remove('msg-highlight'); void el.offsetWidth; el.classList.add('msg-highlight'); setTimeout(() => el.classList.remove('msg-highlight'), 2200); } }, 300); }} />}
 
-      {/* 📋 Task Priority Picker */}
+      {/* Ã°Å¸â€œâ€¹ Task Priority Picker */}
       {taskPriorityPrompt && (
         <div className="absolute inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setTaskPriorityPrompt(null)}>
           <div className="bg-[#141418] border border-white/[0.06] rounded-2xl w-full max-w-[320px] shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -6200,9 +6691,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <p className="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider mb-3">Select Priority</p>
               <div className="space-y-2">
                 {[
-                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: '🔴' },
-                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: '🟡' },
-                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: '🟢' },
+                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: 'Ã°Å¸â€Â´' },
+                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: 'Ã°Å¸Å¸Â¡' },
+                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: 'Ã°Å¸Å¸Â¢' },
                 ].map(p => (
                   <button
                     key={p.key}
@@ -6225,7 +6716,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      {/* 📊 Recent Polls Panel */}
+      {/* Ã°Å¸â€œÅ  Recent Polls Panel */}
       {showRecentPolls && (
         <div className="absolute inset-0 z-[80] bg-[#121214] flex flex-col animate-in slide-in-from-right-8 duration-300">
           <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
@@ -6267,8 +6758,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     })}
                   </div>
                   <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/[0.04]">
-                    <span className="text-[10px] text-zinc-500">{total} vote{total !== 1 ? 's' : ''} · {new Date(pm.timestamp).toLocaleDateString()}</span>
-                    <button onClick={() => { setShowRecentPolls(false); const el = document.getElementById(`message-${pm.id}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }} className="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Jump to poll →</button>
+                    <span className="text-[10px] text-zinc-500">{total} vote{total !== 1 ? 's' : ''} Ã‚Â· {new Date(pm.timestamp).toLocaleDateString()}</span>
+                    <button onClick={() => { setShowRecentPolls(false); const el = document.getElementById(`message-${pm.id}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }} className="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Jump to poll Ã¢â€ â€™</button>
                   </div>
                 </div>
               );
@@ -6277,78 +6768,17 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      {/* 🎨 Canvas Panel */}
-      {showCanvas && (() => {
-        const CanvasPanel = () => {
-          const [notes, setNotes] = useState([
-            { id: 1, text: 'Brainstorm ideas here...', x: 40, y: 40, color: 'from-indigo-500/20 to-violet-500/20 border-indigo-500/30', w: 200 },
-          ]);
-          const [newNote, setNewNote] = useState('');
-          const [dragId, setDragId] = useState(null);
-          const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-          const noteColors = [
-            'from-indigo-500/20 to-violet-500/20 border-indigo-500/30',
-            'from-amber-500/20 to-orange-500/20 border-amber-500/30',
-            'from-emerald-500/20 to-teal-500/20 border-emerald-500/30',
-            'from-pink-500/20 to-rose-500/20 border-pink-500/30',
-            'from-cyan-500/20 to-sky-500/20 border-cyan-500/30',
-          ];
-
-          const addNote = () => {
-            if (!newNote.trim()) return;
-            setNotes(prev => [...prev, { id: Date.now(), text: newNote.trim(), x: 40 + Math.random() * 300, y: 40 + Math.random() * 200, color: noteColors[prev.length % noteColors.length], w: 200 }]);
-            setNewNote('');
-          };
-
-          const handleMouseDown = (e, id) => {
-            setDragId(id);
-            setDragStart({ x: e.clientX, y: e.clientY });
-          };
-          const handleMouseMove = (e) => {
-            if (!dragId) return;
-            const dx = e.clientX - dragStart.x;
-            const dy = e.clientY - dragStart.y;
-            setNotes(prev => prev.map(n => n.id === dragId ? { ...n, x: n.x + dx, y: n.y + dy } : n));
-            setDragStart({ x: e.clientX, y: e.clientY });
-          };
-
-          return (
-            <div className="absolute inset-0 z-[90] bg-[#0a0a0c] flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
-                <button onClick={() => setShowCanvas(false)} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full"><ArrowLeft size={18} /></button>
-                <div className="flex items-center gap-2"><Paintbrush size={18} className="text-amber-400" /><h2 className="text-base font-medium text-white">Canvas</h2></div>
-                <span className="ml-auto text-xs text-zinc-500 bg-white/5 px-2.5 py-1 rounded-full">{notes.length} notes</span>
-              </header>
-
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.04]">
-                <input value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && addNote()} placeholder="Add a note..." className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500/50" />
-                <button onClick={addNote} disabled={!newNote.trim()} className="px-3 py-2 bg-amber-500/20 text-amber-400 rounded-lg text-xs font-medium hover:bg-amber-500/30 transition-colors disabled:opacity-40"><Plus size={14} /></button>
-              </div>
-
-              <div className="flex-1 relative overflow-hidden bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjAuNSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvc3ZnPg==')]" onMouseMove={handleMouseMove} onMouseUp={() => setDragId(null)} onMouseLeave={() => setDragId(null)}>
-                {notes.map(note => (
-                  <div key={note.id} className={`absolute bg-gradient-to-br ${note.color} border rounded-xl p-4 shadow-lg cursor-move select-none hover:shadow-xl transition-shadow group`} style={{ left: note.x, top: note.y, width: note.w }} onMouseDown={e => handleMouseDown(e, note.id)}>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <GripVertical size={14} className="text-white/20 shrink-0 mt-0.5" />
-                      <button onClick={() => setNotes(prev => prev.filter(n => n.id !== note.id))} className="p-1 text-white/20 hover:text-red-400 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
-                    </div>
-                    <p className="text-sm text-white/80 leading-relaxed break-words">{note.text}</p>
-                    <span className="text-[9px] text-white/20 mt-2 block">You</span>
-                  </div>
-                ))}
-                {notes.length === 0 && (
-                  <div className="flex flex-col items-center justify-center h-full text-zinc-600">
-                    <StickyNote size={48} className="mb-3" />
-                    <p className="text-sm font-medium">Empty canvas</p>
-                    <p className="text-xs mt-1">Add notes to start brainstorming</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        };
-        return <CanvasPanel />;
-      })()}
+      {/* Ã°Å¸Å½Â¨ Canvas / Whiteboard Panel */}
+      {showCanvas && <WhiteboardPanel
+        canUserEdit={!chat.isGroup || isAdmin || canvasEditors.length === 0 || canvasEditors.includes(currentUser.id)}
+        isAdmin={isAdmin}
+        chat={chat}
+        currentUser={currentUser}
+        canvasEditors={canvasEditors}
+        setCanvasEditors={setCanvasEditors}
+        friends={friends}
+        onClose={() => setShowCanvas(false)}
+      />}
 
       {/* Individual User Info Panel */}
       {showDetails && !chat.isGroup && (() => {
@@ -6359,6 +6789,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         const mutualFriends = mutualFriendIds.map(id => friends.find(f => f.id === id)).filter(Boolean);
         const userStarred = messages.filter(m => m.isStarred && !m.isDeleted && m.type !== 'system');
         return (
+
           <div className="absolute inset-0 z-50 bg-[#121214] flex flex-col animate-in slide-in-from-right-8 duration-300">
             <header className="px-6 py-4 flex items-center gap-4 border-b border-white/[0.04] bg-[#121214]/80 backdrop-blur-md z-10 flex-none">
               <button onClick={() => setShowDetails(false)} className="text-zinc-400 hover:text-white transition-colors bg-[#1a1a1c] p-2 rounded-full">
@@ -6608,7 +7039,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <img src={viewOnceViewing.url} alt="View once" className="max-w-full max-h-[80vh] object-contain rounded-xl" />
             )}
           </div>
-          <p className="text-white/30 text-xs mt-4">Close to dismiss — this media will no longer be available</p>
+          <p className="text-white/30 text-xs mt-4">Close to dismiss Ã¢â‚¬â€ this media will no longer be available</p>
         </div>
       )}
 
@@ -6735,10 +7166,10 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             
             <div className="flex flex-col gap-2">
               {[
-                { key: 'session', label: 'This Session', desc: 'Until you leave this chat', icon: '⚡' },
-                { key: '1day', label: '1 Day', desc: 'Expires after 24 hours', icon: '☀️' },
-                { key: '1week', label: '1 Week', desc: 'Expires after 7 days', icon: '📅' },
-                { key: '1month', label: '1 Month', desc: 'Expires after 30 days', icon: '📆' },
+                { key: 'session', label: 'This Session', desc: 'Until you leave this chat', icon: 'Ã¢Å¡Â¡' },
+                { key: '1day', label: '1 Day', desc: 'Expires after 24 hours', icon: 'Ã¢Ëœâ‚¬Ã¯Â¸Â' },
+                { key: '1week', label: '1 Week', desc: 'Expires after 7 days', icon: 'Ã°Å¸â€œâ€¦' },
+                { key: '1month', label: '1 Month', desc: 'Expires after 30 days', icon: 'Ã°Å¸â€œâ€ ' },
               ].map(opt => (
                 <button
                   key={opt.key}
@@ -7177,12 +7608,14 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Community Sidebar */}
       <div className={`absolute top-0 bottom-0 left-0 z-30 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
       }`}>
         <CommunitySidebar communities={communities} groups={groups} activeCommunityId={activeCommunityId} setActiveCommunityId={setActiveCommunityId} />
       </div>
 
+      {/* Community Groups List */}
       <div className={`absolute top-0 bottom-0 right-0 z-20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         activeCommunityId ? 'left-[64px] opacity-100 translate-x-0 scale-100' : 'left-[64px] opacity-0 translate-x-[20%] pointer-events-none scale-105'
       }`}>
@@ -7224,6 +7657,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
         </div>
       </div>
 
+      {/* Create Community Modal */}
       {showCreateModal && (
         <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121214] border border-white/[0.05] rounded-3xl w-[90%] max-w-md shadow-2xl flex flex-col my-auto relative animate-in zoom-in-95 duration-200 max-h-[80vh]">
