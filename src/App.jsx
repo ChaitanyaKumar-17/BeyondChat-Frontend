@@ -605,6 +605,11 @@ const DEFAULT_SETTINGS = {
     inApp: true,
     preview: true,
     sound: true,
+    tone: 'ping',       // ping | chime | pop | bubble | none
+    reactions: true,
+    groupChats: true,
+    calls: true,
+    dnd: { enabled: false, from: '22:00', to: '08:00' },
   },
   appearance: {
     theme: 'dark',
@@ -991,6 +996,72 @@ const initialChats = [
   }
 ];
 
+// ─── Notification tone generator (WAV in memory → Audio element) ─────────────
+// Generates real PCM audio data — bypasses all AudioContext autoplay restrictions.
+const playNotificationTone = (tone = 'ping') => {
+  try {
+    const SR = 44100; // sample rate
+    const tones = {
+      ping:   { freqs: [1046, 1568], dur: 0.22, decay: 0.14, vol: 0.85 },
+      chime:  { freqs: [ 784, 1174,  523], dur: 0.40, decay: 0.32, vol: 0.80 },
+      pop:    { freqs: [ 440],             dur: 0.14, decay: 0.08, vol: 0.90 },
+      bubble: { freqs: [1318, 1760],       dur: 0.28, decay: 0.20, vol: 0.78 },
+    };
+    const cfg = tones[tone] || tones.ping;
+    const numSamples = Math.ceil(SR * cfg.dur);
+
+    // Allocate WAV buffer: 44-byte header + 16-bit mono PCM
+    const buf = new ArrayBuffer(44 + numSamples * 2);
+    const view = new DataView(buf);
+    const ws = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+
+    ws(0,  'RIFF');  view.setUint32(4,  36 + numSamples * 2, true);
+    ws(8,  'WAVE');  ws(12, 'fmt ');
+    view.setUint32(16, 16, true);          // chunk size
+    view.setUint16(20, 1,  true);          // PCM
+    view.setUint16(22, 1,  true);          // mono
+    view.setUint32(24, SR, true);          // sample rate
+    view.setUint32(28, SR * 2, true);      // byte rate
+    view.setUint16(32, 2,  true);          // block align
+    view.setUint16(34, 16, true);          // bits per sample
+    ws(36, 'data');  view.setUint32(40, numSamples * 2, true);
+
+    // Synthesise samples: sum of sine waves × exponential decay envelope
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / SR;
+      const env = Math.exp(-t / cfg.decay);
+      let s = 0;
+      cfg.freqs.forEach((f, idx) => {
+        s += Math.sin(2 * Math.PI * f * t) * (idx === 0 ? 1 : 0.35);
+      });
+      s = (s / (cfg.freqs.length > 1 ? 1.35 : 1)) * env * cfg.vol;
+      view.setInt16(44 + i * 2, Math.max(-1, Math.min(1, s)) * 32767, true);
+    }
+
+    const url = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+    const audio = new Audio(url);
+    audio.volume = 1.0;
+    audio.play()
+      .then(() => audio.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true }))
+      .catch(() => URL.revokeObjectURL(url));
+  } catch (_) {}
+};
+
+
+// ─── DND window check ────────────────────────────────────────────────────────
+const isInDndWindow = (dnd) => {
+  if (!dnd?.enabled) return false;
+  const now = new Date();
+  const [fh, fm] = (dnd.from || '22:00').split(':').map(Number);
+  const [th, tm] = (dnd.to   || '08:00').split(':').map(Number);
+  const nowMin  = now.getHours() * 60 + now.getMinutes();
+  const fromMin = fh * 60 + fm;
+  const toMin   = th * 60 + tm;
+  return fromMin > toMin
+    ? nowMin >= fromMin || nowMin < toMin   // crosses midnight
+    : nowMin >= fromMin && nowMin < toMin;
+};
+
 export default function App() {
   useLayoutEffect(() => {
     if (!document.getElementById('dashboard-global-styles')) {
@@ -1069,6 +1140,7 @@ export default function App() {
   const [overlayStates, setOverlayStates] = useState({ home: false, calls: false });
   const [isChatClosing, setIsChatClosing] = useState(false);
   const [disappearingChats, setDisappearingChats] = useState({});
+  const [blockedUsers, setBlockedUsers] = useState([]); // { id, name, avatar, isGroup, blockedAt }
   
   const handleCloseChat = () => {
     const closingId = selectedChatId || communityGroupChatId;
@@ -1112,9 +1184,22 @@ export default function App() {
 
   const isGlobalOverlayActive = overlayStates.home || overlayStates.calls;
 
-  const showGlobalToast = (msg) => {
-    setAppToast(msg);
+  const showGlobalToast = (msg, opts = {}) => {
+    const notifs = userSettings?.notifications || {};
+    // Respect inApp toggle (always show system-critical messages via opts.force)
+    if (!opts.force && notifs.inApp === false) return;
+    // Respect DND window
+    if (!opts.force && isInDndWindow(notifs.dnd)) return;
+    // Show toast — optionally hide message content
+    const displayMsg = (notifs.preview === false && opts.isMessage)
+      ? 'New message'
+      : msg;
+    setAppToast(displayMsg);
     setTimeout(() => setAppToast(''), 3000);
+    // Play sound
+    if (notifs.sound !== false && !opts.silent) {
+      playNotificationTone(notifs.tone || 'ping');
+    }
   };
 
   const handleSelectChat = useCallback((chatId) => {
@@ -1479,10 +1564,19 @@ export default function App() {
   };
 
   const handleBlock = (id, isGroup) => {
-  
+    // Capture info before removing from lists
+    const group = groups.find(g => g.id === id);
+    const friend = friends.find(f => f.id === id);
+    const entity = isGroup ? group : friend;
+    if (entity) {
+      setBlockedUsers(prev => [
+        ...prev.filter(b => b.id !== id),
+        { id, name: entity.name, avatar: entity.avatar || null, isGroup: !!isGroup, blockedAt: Date.now() }
+      ]);
+    }
     if (isGroup) {
       setGroups(prev => prev.filter(g => g.id !== id));
-      showGlobalToast('Group blocked. You cannot be added back.');
+      showGlobalToast('Group blocked.');
     } else {
       setFriends(prev => prev.filter(f => f.id !== id));
       showGlobalToast('User blocked.');
@@ -1490,6 +1584,11 @@ export default function App() {
     setRecentConversations(prev => prev.filter(c => c.id !== id));
     setChatDetails(prev => prev.filter(c => c.id !== id));
     setSelectedChatId(null);
+  };
+
+  const handleUnblock = (id) => {
+    setBlockedUsers(prev => prev.filter(b => b.id !== id));
+    showGlobalToast('Unblocked successfully.');
   };
 
   const handleReport = (id, isGroup, category, _description) => {
@@ -1738,6 +1837,8 @@ export default function App() {
               onUpdateUser={setCurrentUser}
               userSettings={userSettings}
               onUpdateSetting={updateSetting}
+              blockedUsers={blockedUsers}
+              onUnblock={handleUnblock}
             />
           </div>
 
@@ -1784,6 +1885,7 @@ export default function App() {
               onToggleDisappearing={handleToggleDisappearing}
               onUpdateMessageStatus={handleUpdateMessageStatus}
               currentUser={currentUser}
+              readReceipts={userSettings.privacy?.readReceipts !== false}
             />
             </div>
           </div>
@@ -4431,7 +4533,7 @@ function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditor
 // -----------------------------------------------------------
 // ⚙️ SETTINGS PAGE COMPONENT
 // -----------------------------------------------------------
-function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting }) {
+function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock }) {
   const [subScreen, setSubScreen] = useState(null);
   const [profileDraft, setProfileDraft] = useState({ ...currentUser });
   const [profileError, setProfileError] = useState('');
@@ -4591,6 +4693,122 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     </div>
   );
 
+  // ─ Privacy & Security sub-screen ─
+  if (subScreen === 'privacy') return (
+    <div className="flex flex-col h-full bg-[#0f0f13]">
+      <SubHeader title="Privacy & Security" onBack={() => setSubScreen(null)} />
+      <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
+
+        {/* Visibility */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Visibility</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            {[
+              { key: 'readReceipts',  label: 'Read Receipts',  desc: 'Let others know when you have read their messages', icon: <CheckCircle size={15} /> },
+              { key: 'onlineStatus',  label: 'Online Status',   desc: 'Show when you are active in the app',              icon: <Eye size={15} /> },
+            ].map(({ key, label, desc, icon }) => (
+              <div key={key} className="flex items-center gap-4 px-5 py-4">
+                <div className="w-8 h-8 rounded-xl bg-white/[0.07] text-zinc-300 flex items-center justify-center flex-shrink-0">{icon}</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white">{label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{desc}</p>
+                </div>
+                <Toggle
+                  checked={userSettings.privacy[key] !== false}
+                  onChange={v => onUpdateSetting('privacy', key, v)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Last Seen */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Last Seen & Online</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            {[
+              { value: 'everyone',  label: 'Everyone',      desc: 'All users can see your last seen' },
+              { value: 'contacts',  label: 'My Contacts',   desc: 'Only people you have chatted with' },
+              { value: 'nobody',    label: 'Nobody',        desc: 'No one can see your last seen' },
+            ].map(m => (
+              <button key={m.value} onClick={() => onUpdateSetting('privacy', 'lastSeen', m.value)}
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors">
+                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${userSettings.privacy.lastSeen === m.value ? 'border-indigo-400 bg-indigo-400' : 'border-zinc-600'}`}>
+                  {userSettings.privacy.lastSeen === m.value && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-white">{m.label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{m.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-zinc-600 mt-2 px-1">If you don't share your Last Seen, you won't be able to see others' Last Seen either.</p>
+        </div>
+
+        {/* Disappearing Messages Default */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Default Message Timer</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            {[
+              { value: 'off',     label: 'Off',     desc: 'Messages are kept until manually deleted' },
+              { value: 'session', label: 'Session',  desc: 'Deleted when you close the chat' },
+              { value: '1day',    label: '1 Day',    desc: 'Auto-deleted after 24 hours' },
+              { value: '1week',   label: '1 Week',   desc: 'Auto-deleted after 7 days' },
+            ].map(m => (
+              <button key={m.value} onClick={() => onUpdateSetting('privacy', 'defaultDisappearing', m.value)}
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors">
+                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${(userSettings.privacy.defaultDisappearing || 'off') === m.value ? 'border-indigo-400 bg-indigo-400' : 'border-zinc-600'}`}>
+                  {(userSettings.privacy.defaultDisappearing || 'off') === m.value && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-white">{m.label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{m.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Blocked Users */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">
+            Blocked Users {blockedUsers.length > 0 && <span className="ml-1 px-1.5 py-0.5 bg-zinc-700 rounded-full text-zinc-400 text-[10px]">{blockedUsers.length}</span>}
+          </p>
+          {blockedUsers.length === 0 ? (
+            <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] px-5 py-6 flex flex-col items-center gap-2">
+              <Shield size={28} className="text-zinc-700" />
+              <p className="text-sm text-zinc-500 text-center">No blocked users</p>
+              <p className="text-xs text-zinc-600 text-center">Users you block will appear here</p>
+            </div>
+          ) : (
+            <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04] overflow-hidden">
+              {blockedUsers.map(u => (
+                <div key={u.id} className="flex items-center gap-3 px-5 py-3.5">
+                  <div className="w-9 h-9 rounded-full bg-zinc-700 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    {u.avatar
+                      ? <img src={u.avatar} alt={u.name} className="w-full h-full object-cover" />
+                      : <span className="text-sm font-bold text-white">{u.name?.[0]?.toUpperCase()}</span>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{u.name}</p>
+                    <p className="text-xs text-zinc-600 mt-0.5">{u.isGroup ? 'Group' : 'Contact'} · Blocked {new Date(u.blockedAt).toLocaleDateString()}</p>
+                  </div>
+                  <button
+                    onClick={() => onUnblock(u.id)}
+                    className="flex-shrink-0 text-xs font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    Unblock
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   // Content Filters sub-screen
   if (subScreen === 'safety') return (
     <div className="flex flex-col h-full bg-[#0f0f13]">
@@ -4658,6 +4876,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     <div className="flex flex-col h-full bg-[#0f0f13]">
       <SubHeader title="Notifications" onBack={() => setSubScreen(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
+
+        {/* General toggles */}
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">General</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
@@ -4675,6 +4895,127 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
                 <Toggle checked={userSettings.notifications[key] !== false} onChange={v => onUpdateSetting('notifications', key, v)} />
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Notification Tone picker */}
+        {userSettings.notifications.sound !== false && (
+          <div>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Notification Tone</p>
+            <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+              {[
+                { value: 'ping',   label: 'Ping',   desc: 'Short high-pitched beep' },
+                { value: 'chime',  label: 'Chime',  desc: 'Soft melodic tone' },
+                { value: 'pop',    label: 'Pop',    desc: 'Quick subtle pop' },
+                { value: 'bubble', label: 'Bubble', desc: 'Light airy sound' },
+              ].map(t => (
+                <div key={t.value} className="flex items-center gap-4 px-5 py-3.5">
+                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                    (userSettings.notifications.tone || 'ping') === t.value ? 'border-indigo-400 bg-indigo-400' : 'border-zinc-600'
+                  }`}>
+                    {(userSettings.notifications.tone || 'ping') === t.value && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">{t.label}</p>
+                    <p className="text-xs text-zinc-500">{t.desc}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => playNotificationTone(t.value)}
+                      className="p-1.5 text-zinc-400 hover:text-white bg-white/[0.05] hover:bg-white/10 rounded-lg transition-colors"
+                      title="Preview"
+                    >
+                      <Volume2 size={13} />
+                    </button>
+                    <button
+                      onClick={() => onUpdateSetting('notifications', 'tone', t.value)}
+                      className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                        (userSettings.notifications.tone || 'ping') === t.value
+                          ? 'bg-indigo-500 text-white'
+                          : 'bg-white/[0.06] text-zinc-400 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {(userSettings.notifications.tone || 'ping') === t.value ? 'Selected' : 'Select'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Per-Category */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Notify Me About</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            {[
+              { key: 'reactions',   label: 'Reactions',       desc: 'When someone reacts to your message',  icon: <Smile size={15} /> },
+              { key: 'groupChats',  label: 'Group Messages',  desc: 'Messages sent in group conversations', icon: <Users size={15} /> },
+              { key: 'calls',       label: 'Calls',           desc: 'Incoming voice and video calls',        icon: <Phone size={15} /> },
+            ].map(({ key, label, desc, icon }) => (
+              <div key={key} className="flex items-center gap-4 px-5 py-4">
+                <div className="w-8 h-8 rounded-xl bg-white/[0.07] text-zinc-300 flex items-center justify-center flex-shrink-0">{icon}</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white">{label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{desc}</p>
+                </div>
+                <Toggle
+                  checked={userSettings.notifications[key] !== false}
+                  onChange={v => onUpdateSetting('notifications', key, v)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Do Not Disturb */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Do Not Disturb</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            <div className="flex items-center gap-4 px-5 py-4">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.07] text-zinc-300 flex items-center justify-center flex-shrink-0"><Moon size={15} /></div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Do Not Disturb</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Silence all notifications during set hours</p>
+              </div>
+              <Toggle
+                checked={userSettings.notifications.dnd?.enabled === true}
+                onChange={v => onUpdateSetting('notifications', 'dnd', { ...(userSettings.notifications.dnd || {}), enabled: v })}
+              />
+            </div>
+
+            {userSettings.notifications.dnd?.enabled && (
+              <>
+                <div className="flex items-center gap-4 px-5 py-4">
+                  <div className="w-8 h-8 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-xs text-zinc-400 mb-1">From</p>
+                    <input
+                      type="time"
+                      value={userSettings.notifications.dnd?.from || '22:00'}
+                      onChange={e => onUpdateSetting('notifications', 'dnd', { ...(userSettings.notifications.dnd || {}), from: e.target.value })}
+                      className="bg-white/[0.06] border border-white/10 text-white text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-indigo-500 [color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-zinc-400 mb-1">To</p>
+                    <input
+                      type="time"
+                      value={userSettings.notifications.dnd?.to || '08:00'}
+                      onChange={e => onUpdateSetting('notifications', 'dnd', { ...(userSettings.notifications.dnd || {}), to: e.target.value })}
+                      className="bg-white/[0.06] border border-white/10 text-white text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-indigo-500 [color-scheme:dark]"
+                    />
+                  </div>
+                </div>
+                <div className="px-5 py-3 bg-indigo-500/[0.06] flex items-center gap-2">
+                  <Moon size={13} className="text-indigo-400 flex-shrink-0" />
+                  <p className="text-xs text-indigo-300">
+                    DND active {userSettings.notifications.dnd.from} – {userSettings.notifications.dnd.to}.
+                    Notifications will be silenced during these hours.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -4730,14 +5071,14 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Account</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
             <SettingsRow icon={<UserCheck size={17} />} title="Profile and Identity" subtitle="Name, photo, handle, status" onClick={() => { setProfileDraft({ ...currentUser }); setSubScreen('profile'); }} />
-            <SettingsRow icon={<Shield size={17} />} title="Privacy and Security" subtitle="Read receipts, last seen, blocked users" onClick={() => {}} />
+            <SettingsRow icon={<Shield size={17} />} title="Privacy and Security" subtitle={`${blockedUsers.length > 0 ? `${blockedUsers.length} blocked · ` : ''}Read receipts, last seen`} onClick={() => setSubScreen('privacy')} />
           </div>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Preferences</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
-            <SettingsRow icon={<Bell size={17} />} title="Notifications" subtitle={`Sound: ${userSettings.notifications.sound ? 'On' : 'Off'} ? Previews: ${userSettings.notifications.preview ? 'On' : 'Off'}`} onClick={() => setSubScreen('notifications')} />
+            <SettingsRow icon={<Bell size={17} />} title="Notifications" subtitle={userSettings.notifications.dnd?.enabled ? `🌙 DND ${userSettings.notifications.dnd.from}–${userSettings.notifications.dnd.to}` : `Sound: ${userSettings.notifications.sound !== false ? 'On' : 'Off'} · Previews: ${userSettings.notifications.preview !== false ? 'On' : 'Off'}`} onClick={() => setSubScreen('notifications')} />
             <SettingsRow icon={<Palette size={17} />} title="Appearance" subtitle="Theme, font size, accent color ? coming soon" onClick={() => {}} />
           </div>
         </div>
@@ -4838,7 +5179,7 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -6136,7 +6477,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 <span className="text-[10px] text-zinc-500 mt-1 px-1 flex items-center gap-0.5">
                   {chat.isGroup && !isMe && msg.showAvatar && <span className="font-medium mr-2">{friends.find(f=>f.id===msg.senderId)?.name.split(' ')[0]}</span>}
                   {formatMessageTime(msg.timestamp)}
-                  {isMe && <ReceiptIndicator status={msg.status} />}
+                  {isMe && <ReceiptIndicator status={readReceipts ? msg.status : (msg.status === 'read' ? 'delivered' : msg.status)} />}
                 </span>
               </div>
             </div>
