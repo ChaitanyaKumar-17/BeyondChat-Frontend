@@ -111,7 +111,7 @@ const CURATED_GIF_CATEGORIES = [
     { id: 'g11', title: 'Sarcastic', url: 'https://media.giphy.com/media/AoBgxayGMHlIs/giphy.gif' },
     { id: 'g12', title: 'Awkward', url: 'https://media.giphy.com/media/l41lGvinEgARjB2HC/giphy.gif' },
   ]},
-  { id: 'love', name: '❤️ Love', gifs: [
+  { id: 'love', name: '❤ Love', gifs: [
     { id: 'g13', title: 'Heart', url: 'https://media.giphy.com/media/l4pTdcifPZLpDjL1e/giphy.gif' },
     { id: 'g14', title: 'Kiss', url: 'https://media.giphy.com/media/G6sJqVpD1U4jC/giphy.gif' },
     { id: 'g15', title: 'Hug', url: 'https://media.giphy.com/media/XpgOZHuDfIkoM/giphy.gif' },
@@ -139,71 +139,71 @@ const CURATED_GIF_CATEGORIES = [
 
 const STICKER_PACKS = [
   { id: 'emotions', name: 'Emotions', builtin: true, stickers: [
-    { id: 'e1', emoji: '🤔', label: 'Crying laughing' }, { id: 'e2', emoji: '🤔', label: 'Heart eyes' },
-    { id: 'e3', emoji: '🤔', label: 'Pleading' }, { id: 'e4', emoji: '🤔', label: 'Shocked' },
-    { id: 'e5', emoji: '🤔', label: 'Mind blown' }, { id: 'e6', emoji: '🤔', label: 'Cool' },
-    { id: 'e7', emoji: '🤔', label: 'Party' }, { id: 'e8', emoji: '🤔', label: 'Sleepy' },
-    { id: 'e9', emoji: '🤔', label: 'Hugging' }, { id: 'e10', emoji: '🤔', label: 'Frustrated' },
-    { id: 'e11', emoji: '🤔', label: 'ROFL' }, { id: 'e12', emoji: '🤔', label: 'Angel' },
+    { id: 'e1', emoji: '😂', label: 'Crying laughing' }, { id: 'e2', emoji: '😍', label: 'Heart eyes' },
+    { id: 'e3', emoji: '🥺', label: 'Pleading' }, { id: 'e4', emoji: '😱', label: 'Shocked' },
+    { id: 'e5', emoji: '🤯', label: 'Mind blown' }, { id: 'e6', emoji: '😎', label: 'Cool' },
+    { id: 'e7', emoji: '🥳', label: 'Party' }, { id: 'e8', emoji: '😴', label: 'Sleepy' },
+    { id: 'e9', emoji: '🤗', label: 'Hugging' }, { id: 'e10', emoji: '😤', label: 'Frustrated' },
+    { id: 'e11', emoji: '🤣', label: 'ROFL' }, { id: 'e12', emoji: '😇', label: 'Angel' },
   ]},
   { id: 'reactions', name: 'Reactions', builtin: true, stickers: [
-    { id: 'r1', emoji: '🤔', label: 'Thumbs up' }, { id: 'r2', emoji: '🤔', label: 'Clap' },
-    { id: 'r3', emoji: '🤔', label: 'Fire' }, { id: 'r4', emoji: '🤔', label: '100' },
-    { id: 'r5', emoji: '🤔', label: 'Heart' }, { id: 'r6', emoji: '🤔', label: 'Dead' },
-    { id: 'r7', emoji: '🤔', label: 'Pray' }, { id: 'r8', emoji: '✨', label: 'Sparkle' },
-    { id: 'r9', emoji: '🤔', label: 'Strong' }, { id: 'r10', emoji: '🤔', label: 'Handshake' },
-    { id: 'r11', emoji: '🤔', label: 'Eyes' }, { id: 'r12', emoji: '🤔', label: 'Salute' },
+    { id: 'r1', emoji: '👍', label: 'Thumbs up' }, { id: 'r2', emoji: '👏', label: 'Clap' },
+    { id: 'r3', emoji: '🔥', label: 'Fire' }, { id: 'r4', emoji: '?', label: '100' },
+    { id: 'r5', emoji: '?', label: 'Heart' }, { id: 'r6', emoji: '?', label: 'Dead' },
+    { id: 'r7', emoji: '?', label: 'Pray' }, { id: 'r8', emoji: '✨', label: 'Sparkle' },
+    { id: 'r9', emoji: '?', label: 'Strong' }, { id: 'r10', emoji: '?', label: 'Handshake' },
+    { id: 'r11', emoji: '?', label: 'Eyes' }, { id: 'r12', emoji: '?', label: 'Salute' },
   ]},
   { id: 'animals', name: 'Animals', builtin: true, stickers: [
-    { id: 'a1', emoji: '🤔', label: 'Dog' }, { id: 'a2', emoji: '🤔', label: 'Cat' },
-    { id: 'a3', emoji: '🤔', label: 'Bear' }, { id: 'a4', emoji: '🤔', label: 'Fox' },
-    { id: 'a5', emoji: '🤔', label: 'Panda' }, { id: 'a6', emoji: '🤔', label: 'Lion' },
-    { id: 'a7', emoji: '🤔', label: 'Frog' }, { id: 'a8', emoji: '🤔', label: 'Butterfly' },
-    { id: 'a9', emoji: '🤔', label: 'Penguin' }, { id: 'a10', emoji: '🤔', label: 'Unicorn' },
-    { id: 'a11', emoji: '🤔', label: 'Chick' }, { id: 'a12', emoji: '🤔', label: 'Octopus' },
+    { id: 'a1', emoji: '?', label: 'Dog' }, { id: 'a2', emoji: '?', label: 'Cat' },
+    { id: 'a3', emoji: '?', label: 'Bear' }, { id: 'a4', emoji: '?', label: 'Fox' },
+    { id: 'a5', emoji: '?', label: 'Panda' }, { id: 'a6', emoji: '?', label: 'Lion' },
+    { id: 'a7', emoji: '?', label: 'Frog' }, { id: 'a8', emoji: '?', label: 'Butterfly' },
+    { id: 'a9', emoji: '?', label: 'Penguin' }, { id: 'a10', emoji: '?', label: 'Unicorn' },
+    { id: 'a11', emoji: '?', label: 'Chick' }, { id: 'a12', emoji: '?', label: 'Octopus' },
   ]},
   { id: 'food', name: 'Food', builtin: true, stickers: [
-    { id: 'f1', emoji: '🤔', label: 'Pizza' }, { id: 'f2', emoji: '🤔', label: 'Burger' },
-    { id: 'f3', emoji: '☕', label: 'Coffee' }, { id: 'f4', emoji: '🤔', label: 'Cake' },
-    { id: 'f5', emoji: '🤔', label: 'Sushi' }, { id: 'f6', emoji: '🤔', label: 'Taco' },
-    { id: 'f7', emoji: '🤔', label: 'Donut' }, { id: 'f8', emoji: '🤔', label: 'Cupcake' },
-    { id: 'f9', emoji: '🤔', label: 'Popcorn' }, { id: 'f10', emoji: '🤔', label: 'Drink' },
-    { id: 'f11', emoji: '🤔', label: 'Ice cream' }, { id: 'f12', emoji: '🤔', label: 'Boba' },
+    { id: 'f1', emoji: '?', label: 'Pizza' }, { id: 'f2', emoji: '?', label: 'Burger' },
+    { id: 'f3', emoji: '☕', label: 'Coffee' }, { id: 'f4', emoji: '?', label: 'Cake' },
+    { id: 'f5', emoji: '?', label: 'Sushi' }, { id: 'f6', emoji: '?', label: 'Taco' },
+    { id: 'f7', emoji: '?', label: 'Donut' }, { id: 'f8', emoji: '?', label: 'Cupcake' },
+    { id: 'f9', emoji: '?', label: 'Popcorn' }, { id: 'f10', emoji: '?', label: 'Drink' },
+    { id: 'f11', emoji: '?', label: 'Ice cream' }, { id: 'f12', emoji: '?', label: 'Boba' },
   ]},
   { id: 'gestures', name: 'Gestures', builtin: true, stickers: [
-    { id: 'g1', emoji: '🤔', label: 'Peace' }, { id: 'g2', emoji: '🤔', label: 'Call me' },
-    { id: 'g3', emoji: '🤔', label: 'Heart hands' }, { id: 'g4', emoji: '🤔', label: 'Pinch' },
-    { id: 'g5', emoji: '🤔', label: 'Wave' }, { id: 'g6', emoji: '🤔', label: 'Peeking' },
-    { id: 'g7', emoji: '🤔', label: 'Shush' }, { id: 'g8', emoji: '🤔', label: 'Melting' },
-    { id: 'g9', emoji: '🤔', label: 'Dance' }, { id: 'g10', emoji: '🤔', label: 'Groove' },
-    { id: 'g11', emoji: '🤔', label: 'Celebration' }, { id: 'g12', emoji: '🤔', label: 'Shrug' },
+    { id: 'g1', emoji: '?', label: 'Peace' }, { id: 'g2', emoji: '?', label: 'Call me' },
+    { id: 'g3', emoji: '?', label: 'Heart hands' }, { id: 'g4', emoji: '?', label: 'Pinch' },
+    { id: 'g5', emoji: '?', label: 'Wave' }, { id: 'g6', emoji: '?', label: 'Peeking' },
+    { id: 'g7', emoji: '?', label: 'Shush' }, { id: 'g8', emoji: '?', label: 'Melting' },
+    { id: 'g9', emoji: '?', label: 'Dance' }, { id: 'g10', emoji: '?', label: 'Groove' },
+    { id: 'g11', emoji: '?', label: 'Celebration' }, { id: 'g12', emoji: '?', label: 'Shrug' },
   ]},
 ];
 
 // External sticker packs available in the store
 const STICKER_STORE_PACKS = [
-  { id: 'weather', name: 'Weather', preview: '☀️', description: 'Sun, rain, snow & more', stickers: [
-    { id: 'w1', emoji: '🤔', label: 'Sunny' }, { id: 'w2', emoji: '🌧️', label: 'Rainy' }, { id: 'w3', emoji: '🤔', label: 'Storm' }, { id: 'w4', emoji: '🤔', label: 'Snow' }, { id: 'w5', emoji: '🤔', label: 'Rainbow' }, { id: 'w6', emoji: '🌪️', label: 'Tornado' }, { id: 'w7', emoji: '🤔', label: 'Moon' }, { id: 'w8', emoji: '⭐', label: 'Star' }, { id: 'w9', emoji: '🤔', label: 'Wave' }, { id: 'w10', emoji: '🤔', label: 'Hot' }, { id: 'w11', emoji: '🤔', label: 'Cold' }, { id: 'w12', emoji: '🤔', label: 'Sunset' },
+  { id: 'weather', name: 'Weather', preview: '☀?', description: 'Sun, rain, snow & more', stickers: [
+    { id: 'w1', emoji: '?', label: 'Sunny' }, { id: 'w2', emoji: '🌧?', label: 'Rainy' }, { id: 'w3', emoji: '?', label: 'Storm' }, { id: 'w4', emoji: '?', label: 'Snow' }, { id: 'w5', emoji: '?', label: 'Rainbow' }, { id: 'w6', emoji: '🌪?', label: 'Tornado' }, { id: 'w7', emoji: '?', label: 'Moon' }, { id: 'w8', emoji: '?', label: 'Star' }, { id: 'w9', emoji: '?', label: 'Wave' }, { id: 'w10', emoji: '?', label: 'Hot' }, { id: 'w11', emoji: '?', label: 'Cold' }, { id: 'w12', emoji: '?', label: 'Sunset' },
   ]},
   { id: 'sports', name: 'Sports', preview: '⚽', description: 'Goals, hoops & touchdowns', stickers: [
-    { id: 's1', emoji: '⚽', label: 'Soccer' }, { id: 's2', emoji: '🤔', label: 'Basketball' }, { id: 's3', emoji: '🤔', label: 'Football' }, { id: 's4', emoji: '⚾', label: 'Baseball' }, { id: 's5', emoji: '🤔', label: 'Tennis' }, { id: 's6', emoji: '🤔', label: 'Volleyball' }, { id: 's7', emoji: '🤔', label: 'Boxing' }, { id: 's8', emoji: '🤔', label: 'Trophy' }, { id: 's9', emoji: '🤔', label: 'Gold medal' }, { id: 's10', emoji: '🤔', label: 'Bullseye' }, { id: 's11', emoji: '🏋️', label: 'Weights' }, { id: 's12', emoji: '🤔', label: 'Cycling' },
+    { id: 's1', emoji: '⚽', label: 'Soccer' }, { id: 's2', emoji: '?', label: 'Basketball' }, { id: 's3', emoji: '?', label: 'Football' }, { id: 's4', emoji: '⚾', label: 'Baseball' }, { id: 's5', emoji: '?', label: 'Tennis' }, { id: 's6', emoji: '?', label: 'Volleyball' }, { id: 's7', emoji: '?', label: 'Boxing' }, { id: 's8', emoji: '?', label: 'Trophy' }, { id: 's9', emoji: '?', label: 'Gold medal' }, { id: 's10', emoji: '?', label: 'Bullseye' }, { id: 's11', emoji: '??', label: 'Weights' }, { id: 's12', emoji: '?', label: 'Cycling' },
   ]},
-  { id: 'travel', name: 'Travel', preview: '🤔', description: 'Planes, places & adventure', stickers: [
-    { id: 't1', emoji: '🤔', label: 'Plane' }, { id: 't2', emoji: '🗺️', label: 'Map' }, { id: 't3', emoji: '🏖️', label: 'Beach' }, { id: 't4', emoji: '🤔', label: 'Mountain' }, { id: 't5', emoji: '🤔', label: 'Castle' }, { id: 't6', emoji: '🤔', label: 'Statue' }, { id: 't7', emoji: '🤔', label: 'Car' }, { id: 't8', emoji: '🤔', label: 'Train' }, { id: 't9', emoji: '⛵', label: 'Sailboat' }, { id: 't10', emoji: '🤔', label: 'Backpack' }, { id: 't11', emoji: '🤔', label: 'Camera' }, { id: 't12', emoji: '🤔', label: 'Luggage' },
+  { id: 'travel', name: 'Travel', preview: '?', description: 'Planes, places & adventure', stickers: [
+    { id: 't1', emoji: '?', label: 'Plane' }, { id: 't2', emoji: '🗺?', label: 'Map' }, { id: 't3', emoji: '??', label: 'Beach' }, { id: 't4', emoji: '?', label: 'Mountain' }, { id: 't5', emoji: '?', label: 'Castle' }, { id: 't6', emoji: '?', label: 'Statue' }, { id: 't7', emoji: '?', label: 'Car' }, { id: 't8', emoji: '?', label: 'Train' }, { id: 't9', emoji: '⛵', label: 'Sailboat' }, { id: 't10', emoji: '?', label: 'Backpack' }, { id: 't11', emoji: '?', label: 'Camera' }, { id: 't12', emoji: '?', label: 'Luggage' },
   ]},
-  { id: 'music', name: 'Music', preview: '🤔', description: 'Beats, notes & instruments', stickers: [
-    { id: 'm1', emoji: '🤔', label: 'Music' }, { id: 'm2', emoji: '🤔', label: 'Guitar' }, { id: 'm3', emoji: '🤔', label: 'Piano' }, { id: 'm4', emoji: '🤔', label: 'Drums' }, { id: 'm5', emoji: '🤔', label: 'Mic' }, { id: 'm6', emoji: '🤔', label: 'Headphones' }, { id: 'm7', emoji: '🤔', label: 'Trumpet' }, { id: 'm8', emoji: '🤔', label: 'Violin' }, { id: 'm9', emoji: '🤔', label: 'Notes' }, { id: 'm10', emoji: '🤔', label: 'Radio' }, { id: 'm11', emoji: '🤔', label: 'Speaker' }, { id: 'm12', emoji: '🤔', label: 'CD' },
+  { id: 'music', name: 'Music', preview: '?', description: 'Beats, notes & instruments', stickers: [
+    { id: 'm1', emoji: '?', label: 'Music' }, { id: 'm2', emoji: '?', label: 'Guitar' }, { id: 'm3', emoji: '?', label: 'Piano' }, { id: 'm4', emoji: '?', label: 'Drums' }, { id: 'm5', emoji: '?', label: 'Mic' }, { id: 'm6', emoji: '?', label: 'Headphones' }, { id: 'm7', emoji: '?', label: 'Trumpet' }, { id: 'm8', emoji: '?', label: 'Violin' }, { id: 'm9', emoji: '?', label: 'Notes' }, { id: 'm10', emoji: '?', label: 'Radio' }, { id: 'm11', emoji: '?', label: 'Speaker' }, { id: 'm12', emoji: '?', label: 'CD' },
   ]},
-  { id: 'tech', name: 'Tech', preview: '🤔', description: 'Gadgets, code & innovation', stickers: [
-    { id: 'tc1', emoji: '🤔', label: 'Laptop' }, { id: 'tc2', emoji: '🤔', label: 'Phone' }, { id: 'tc3', emoji: '🤔', label: 'Robot' }, { id: 'tc4', emoji: '🤔', label: 'Gaming' }, { id: 'tc5', emoji: '🤔', label: 'Keyboard' }, { id: 'tc6', emoji: '🖥️', label: 'Desktop' }, { id: 'tc7', emoji: '🤔', label: 'Satellite' }, { id: 'tc8', emoji: '🤔', label: 'Battery' }, { id: 'tc9', emoji: '🤔', label: 'Idea' }, { id: 'tc10', emoji: '⚡', label: 'Lightning' }, { id: 'tc11', emoji: '🤔', label: 'UFO' }, { id: 'tc12', emoji: '🤔', label: 'DNA' },
+  { id: 'tech', name: 'Tech', preview: '?', description: 'Gadgets, code & innovation', stickers: [
+    { id: 'tc1', emoji: '?', label: 'Laptop' }, { id: 'tc2', emoji: '?', label: 'Phone' }, { id: 'tc3', emoji: '?', label: 'Robot' }, { id: 'tc4', emoji: '?', label: 'Gaming' }, { id: 'tc5', emoji: '?', label: 'Keyboard' }, { id: 'tc6', emoji: '🖥?', label: 'Desktop' }, { id: 'tc7', emoji: '?', label: 'Satellite' }, { id: 'tc8', emoji: '?', label: 'Battery' }, { id: 'tc9', emoji: '?', label: 'Idea' }, { id: 'tc10', emoji: '⚡', label: 'Lightning' }, { id: 'tc11', emoji: '?', label: 'UFO' }, { id: 'tc12', emoji: '?', label: 'DNA' },
   ]},
-  { id: 'space', name: 'Space', preview: '🤔', description: 'Rockets, planets & galaxies', stickers: [
-    { id: 'sp1', emoji: '🤔', label: 'Rocket' }, { id: 'sp2', emoji: '🤔', label: 'Earth' }, { id: 'sp3', emoji: '🤔', label: 'Moon' }, { id: 'sp4', emoji: '⭐', label: 'Star' }, { id: 'sp5', emoji: '🤔', label: 'Comet' }, { id: 'sp6', emoji: '🤔', label: 'Saturn' }, { id: 'sp7', emoji: '🤔', label: 'Alien' }, { id: 'sp8', emoji: '🛸', label: 'Satellite' }, { id: 'sp9', emoji: '🤔', label: 'Galaxy' }, { id: 'sp10', emoji: '🤔', label: 'Telescope' }, { id: 'sp11', emoji: '👨‍🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '🤔', label: 'Shooting star' },
+  { id: 'space', name: 'Space', preview: '?', description: 'Rockets, planets & galaxies', stickers: [
+    { id: 'sp1', emoji: '?', label: 'Rocket' }, { id: 'sp2', emoji: '?', label: 'Earth' }, { id: 'sp3', emoji: '?', label: 'Moon' }, { id: 'sp4', emoji: '?', label: 'Star' }, { id: 'sp5', emoji: '?', label: 'Comet' }, { id: 'sp6', emoji: '?', label: 'Saturn' }, { id: 'sp7', emoji: '?', label: 'Alien' }, { id: 'sp8', emoji: '🛸', label: 'Satellite' }, { id: 'sp9', emoji: '?', label: 'Galaxy' }, { id: 'sp10', emoji: '?', label: 'Telescope' }, { id: 'sp11', emoji: '👨?🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '?', label: 'Shooting star' },
   ]},
 ];
 
 // ========================================================================
-// ON-DEVICE AI ENGINE   All processing happens client-side
+// ON-DEVICE AI ENGINE ? All processing happens client-side
 // Preserves E2E encryption: no message data leaves the device
 // ========================================================================
 
@@ -223,7 +223,7 @@ const generateMagicReplies = (messages, currentUserId) => {
     } else if (text.includes('do you want') || text.includes('would you like') || text.includes('wanna')) {
       replies.push('Sure, I\'d love to! ?', 'Sounds great!', 'Maybe later?', 'Let me think about it');
     } else if (text.includes('can you') || text.includes('could you')) {
-      replies.push('Of course!', 'Sure thing! 👍', 'I\'ll get right on it', 'Give me a moment');
+      replies.push('Of course!', 'Sure thing! ?', 'I\'ll get right on it', 'Give me a moment');
     } else if (text.includes('when') || text.includes('what time')) {
       replies.push('How about tomorrow?', 'Let me check my schedule', 'Anytime works for me!', 'I\'ll let you know soon');
     } else {
@@ -240,7 +240,7 @@ const generateMagicReplies = (messages, currentUserId) => {
   }
   // Emotional / excitement
   else if (/\b(amazing|awesome|incredible|fantastic|love|great|wonderful|excited|beautiful)\b/i.test(text) || /!{2,}/.test(text) || /[\u{1F600}-\u{1F64F}\u{1F389}\u{1F38A}\u{1F525}\u{2728}]/u.test(text)) {
-    replies.push('So excited! 🎉', 'That\'s amazing! 🤩', 'I love it! 😍', 'Right?! So good! 🔥');
+    replies.push('So excited! 🎉', 'That\'s amazing! 🤩', 'I love it! ♥', 'Right?! So good! 👌');
   }
   // Invitation / plans
   else if (/\b(meet|hang|plan|join|come|go out|dinner|lunch|party|movie|event|trip)\b/i.test(text)) {
@@ -248,11 +248,11 @@ const generateMagicReplies = (messages, currentUserId) => {
   }
   // Compliment
   else if (/\b(nice|looks? good|well done|congrats|proud|impressed|talented)\b/i.test(text)) {
-    replies.push('Thanks so much! 🙏', 'That means a lot! 💙', 'You\'re too kind! 😊', 'Appreciate it!');
+    replies.push('Thanks so much! ?', 'That means a lot! 💙', 'You\'re too kind! 😊', 'Appreciate it!');
   }
   // Apology
   else if (/\b(sorry|apologize|my bad|forgive|mistake)\b/i.test(text)) {
-    replies.push('No worries at all! 😊', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! 👍');
+    replies.push('No worries at all! 😊', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! ?');
   }
   // Help / request
   else if (/\b(help|need|urgent|asap|please|favor)\b/i.test(text)) {
@@ -270,17 +270,17 @@ const generateMagicReplies = (messages, currentUserId) => {
   else {
     const wordCount = text.split(/\s+/).length;
     if (wordCount <= 3) {
-      replies.push('Tell me more! 👀', 'Interesting!', '🤔', 'Got it!');
+      replies.push('Tell me more! 👀', 'Interesting!', '?', 'Got it!');
     } else if (wordCount <= 10) {
-      replies.push('That makes sense!', 'Totally agree 👍', 'Nice! ✨', 'For sure!');
+      replies.push('That makes sense!', 'Totally agree ?', 'Nice! ✨', 'For sure!');
     } else {
-      replies.push('Well said! 👏', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
+      replies.push('Well said! ?', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
     }
   }
   return replies.slice(0, 4);
 };
 
-// AI Writing Assistant   text transformation tools
+// AI Writing Assistant ? text transformation tools
 const AI_WRITING_TOOLS = [
   { id: 'improve', label: 'Improve', icon: 'sparkles', description: 'Enhance clarity & style' },
   { id: 'shorten', label: 'Shorten', icon: 'scissors', description: 'Make it concise' },
@@ -409,7 +409,7 @@ const applyAiWritingTool = (text, toolId) => {
 };
 
 // ========================================================================
-// ON-DEVICE PROFANITY FILTER   Client-side content moderation
+// ON-DEVICE PROFANITY FILTER ? Client-side content moderation
 // No data leaves the device. Supports leet-speak normalization.
 // ========================================================================
 const PROFANITY_LIST = [
@@ -997,8 +997,8 @@ const initialChats = [
   }
 ];
 
-// ─── Notification tone generator (WAV in memory → Audio element) ─────────────
-// Generates real PCM audio data — bypasses all AudioContext autoplay restrictions.
+// ???? Notification tone generator (WAV in memory → Audio element) ??????????????
+// Generates real PCM audio data ? bypasses all AudioContext autoplay restrictions.
 const playNotificationTone = (tone = 'ping') => {
   try {
     const SR = 44100; // sample rate
@@ -1049,7 +1049,7 @@ const playNotificationTone = (tone = 'ping') => {
 };
 
 
-// ─── DND window check ────────────────────────────────────────────────────────
+// ???? DND window check ?????????????????????????????????????????????????????????
 const isInDndWindow = (dnd) => {
   if (!dnd?.enabled) return false;
   const now = new Date();
@@ -1124,7 +1124,7 @@ export default function App() {
     setUserSettings(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
   }, []);
 
-  // ─ Apply appearance — CSS vars + global font scaling (no layout breakage) ─
+  // ?? Apply appearance ? CSS vars + global font scaling (no layout breakage) ??
   useEffect(() => {
     const a = userSettings.appearance;
     const themes = {
@@ -1133,7 +1133,7 @@ export default function App() {
       midnight: { bg: '#0d0d1a', sec: '#12122a', panel: '#0f0f20', border: 'rgba(100,100,255,0.08)' },
       slate:    { bg: '#0c0e12', sec: '#141720', panel: '#111318', border: 'rgba(255,255,255,0.06)' },
     };
-    // Font scale multiplier — ONLY font-size is overridden, NOT padding/margin/width/icons.
+    // Font scale multiplier ? ONLY font-size is overridden, NOT padding/margin/width/icons.
     // This means layout never breaks. Text scales everywhere (chat, settings, calls, etc.).
     const fontScale = { small: 0.875, medium: 1.0, large: 1.125 }[a?.fontSize] || 1.0;
     const t   = themes[a?.theme] || themes.dark;
@@ -1161,7 +1161,7 @@ export default function App() {
       document.head.appendChild(el);
     }
     el.textContent = `
-      /* ── Background overrides ── */
+      /* ??? Background overrides ??? */
       [class*="bg-[#0a0a0c]"], [class*="bg-[#050507]"],
       [class*="bg-[#0d0d1a]"], [class*="bg-[#0c0e12]"] { background-color: ${t.bg}    !important; }
       [class*="bg-[#121214]"], [class*="bg-[#12122a]"],
@@ -1173,7 +1173,7 @@ export default function App() {
       [class*="bg-[#121214]/80"] { background-color: ${t.sec}cc   !important; }
       [class*="bg-[#0a0a0c]/80"] { background-color: ${t.bg}cc    !important; }
 
-      /* ── Global font scaling — all text classes, zero layout impact ──
+      /* ??? Global font scaling ? all text classes, zero layout impact ???
          Only font-size is overridden. Padding/margin/gap/icons (also rem) are untouched.
          Covers: chat, chat list, settings, calls, communities, requests, modals.
       */
@@ -1271,7 +1271,7 @@ export default function App() {
     if (!opts.force && notifs.inApp === false) return;
     // Respect DND window
     if (!opts.force && isInDndWindow(notifs.dnd)) return;
-    // Show toast — optionally hide message content
+    // Show toast ? optionally hide message content
     const displayMsg = (notifs.preview === false && opts.isMessage)
       ? 'New message'
       : msg;
@@ -1387,7 +1387,7 @@ export default function App() {
   }, []);
 
   const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null, meta = null) => {
-    // On-device profanity filter   block messages containing profane language
+    // On-device profanity filter ? block messages containing profane language
     if (text && containsProfanity(text) && !meta?.poll) return 'profanity';
     const group = groups.find(g => g.id === userId);
     const newMessage = customPayload || {
@@ -1534,7 +1534,7 @@ export default function App() {
   const handleCreateGroup = (name, memberIds) => {
     // Profanity filter for group name
     if (containsProfanity(name)) {
-      showGlobalToast('⚠️ Group name contains inappropriate language. Please choose a different name.');
+      showGlobalToast('⚠? Group name contains inappropriate language. Please choose a different name.');
       return;
     }
     if (memberIds.length + 1 > 1024) {
@@ -1560,7 +1560,7 @@ export default function App() {
   const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
     // Profanity filter for group name & description
     if (containsProfanity(newName) || containsProfanity(newDesc)) {
-      showGlobalToast('⚠️ Inappropriate language detected. Please revise.');
+      showGlobalToast('⚠? Inappropriate language detected. Please revise.');
       return;
     }
     const group = groups.find(g => g.id === groupId);
@@ -2642,7 +2642,7 @@ function CreateStoryModal({ onClose, onPost, currentUser }) {
           </button>
         </div>
 
-          {/* Profanity warning removed from here   now at the bottom near Post Story */}
+          {/* Profanity warning removed from here ? now at the bottom near Post Story */}
 
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <textarea 
@@ -2659,7 +2659,7 @@ function CreateStoryModal({ onClose, onPost, currentUser }) {
           {storyProfanity && (
             <div style={{ animation: 'slideUp 0.2s ease-out' }} className="inline-flex items-center gap-2 px-4 py-2 bg-black/80 backdrop-blur-xl border border-red-500/25 rounded-full whitespace-nowrap self-center">
               <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
-              <span className="text-[12px] text-red-300/90 font-medium">Inappropriate language   please revise</span>
+              <span className="text-[12px] text-red-300/90 font-medium">Inappropriate language ? please revise</span>
             </div>
           )}
           <button 
@@ -3182,7 +3182,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
                                 <p className="text-xs text-zinc-500">{user.handle}</p>
                                 {mutuals.length > 0 && (
                                   <span className="flex items-center gap-1">
-                                    <span className="text-[10px] text-zinc-600"> </span>
+                                    <span className="text-[10px] text-zinc-600">?</span>
                                     <span className="flex -space-x-1.5">
                                       {mutuals.slice(0, 3).map(mf => (
                                         <img key={mf.id} src={mf.avatar} alt={mf.name} className="w-4 h-4 rounded-full border border-[#0a0a0c]" />
@@ -3603,7 +3603,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
       // Profanity filter for story replies
       if (containsProfanity(replyText)) {
         setReplyText('');
-        setToastMessage('🚫 Message blocked — inappropriate language');
+        setToastMessage('🚫 Message blocked ? inappropriate language');
         setShowToast(true);
         setTimeout(() => setShowToast(false), 4500);
         return;
@@ -3677,7 +3677,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
             style={{ animation: 'slideUp 0.3s ease-out' }}
           >
             {toastMessage.includes('blocked') && <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />}
-            <span className={toastMessage.includes('blocked') ? 'text-red-300/90' : 'text-white/90'}>{toastMessage.includes('blocked') ? 'Message blocked   inappropriate language' : 'Message delivered'}</span>
+            <span className={toastMessage.includes('blocked') ? 'text-red-300/90' : 'text-white/90'}>{toastMessage.includes('blocked') ? 'Message blocked ? inappropriate language' : 'Message delivered'}</span>
           </div>
         )}
 
@@ -4040,7 +4040,7 @@ function VoiceReviewPlayer({ url, duration, onCancel, onSend }) {
 }
 
 // -----------------------------------------------------------
-// 🗳️ CREATE POLL MODAL
+// 🗳? CREATE POLL MODAL
 // -----------------------------------------------------------
 function CreatePollModal({ onClose, onCreatePoll }) {
   const [question, setQuestion] = useState('');
@@ -4617,9 +4617,9 @@ function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditor
 
 
 
-// ─────────────────────────────────────────────────────────────
+// ??????????????????????????????????????????????????????????????
 // Shared settings UI primitives (used by StorageScreen + SettingsPage)
-// ─────────────────────────────────────────────────────────────
+// ??????????????????????????????????????????????????????????????
 function SubHeader({ title, onBack }) {
   return (
     <header className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.05] flex-shrink-0 bg-[#0f0f13]">
@@ -4655,9 +4655,28 @@ function SettingsRow({ icon, title, subtitle, right, onClick, danger }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+function FAQItem({ question, answer }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-white/[0.03] transition-colors"
+      >
+        <span className="text-sm font-medium text-white pr-4">{question}</span>
+        <ChevronRight size={15} className={`text-zinc-500 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-90' : ''}`} />
+      </button>
+      <div className={`overflow-hidden transition-all duration-200 ${open ? 'max-h-40' : 'max-h-0'}`}>
+        <p className="px-4 pb-4 text-sm text-zinc-400 leading-relaxed">{answer}</p>
+      </div>
+    </div>
+  );
+}
+
+// ??????????????????????????????????????????????????????????????
+
 // 📦 STORAGE SCREEN COMPONENT
-// ─────────────────────────────────────────────────────────────
+// ??????????????????????????????????????????????????????????????
 function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
   const canvasRef = useRef(null);
 
@@ -4850,14 +4869,38 @@ function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
   );
 }
 
-// ⚙️ SETTINGS PAGE COMPONENT
+// ⚙? SETTINGS PAGE COMPONENT
 // -----------------------------------------------------------
 function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock, chatDetails = [], setChatDetails, onToast }) {
 
   const [subScreen, setSubScreen] = useState(null);
+  const [isEntering, setIsEntering] = useState(false); // new screen slides in
+  const [isLeaving,  setIsLeaving]  = useState(false); // current screen slides out
+
+  // Animated navigation — both enter and exit transitions
+  const navigateTo = useCallback((screen) => {
+    if (screen === subScreen) return;
+
+    if (screen) {
+      // Forward: mount new screen at offset, then animate it in via double-rAF
+      setSubScreen(screen);
+      setIsEntering(true);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => setIsEntering(false))
+      );
+    } else {
+      // Back: animate current screen out, then unmount
+      setIsLeaving(true);
+      setTimeout(() => {
+        setSubScreen(null);
+        setIsLeaving(false);
+      }, 180);
+    }
+  }, [subScreen]);
+
   const [profileDraft, setProfileDraft] = useState({ ...currentUser });
   const [profileError, setProfileError] = useState('');
-  const [customWord, setCustomWord] = useState('');
+  const [customWord, setCustomWord]      = useState('');
   const fileInputRef = useRef(null);
 
   const STATUS_OPTIONS = [
@@ -4892,7 +4935,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     }
     setProfileError('');
     onUpdateUser({ ...profileDraft, name, handle, about });
-    setSubScreen(null);
+    navigateTo(null);
   };
 
   const addCustomWord = () => {
@@ -4920,8 +4963,10 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
   // Profile sub-screen
 
   if (subScreen === 'profile') return (
-    <div className="flex flex-col h-full bg-[#0f0f13]">
-      <SubHeader title="Edit Profile" onBack={() => { setProfileDraft({ ...currentUser }); setProfileError(''); setSubScreen(null); }} />
+    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="Edit Profile" onBack={() => { setProfileDraft({ ...currentUser }); setProfileError(''); navigateTo(null); }} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-6 space-y-6">
         <div className="flex flex-col items-center gap-3">
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
@@ -4992,8 +5037,10 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
   // ─ Privacy & Security sub-screen ─
   if (subScreen === 'privacy') return (
-    <div className="flex flex-col h-full bg-[#0f0f13]">
-      <SubHeader title="Privacy & Security" onBack={() => setSubScreen(null)} />
+    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="Privacy & Security" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
 
         {/* Visibility */}
@@ -5102,11 +5149,20 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
             </div>
           )}
         </div>
+        <button
+          onClick={() => {
+            Object.entries(DEFAULT_SETTINGS.privacy).forEach(([k, v]) => onUpdateSetting('privacy', k, v));
+            onToast?.('Privacy settings reset to defaults.');
+          }}
+          className="w-full py-3 rounded-2xl border border-white/[0.06] text-sm text-zinc-500 hover:text-zinc-300 hover:border-white/10 transition-colors"
+        >
+          Reset to Defaults
+        </button>
       </div>
     </div>
   );
 
-  // ─ Storage sub-screen ─
+  // ?? Storage sub-screen ??
   if (subScreen === 'storage') return (
     <StorageScreen
       chatDetails={chatDetails}
@@ -5115,14 +5171,16 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
         onToast?.('Chat history cleared.');
       }}
       onClearCache={() => onToast?.('Cache cleared.')}
-      onBack={() => setSubScreen(null)}
+      onBack={() => navigateTo(null)}
     />
   );
 
   // Content Filters sub-screen
   if (subScreen === 'safety') return (
-    <div className="flex flex-col h-full bg-[#0f0f13]">
-      <SubHeader title="Content Filters" onBack={() => setSubScreen(null)} />
+    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="Content Filters" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Filter Mode</p>
@@ -5183,8 +5241,10 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
   // Notifications sub-screen
   if (subScreen === 'notifications') return (
-    <div className="flex flex-col h-full bg-[#0f0f13]">
-      <SubHeader title="Notifications" onBack={() => setSubScreen(null)} />
+    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="Notifications" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
 
         {/* General toggles */}
@@ -5320,7 +5380,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
                 <div className="px-5 py-3 bg-indigo-500/[0.06] flex items-center gap-2">
                   <Moon size={13} className="text-indigo-400 flex-shrink-0" />
                   <p className="text-xs text-indigo-300">
-                    DND active {userSettings.notifications.dnd.from} – {userSettings.notifications.dnd.to}.
+                    DND active {userSettings.notifications.dnd.from} - {userSettings.notifications.dnd.to}.
                     Notifications will be silenced during these hours.
                   </p>
                 </div>
@@ -5328,14 +5388,25 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
             )}
           </div>
         </div>
+        <button
+          onClick={() => {
+            Object.entries(DEFAULT_SETTINGS.notifications).forEach(([k, v]) => onUpdateSetting('notifications', k, v));
+            onToast?.('Notification settings reset to defaults.');
+          }}
+          className="w-full py-3 rounded-2xl border border-white/[0.06] text-sm text-zinc-500 hover:text-zinc-300 hover:border-white/10 transition-colors"
+        >
+          Reset to Defaults
+        </button>
       </div>
     </div>
   );
 
-  // ─ Appearance sub-screen ─
+  // ?? Appearance sub-screen ??
   if (subScreen === 'appearance') return (
-    <div className="flex flex-col h-full bg-[var(--app-bg-panel,#0f0f13)]">
-      <SubHeader title="Appearance" onBack={() => setSubScreen(null)} />
+    <div className={`flex flex-col h-full bg-[var(--app-bg-panel,#0f0f13)] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="Appearance" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
 
         {/* Theme */}
@@ -5421,9 +5492,9 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Text Size</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
             {[
-              { value: 'small',  label: 'Small',  sample: 'text-[13px]', desc: 'Compact — fits more on screen' },
-              { value: 'medium', label: 'Medium', sample: 'text-[15px]', desc: 'Default — comfortable reading' },
-              { value: 'large',  label: 'Large',  sample: 'text-[17px]', desc: 'Larger — easier on the eyes' },
+              { value: 'small',  label: 'Small',  sample: 'text-[13px]', desc: 'Compact ? fits more on screen' },
+              { value: 'medium', label: 'Medium', sample: 'text-[15px]', desc: 'Default ? comfortable reading' },
+              { value: 'large',  label: 'Large',  sample: 'text-[17px]', desc: 'Larger ? easier on the eyes' },
             ].map(fs => (
               <button key={fs.value} onClick={() => onUpdateSetting('appearance', 'fontSize', fs.value)}
                 className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors">
@@ -5488,14 +5559,26 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           </div>
         </div>
 
+          <button
+            onClick={() => {
+              Object.entries(DEFAULT_SETTINGS.appearance).forEach(([k, v]) => onUpdateSetting('appearance', k, v));
+              onToast?.('Appearance reset to defaults.');
+            }}
+            className="w-full py-3 rounded-2xl border border-white/[0.06] text-sm text-zinc-500 hover:text-zinc-300 hover:border-white/10 transition-colors"
+          >
+            Reset to Defaults
+          </button>
+
       </div>
     </div>
   );
 
   // AI sub-screen
   if (subScreen === 'ai') return (
-    <div className="flex flex-col h-full bg-[#0f0f13]">
-      <SubHeader title="AI and Smart Replies" onBack={() => setSubScreen(null)} />
+    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="AI and Smart Replies" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-4">
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Smart Suggestions</p>
@@ -5514,10 +5597,79 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     </div>
   );
 
-  // Main menu
+  // ?? Help & About sub-screen ??
+  if (subScreen === 'help') return (
+    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
+      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
+      <SubHeader title="Help & About" onBack={() => navigateTo(null)} />
+      <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
+
+        {/* App identity card */}
+        <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] p-6 flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/40">
+            <span className="text-2xl">💬</span>
+          </div>
+          <div className="text-center">
+            <h2 className="text-base font-bold text-white">BeyondChat</h2>
+            <p className="text-xs text-zinc-500 mt-0.5">Version 1.0.0 - Build 2025.07</p>
+          </div>
+          <div className="flex gap-2 mt-1">
+            {['Privacy Policy', 'Terms of Service'].map(label => (
+              <button key={label} className="px-3 py-1.5 text-[11px] font-medium text-zinc-400 border border-white/[0.08] rounded-full hover:bg-white/[0.05] transition-colors">
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ accordion */}
+        {[{
+          q: 'How do I start a new chat?',
+          a: 'Tap the compose icon in the top-right of the Home screen, then search for a contact to start a conversation.'
+        }, {
+          q: 'Can I delete a message after sending?',
+          a: 'Yes ? long-press any message you sent, then tap "Delete". You can delete for yourself or for everyone in the chat.'
+        }, {
+          q: 'What does disappearing messages do?',
+          a: 'Disappearing messages automatically delete themselves after the configured timer. Once the session ends or the timer expires, messages are permanently removed.'
+        }, {
+          q: 'How do I block someone?',
+          a: 'Open the chat with that person, tap their name at the top to open their profile, then tap "Block". Blocked users cannot send you messages or see your status.'
+        }, {
+          q: 'What is Do Not Disturb?',
+          a: 'DND silences all notification sounds during a configured time window (e.g. 22:00-07:00). Notifications are still delivered but play no sound.'
+        }].map(({ q, a }, i) => <FAQItem key={i} question={q} answer={a} />)}
+
+        {/* Feedback */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Send Feedback</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] p-4 space-y-3">
+            <textarea
+              rows={3}
+              placeholder="Tell us what you think or report an issue…"
+              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 resize-none outline-none focus:border-indigo-500/50 transition-colors"
+            />
+            <button
+              onClick={() => onToast?.('Feedback submitted ? thank you! ?')}
+              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors"
+            >
+              Submit Feedback
+            </button>
+          </div>
+        </div>
+
+        <p className="text-center text-[11px] text-zinc-700 pb-2">Made with ?? · BeyondChat © 2025</p>
+      </div>
+    </div>
+  );
+
+  // ?? Main settings menu ??
   const statusOption = STATUS_OPTIONS.find(s => s.value === currentUser.status) || STATUS_OPTIONS[0];
   return (
-    <div className="flex flex-col h-full bg-[#0f0f13] overflow-y-auto [&::-webkit-scrollbar]:hidden">
+    <div className={`flex flex-col h-full bg-[#0f0f13] overflow-y-auto [&::-webkit-scrollbar]:hidden transition-all duration-200 ease-out ${
+      isLeaving ? 'translate-x-6 opacity-0' : 'translate-x-0 opacity-100'
+    }`}>
       <div className="px-5 pt-8 pb-6 border-b border-white/[0.05]">
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0">
@@ -5529,7 +5681,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
             <p className="text-sm text-zinc-400 truncate">{currentUser.handle}</p>
             <p className="text-xs text-zinc-600 mt-0.5 truncate">{currentUser.about || 'No bio set'}</p>
           </div>
-          <button onClick={() => { setProfileDraft({ ...currentUser }); setSubScreen('profile'); }}
+          <button onClick={() => { setProfileDraft({ ...currentUser }); navigateTo('profile'); }}
             className="p-2.5 bg-white/[0.07] hover:bg-white/[0.12] text-zinc-300 rounded-full transition-colors flex-shrink-0" title="Edit Profile">
             <Pencil size={16} />
           </button>
@@ -5540,26 +5692,26 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Account</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
-            <SettingsRow icon={<UserCheck size={17} />} title="Profile and Identity" subtitle="Name, photo, handle, status" onClick={() => { setProfileDraft({ ...currentUser }); setSubScreen('profile'); }} />
-            <SettingsRow icon={<Shield size={17} />} title="Privacy and Security" subtitle={`${blockedUsers.length > 0 ? `${blockedUsers.length} blocked · ` : ''}Read receipts, last seen`} onClick={() => setSubScreen('privacy')} />
+            <SettingsRow icon={<UserCheck size={17} />} title="Profile and Identity" subtitle="Name, photo, handle, status" onClick={() => { setProfileDraft({ ...currentUser }); navigateTo('profile'); }} />
+            <SettingsRow icon={<Shield size={17} />} title="Privacy and Security" subtitle={`${blockedUsers.length > 0 ? `${blockedUsers.length} blocked · ` : ''}Read receipts, last seen`} onClick={() => navigateTo('privacy')} />
           </div>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Preferences</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
-            <SettingsRow icon={<Bell size={17} />} title="Notifications" subtitle={userSettings.notifications.dnd?.enabled ? `🌙 DND ${userSettings.notifications.dnd.from}–${userSettings.notifications.dnd.to}` : `Sound: ${userSettings.notifications.sound !== false ? 'On' : 'Off'} · Previews: ${userSettings.notifications.preview !== false ? 'On' : 'Off'}`} onClick={() => setSubScreen('notifications')} />
+            <SettingsRow icon={<Bell size={17} />} title="Notifications" subtitle={userSettings.notifications.dnd?.enabled ? `🌙 DND ${userSettings.notifications.dnd.from}-${userSettings.notifications.dnd.to}` : `Sound: ${userSettings.notifications.sound !== false ? 'On' : 'Off'} · Previews: ${userSettings.notifications.preview !== false ? 'On' : 'Off'}`} onClick={() => navigateTo('notifications')} />
             <SettingsRow icon={<Palette size={17} />} title="Appearance"
               subtitle={`${(userSettings.appearance.theme || 'dark')[0].toUpperCase() + (userSettings.appearance.theme || 'dark').slice(1)} theme · ${userSettings.appearance.fontSize || 'Medium'} text`}
-              onClick={() => setSubScreen('appearance')} />
+              onClick={() => navigateTo('appearance')} />
           </div>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Safety and AI</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
-            <SettingsRow icon={<ShieldCheck size={17} />} title="Content Filters" subtitle={`Profanity mode: ${userSettings.safety.profanityFilter}`} onClick={() => setSubScreen('safety')} />
-            <SettingsRow icon={<Sparkles size={17} />} title="AI and Smart Replies" subtitle={`Smart replies ${userSettings.ai.smartReplies ? 'on' : 'off'}`} onClick={() => setSubScreen('ai')} />
+            <SettingsRow icon={<ShieldCheck size={17} />} title="Content Filters" subtitle={`Profanity mode: ${userSettings.safety.profanityFilter}`} onClick={() => navigateTo('safety')} />
+            <SettingsRow icon={<Sparkles size={17} />} title="AI and Smart Replies" subtitle={`Smart replies ${userSettings.ai.smartReplies ? 'on' : 'off'}`} onClick={() => navigateTo('ai')} />
           </div>
         </div>
 
@@ -5570,7 +5722,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
               icon={<Database size={17} />}
               title="Storage"
               subtitle={`${chatDetails.reduce((a, c) => a + c.messages.length, 0)} messages stored`}
-              onClick={() => setSubScreen('storage')}
+              onClick={() => navigateTo('storage')}
             />
           </div>
         </div>
@@ -5578,7 +5730,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">About</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
-            <SettingsRow icon={<HelpCircle size={17} />} title="Help and Support" subtitle="FAQ, send feedback" onClick={() => {}} />
+            <SettingsRow icon={<HelpCircle size={17} />} title="Help and Support" subtitle="FAQ, send feedback, about" onClick={() => navigateTo('help')} />
           </div>
         </div>
 
@@ -5804,7 +5956,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         // Un-vote
         msgVotes[optionId] = currentVotes.filter(v => v !== currentUser.id);
       } else {
-        // Vote   if single select, clear all other votes first
+        // Vote ? if single select, clear all other votes first
         if (!isMulti) {
           Object.keys(msgVotes).forEach(key => {
             msgVotes[key] = (msgVotes[key] || []).filter(v => v !== currentUser.id);
@@ -5896,7 +6048,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const inputRef = useRef(null);
   const messages = chat.messages || [];
 
-  // Magic Reply   on-device contextual suggestions
+  // Magic Reply ? on-device contextual suggestions
   const magicReplies = useMemo(() => {
     return generateMagicReplies(messages, currentUser.id);
   }, [messages, currentUser.id]);
@@ -6746,7 +6898,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                           );
                         }
 
-                        // View Once: unopened   click opens fullscreen viewer
+                        // View Once: unopened ? click opens fullscreen viewer
                         if (isViewOnce && !hasOpened) {
                           return (
                             <div 
@@ -6851,7 +7003,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                                       ) : (
                                         <span className="text-[15px] font-bold text-white block leading-snug">{poll.question}</span>
                                       )}
-                                      <span className="text-[10px] text-zinc-500 mt-0.5 block">{poll.allowMultiple ? 'Select multiple' : 'Select one'}{poll.isAnonymous ? '   Anonymous' : ''}</span>
+                                      <span className="text-[10px] text-zinc-500 mt-0.5 block">{poll.allowMultiple ? 'Select multiple' : 'Select one'}{poll.isAnonymous ? ' ? Anonymous' : ''}</span>
                                     </div>
                                   </div>
                                   {isMine && !poll.closed && !isEditing && (
@@ -7170,7 +7322,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                  </>
                )}
 
-               {/* GIF Tab   curated categories */}
+               {/* GIF Tab ? curated categories */}
                {pickerTab === 'gif' && (
                  <>
                    <div className="p-2.5 border-b border-white/5">
@@ -7246,7 +7398,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                                <span className="text-2xl shrink-0">{pack.preview}</span>
                                <div className="flex-1 min-w-0">
                                  <p className="text-xs text-white font-medium">{pack.name}</p>
-                                 <p className="text-[10px] text-zinc-500">{pack.description}   {pack.stickers.length} stickers</p>
+                                 <p className="text-[10px] text-zinc-500">{pack.description} ? {pack.stickers.length} stickers</p>
                                </div>
                                <button
                                  type="button"
@@ -7352,7 +7504,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         <X size={10} />
                       </button>
                       <p className="text-[8px] text-zinc-500 truncate w-20 mt-1 text-center">{af.name}</p>
-                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? '👁️ View once' : formatFileSize(af.size)}</p>
+                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? '?? View once' : formatFileSize(af.size)}</p>
                     </div>
                   );
                 })}
@@ -7405,7 +7557,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-red-400">Message blocked</p>
-                    <p className="text-[10px] text-red-400/70">Inappropriate language detected   please revise your message</p>
+                    <p className="text-[10px] text-red-400/70">Inappropriate language detected ? please revise your message</p>
                   </div>
                   <button type="button" onClick={() => setProfanityWarning(false)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors shrink-0">
                     <X size={14} />
@@ -7413,7 +7565,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                 </div>
               )}
 
-              {/* ? Magic Reply Suggestions   on-device AI */}
+              {/* ? Magic Reply Suggestions ? on-device AI */}
               {magicReplies.length > 0 && !inputText.trim() && !showEmojiPicker && !replyingTo && !profanityWarning && (
                 <div className="absolute bottom-full left-0 right-0 px-4 pb-2 flex gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-auto">
                   <div className="flex items-center gap-1 shrink-0 mr-1">
@@ -7446,7 +7598,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                       <div>
                         <span className="text-xs font-semibold text-white">AI Writing Assistant</span>
                         <span className="text-[9px] text-zinc-500 ml-2 flex items-center gap-1 inline-flex">
-                          <Shield size={8} /> On-device   E2E safe
+                          <Shield size={8} /> On-device ? E2E safe
                         </span>
                       </div>
                     </div>
@@ -7571,7 +7723,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               {profanityWarning && (
                 <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-2 mb-3 px-4 py-2.5 bg-red-500/10 border border-red-500/25 rounded-2xl w-full max-w-sm mx-auto">
                   <Shield size={14} className="text-red-400 shrink-0" />
-                  <span className="text-xs text-red-400 font-medium">Inappropriate language detected   please revise</span>
+                  <span className="text-xs text-red-400 font-medium">Inappropriate language detected ? please revise</span>
                 </div>
               )}
 
@@ -7854,7 +8006,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      {/* 🗳️ Create Poll Modal */}
+      {/* 🗳? Create Poll Modal */}
       {showCreatePoll && <CreatePollModal onClose={() => setShowCreatePoll(false)} onCreatePoll={handleCreatePoll} />}
 
       {/* 👥 Poll Voters Overlay */}
@@ -7873,7 +8025,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center"><Users size={14} className="text-white" /></div>
                   <div>
                     <h3 className="text-sm font-bold text-white">Poll Voters</h3>
-                    <p className="text-[10px] text-zinc-500">{vTotal} total vote{vTotal !== 1 ? 's' : ''}   {vPoll.question}</p>
+                    <p className="text-[10px] text-zinc-500">{vTotal} total vote{vTotal !== 1 ? 's' : ''} ? {vPoll.question}</p>
                   </div>
                 </div>
                 <button onClick={() => setViewPollVotersMsgId(null)} className="p-1.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors"><X size={16} /></button>
@@ -7926,9 +8078,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <p className="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider mb-3">Select Priority</p>
               <div className="space-y-2">
                 {[
-                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: '🤔' },
-                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: '🤔' },
-                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: '🤔' },
+                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: '?' },
+                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: '?' },
+                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: '?' },
                 ].map(p => (
                   <button
                     key={p.key}
@@ -7993,7 +8145,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     })}
                   </div>
                   <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/[0.04]">
-                    <span className="text-[10px] text-zinc-500">{total} vote{total !== 1 ? 's' : ''}   {new Date(pm.timestamp).toLocaleDateString()}</span>
+                    <span className="text-[10px] text-zinc-500">{total} vote{total !== 1 ? 's' : ''} ? {new Date(pm.timestamp).toLocaleDateString()}</span>
                     <button onClick={() => { setShowRecentPolls(false); const el = document.getElementById(`message-${pm.id}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }} className="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Jump to poll ?</button>
                   </div>
                 </div>
@@ -8274,7 +8426,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <img src={viewOnceViewing.url} alt="View once" className="max-w-full max-h-[80vh] object-contain rounded-xl" />
             )}
           </div>
-          <p className="text-white/30 text-xs mt-4">Close to dismiss   this media will no longer be available</p>
+          <p className="text-white/30 text-xs mt-4">Close to dismiss ? this media will no longer be available</p>
         </div>
       )}
 
@@ -8402,9 +8554,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <div className="flex flex-col gap-2">
               {[
                 { key: 'session', label: 'This Session', desc: 'Until you leave this chat', icon: '?' },
-                { key: '1day', label: '1 Day', desc: 'Expires after 24 hours', icon: '🤔' },
-                { key: '1week', label: '1 Week', desc: 'Expires after 7 days', icon: '🤔' },
-                { key: '1month', label: '1 Month', desc: 'Expires after 30 days', icon: '🤔' },
+                { key: '1day', label: '1 Day', desc: 'Expires after 24 hours', icon: '?' },
+                { key: '1week', label: '1 Week', desc: 'Expires after 7 days', icon: '?' },
+                { key: '1month', label: '1 Month', desc: 'Expires after 30 days', icon: '?' },
               ].map(opt => (
                 <button
                   key={opt.key}
@@ -8995,4 +9147,6 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
     </div>
   );
 }
+
+
 
