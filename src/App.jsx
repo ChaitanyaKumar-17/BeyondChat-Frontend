@@ -1920,6 +1920,9 @@ export default function App() {
               onUpdateSetting={updateSetting}
               blockedUsers={blockedUsers}
               onUnblock={handleUnblock}
+              chatDetails={chatDetails}
+              setChatDetails={setChatDetails}
+              onToast={showGlobalToast}
             />
           </div>
 
@@ -4613,10 +4616,244 @@ function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditor
 }
 
 
-// -----------------------------------------------------------
+
+// ─────────────────────────────────────────────────────────────
+// Shared settings UI primitives (used by StorageScreen + SettingsPage)
+// ─────────────────────────────────────────────────────────────
+function SubHeader({ title, onBack }) {
+  return (
+    <header className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.05] flex-shrink-0 bg-[#0f0f13]">
+      <button onClick={onBack} className="p-2 text-zinc-400 hover:text-white bg-white/[0.06] rounded-full transition-colors">
+        <ArrowLeft size={16} />
+      </button>
+      <h2 className="text-base font-semibold text-white tracking-tight">{title}</h2>
+    </header>
+  );
+}
+
+function SettingsRow({ icon, title, subtitle, right, onClick, danger }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors text-left ${
+        danger ? 'text-red-400' : ''
+      }`}
+    >
+      {icon && (
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+          danger ? 'bg-red-500/10 text-red-400' : 'bg-white/[0.06] text-zinc-400'
+        }`}>
+          {icon}
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm font-medium ${danger ? 'text-red-400' : 'text-white'}`}>{title}</p>
+        {subtitle && <p className="text-xs text-zinc-500 mt-0.5 truncate">{subtitle}</p>}
+      </div>
+      {right || <ChevronRight size={16} className="text-zinc-600 flex-shrink-0" />}
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 📦 STORAGE SCREEN COMPONENT
+// ─────────────────────────────────────────────────────────────
+function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
+  const canvasRef = useRef(null);
+
+  // Simulate realistic storage figures from actual message data
+  const storageData = useMemo(() => {
+    const totalMsgs = chatDetails.reduce((s, c) => s + c.messages.length, 0);
+    const mediaMsgs = chatDetails.reduce((s, c) =>
+      s + c.messages.filter(m => m.attachment || m.gif || m.sticker).length, 0);
+    const voiceMsgs = chatDetails.reduce((s, c) =>
+      s + c.messages.filter(m => m.voiceNote).length, 0);
+
+    // Derive MB estimates
+    const mediaKB   = mediaMsgs  * 420 + 8200;   // avg 420KB per media
+    const docsKB    = Math.round(mediaMsgs * 0.3) * 180 + 1200;
+    const voiceKB   = voiceMsgs  * 85  + 600;    // avg 85KB per voice msg
+    const msgsKB    = totalMsgs  * 2.4 + 900;    // ~2.4KB per message
+    const cacheKB   = 4200 + Math.random() * 2000 | 0;
+    const totalKB   = mediaKB + docsKB + voiceKB + msgsKB + cacheKB;
+
+    const fmt = (kb) => kb > 1024 ? `${(kb/1024).toFixed(1)} MB` : `${kb} KB`;
+
+    return {
+      total: fmt(totalKB),
+      totalKB,
+      categories: [
+        { label: 'Media',    kb: mediaKB, color: '#6366f1', pct: mediaKB / totalKB },
+        { label: 'Docs',     kb: docsKB,  color: '#8b5cf6', pct: docsKB  / totalKB },
+        { label: 'Voice',    kb: voiceKB, color: '#06b6d4', pct: voiceKB / totalKB },
+        { label: 'Messages', kb: msgsKB,  color: '#22c55e', pct: msgsKB  / totalKB },
+        { label: 'Cache',    kb: cacheKB, color: '#f59e0b', pct: cacheKB / totalKB },
+      ],
+      fmt,
+    };
+  }, [chatDetails]);
+
+  // Draw donut chart on canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const size = canvas.width;
+    const cx = size / 2, cy = size / 2;
+    const R = size * 0.38, r = size * 0.22;
+
+    ctx.clearRect(0, 0, size, size);
+    let startAngle = -Math.PI / 2;
+
+    storageData.categories.forEach(cat => {
+      const sweep = cat.pct * 2 * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, startAngle, startAngle + sweep);
+      ctx.closePath();
+      ctx.fillStyle = cat.color;
+      ctx.fill();
+      startAngle += sweep;
+    });
+
+    // Cut out donut hole
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle = '#0f0f13';
+    ctx.fill();
+
+    // Centre label
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `bold ${size * 0.12}px Inter, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(storageData.total, cx, cy - size * 0.04);
+    ctx.fillStyle = '#71717a';
+    ctx.font = `${size * 0.07}px Inter, sans-serif`;
+    ctx.fillText('used', cx, cy + size * 0.08);
+  }, [storageData]);
+
+  // Per-chat usage sorted by message count descending
+  const chatUsage = useMemo(() =>
+    [...chatDetails]
+      .map(c => ({
+        id: c.id, name: c.name, avatar: c.avatar, isGroup: c.isGroup,
+        msgs: c.messages.length,
+        kb: c.messages.length * 2.4
+          + c.messages.filter(m => m.attachment || m.gif).length * 420
+          + c.messages.filter(m => m.voiceNote).length * 85,
+      }))
+      .filter(c => c.msgs > 0)
+      .sort((a, b) => b.kb - a.kb)
+      .slice(0, 12),
+  [chatDetails]);
+
+  const maxKb = chatUsage[0]?.kb || 1;
+
+  return (
+    <div className="flex flex-col h-full bg-[#0f0f13]">
+      <SubHeader title="Storage & Data" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
+
+        {/* Donut chart + legend */}
+        <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] p-5">
+          <div className="flex items-center gap-6">
+            <canvas ref={canvasRef} width={140} height={140} className="flex-shrink-0 rounded-full" />
+            <div className="flex-1 space-y-2.5">
+              {storageData.categories.map(cat => (
+                <div key={cat.label} className="flex items-center gap-2.5">
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: cat.color }} />
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-xs text-zinc-300 font-medium">{cat.label}</span>
+                      <span className="text-xs text-zinc-500">{storageData.fmt(cat.kb)}</span>
+                    </div>
+                    <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-700"
+                        style={{ width: `${(cat.pct * 100).toFixed(1)}%`, background: cat.color }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Per-chat list */}
+        {chatUsage.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Chats</p>
+            <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+              {chatUsage.map(c => (
+                <div key={c.id} className="flex items-center gap-3 px-4 py-3">
+                  {c.isGroup
+                    ? <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0"><Hash size={14} className="text-white" /></div>
+                    : <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-full flex-shrink-0 object-cover" />
+                  }
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-1">
+                      <p className="text-sm font-medium text-white truncate">{c.name}</p>
+                      <span className="text-xs text-zinc-500 flex-shrink-0 ml-2">{storageData.fmt(c.kb)}</span>
+                    </div>
+                    <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 rounded-full"
+                        style={{ width: `${Math.min(100, (c.kb / maxKb) * 100).toFixed(1)}%` }} />
+                    </div>
+                    <p className="text-[10px] text-zinc-600 mt-1">{c.msgs} messages</p>
+                  </div>
+                  <button
+                    onClick={() => onClearChat(c.id)}
+                    className="ml-2 px-2.5 py-1 text-[11px] font-medium text-zinc-400 hover:text-red-400 bg-white/[0.04] hover:bg-red-500/10 rounded-lg transition-colors flex-shrink-0"
+                  >
+                    Clear
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Actions</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            <button onClick={onClearCache}
+              className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors text-left">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={15} />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">Clear Cache</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Remove temporary files and thumbnails</p>
+              </div>
+              <ChevronRight size={16} className="text-zinc-600" />
+            </button>
+            <button onClick={() => { chatDetails.forEach(c => onClearChat(c.id)); }}
+              className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors text-left">
+              <div className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={15} />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-400">Clear All Chat History</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Permanently delete all messages from all chats</p>
+              </div>
+              <ChevronRight size={16} className="text-zinc-600" />
+            </button>
+          </div>
+        </div>
+
+        <p className="text-[11px] text-zinc-600 px-1 pb-2 leading-relaxed">
+          Storage values are estimates. Actual usage depends on media quality and device caching.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ⚙️ SETTINGS PAGE COMPONENT
 // -----------------------------------------------------------
-function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock }) {
+function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock, chatDetails = [], setChatDetails, onToast }) {
+
   const [subScreen, setSubScreen] = useState(null);
   const [profileDraft, setProfileDraft] = useState({ ...currentUser });
   const [profileError, setProfileError] = useState('');
@@ -4679,32 +4916,9 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     </button>
   );
 
-  const SubHeader = ({ title, onBack }) => (
-    <header className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.05] flex-shrink-0 bg-[#0f0f13]">
-      <button onClick={onBack} className="p-2 text-zinc-400 hover:text-white bg-white/[0.06] rounded-full transition-colors">
-        <ArrowLeft size={16} />
-      </button>
-      <h2 className="text-base font-semibold text-white tracking-tight">{title}</h2>
-    </header>
-  );
-
-  const SettingsRow = ({ icon, title, subtitle, right, onClick, danger }) => (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-4 px-5 py-4 transition-colors text-left ${danger ? 'hover:bg-red-500/[0.06]' : 'hover:bg-white/[0.04]'}`}
-    >
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${danger ? 'bg-red-500/15 text-red-400' : 'bg-white/[0.07] text-zinc-300'}`}>
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${danger ? 'text-red-400' : 'text-white'}`}>{title}</p>
-        {subtitle && <p className="text-xs text-zinc-500 mt-0.5 truncate">{subtitle}</p>}
-      </div>
-      {right !== undefined ? right : <ChevronRight size={16} className="text-zinc-600 flex-shrink-0" />}
-    </button>
-  );
 
   // Profile sub-screen
+
   if (subScreen === 'profile') return (
     <div className="flex flex-col h-full bg-[#0f0f13]">
       <SubHeader title="Edit Profile" onBack={() => { setProfileDraft({ ...currentUser }); setProfileError(''); setSubScreen(null); }} />
@@ -4890,6 +5104,19 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
         </div>
       </div>
     </div>
+  );
+
+  // ─ Storage sub-screen ─
+  if (subScreen === 'storage') return (
+    <StorageScreen
+      chatDetails={chatDetails}
+      onClearChat={(id) => {
+        setChatDetails(prev => prev.map(c => c.id === id ? { ...c, messages: [] } : c));
+        onToast?.('Chat history cleared.');
+      }}
+      onClearCache={() => onToast?.('Cache cleared.')}
+      onBack={() => setSubScreen(null)}
+    />
   );
 
   // Content Filters sub-screen
@@ -5339,7 +5566,12 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Storage and Data</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
-            <SettingsRow icon={<Database size={17} />} title="Storage" subtitle="Manage media, clear history ? coming soon" onClick={() => {}} />
+            <SettingsRow
+              icon={<Database size={17} />}
+              title="Storage"
+              subtitle={`${chatDetails.reduce((a, c) => a + c.messages.length, 0)} messages stored`}
+              onClick={() => setSubScreen('storage')}
+            />
           </div>
         </div>
 
