@@ -615,6 +615,7 @@ const DEFAULT_SETTINGS = {
     theme: 'dark',
     fontSize: 'medium',
     accentColor: '#6366f1',
+    bubbleStyle: 'default',  // default | rounded | minimal
   },
   privacy: {
     readReceipts: true,
@@ -1122,6 +1123,86 @@ export default function App() {
   const updateSetting = useCallback((section, key, value) => {
     setUserSettings(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
   }, []);
+
+  // ─ Apply appearance — CSS vars + global font scaling (no layout breakage) ─
+  useEffect(() => {
+    const a = userSettings.appearance;
+    const themes = {
+      dark:     { bg: '#0a0a0c', sec: '#121214', panel: '#0f0f13', border: 'rgba(255,255,255,0.05)' },
+      darker:   { bg: '#050507', sec: '#0a0a0c', panel: '#080809', border: 'rgba(255,255,255,0.04)' },
+      midnight: { bg: '#0d0d1a', sec: '#12122a', panel: '#0f0f20', border: 'rgba(100,100,255,0.08)' },
+      slate:    { bg: '#0c0e12', sec: '#141720', panel: '#111318', border: 'rgba(255,255,255,0.06)' },
+    };
+    // Font scale multiplier — ONLY font-size is overridden, NOT padding/margin/width/icons.
+    // This means layout never breaks. Text scales everywhere (chat, settings, calls, etc.).
+    const fontScale = { small: 0.875, medium: 1.0, large: 1.125 }[a?.fontSize] || 1.0;
+    const t   = themes[a?.theme] || themes.dark;
+    const acc = a?.accentColor || '#6366f1';
+
+    // 1) CSS variables
+    const root = document.documentElement;
+    root.style.setProperty('--app-bg',           t.bg);
+    root.style.setProperty('--app-bg-secondary', t.sec);
+    root.style.setProperty('--app-bg-panel',     t.panel);
+    root.style.setProperty('--app-border',       t.border);
+    root.style.setProperty('--app-accent',       acc);
+    root.style.setProperty('--app-font-scale',   String(fontScale));
+    document.body.style.backgroundColor = t.bg;
+
+    // 2) Injected style tag
+    // Strategy: override every Tailwind .text-* class with a scaled font-size.
+    // Padding (p-4), gap, width etc. use rem too but we do NOT override those classes
+    // → layout stays pixel-perfect while all text content scales uniformly.
+    const fs = fontScale; // shorthand
+    let el = document.getElementById('app-theme-overrides');
+    if (!el) {
+      el = document.createElement('style');
+      el.id = 'app-theme-overrides';
+      document.head.appendChild(el);
+    }
+    el.textContent = `
+      /* ── Background overrides ── */
+      [class*="bg-[#0a0a0c]"], [class*="bg-[#050507]"],
+      [class*="bg-[#0d0d1a]"], [class*="bg-[#0c0e12]"] { background-color: ${t.bg}    !important; }
+      [class*="bg-[#121214]"], [class*="bg-[#12122a]"],
+      [class*="bg-[#141720]"]                          { background-color: ${t.sec}   !important; }
+      [class*="bg-[#0f0f13]"], [class*="bg-[#080809]"],
+      [class*="bg-[#0f0f20]"], [class*="bg-[#111318]"] { background-color: ${t.panel} !important; }
+      [class*="bg-[#0f0f13]/90"] { background-color: ${t.panel}e6 !important; }
+      [class*="bg-[#0f0f13]/80"] { background-color: ${t.panel}cc !important; }
+      [class*="bg-[#121214]/80"] { background-color: ${t.sec}cc   !important; }
+      [class*="bg-[#0a0a0c]/80"] { background-color: ${t.bg}cc    !important; }
+
+      /* ── Global font scaling — all text classes, zero layout impact ──
+         Only font-size is overridden. Padding/margin/gap/icons (also rem) are untouched.
+         Covers: chat, chat list, settings, calls, communities, requests, modals.
+      */
+      .text-xs   { font-size: ${(0.75  * fs).toFixed(4)}rem !important; }
+      .text-sm   { font-size: ${(0.875 * fs).toFixed(4)}rem !important; }
+      .text-base { font-size: ${(1.0   * fs).toFixed(4)}rem !important; }
+      .text-lg   { font-size: ${(1.125 * fs).toFixed(4)}rem !important; }
+      .text-xl   { font-size: ${(1.25  * fs).toFixed(4)}rem !important; }
+      .text-2xl  { font-size: ${(1.5   * fs).toFixed(4)}rem !important; }
+      .text-3xl  { font-size: ${(1.875 * fs).toFixed(4)}rem !important; }
+      .text-4xl  { font-size: ${(2.25  * fs).toFixed(4)}rem !important; }
+
+      /* Arbitrary px sizes used throughout the app */
+      .text-\\[10px\\] { font-size: ${(10 * fs).toFixed(2)}px !important; }
+      .text-\\[11px\\] { font-size: ${(11 * fs).toFixed(2)}px !important; }
+      .text-\\[12px\\] { font-size: ${(12 * fs).toFixed(2)}px !important; }
+      .text-\\[13px\\] { font-size: ${(13 * fs).toFixed(2)}px !important; }
+      .text-\\[14px\\] { font-size: ${(14 * fs).toFixed(2)}px !important; }
+      .text-\\[15px\\] { font-size: ${(15 * fs).toFixed(2)}px !important; }
+      .text-\\[16px\\] { font-size: ${(16 * fs).toFixed(2)}px !important; }
+      .text-\\[17px\\] { font-size: ${(17 * fs).toFixed(2)}px !important; }
+      .text-\\[18px\\] { font-size: ${(18 * fs).toFixed(2)}px !important; }
+      .text-\\[20px\\] { font-size: ${(20 * fs).toFixed(2)}px !important; }
+      .text-\\[24px\\] { font-size: ${(24 * fs).toFixed(2)}px !important; }
+      .text-\\[28px\\] { font-size: ${(28 * fs).toFixed(2)}px !important; }
+      .text-\\[32px\\] { font-size: ${(32 * fs).toFixed(2)}px !important; }
+    `;
+  }, [userSettings.appearance]);
+
 
   const [communities, setCommunities] = useState(initialCommunities);
   const [activeCommunityId, setActiveCommunityId] = useState(null);
@@ -1886,6 +1967,8 @@ export default function App() {
               onUpdateMessageStatus={handleUpdateMessageStatus}
               currentUser={currentUser}
               readReceipts={userSettings.privacy?.readReceipts !== false}
+              bubbleStyle={userSettings.appearance?.bubbleStyle || 'default'}
+              chatFontSize={userSettings.appearance?.fontSize || 'medium'}
             />
             </div>
           </div>
@@ -3317,7 +3400,7 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
             <div key={listTab} className="animate-in fade-in slide-in-from-right-2 duration-300 ease-out">
               {listTab === 'conversations' ? (
                 <>
-                  <div className="flex flex-col gap-1">
+                  <div data-chat-list className="flex flex-col gap-1">
                     {sortedRecent.slice(0, 5).map(renderRecentCard)}
                     <div className={`grid transition-all duration-500 ease-in-out ${expandedRecent ? 'grid-rows-[1fr] opacity-100 mt-1' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
                       <div className="overflow-hidden flex flex-col gap-1 min-h-0">
@@ -5022,6 +5105,166 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     </div>
   );
 
+  // ─ Appearance sub-screen ─
+  if (subScreen === 'appearance') return (
+    <div className="flex flex-col h-full bg-[var(--app-bg-panel,#0f0f13)]">
+      <SubHeader title="Appearance" onBack={() => setSubScreen(null)} />
+      <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
+
+        {/* Theme */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Theme</p>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { value: 'dark',     label: 'Dark',     bg: '#0a0a0c', secondary: '#1a1a1e', preview: '#18181b' },
+              { value: 'darker',   label: 'Darker',   bg: '#050507', secondary: '#0f0f11', preview: '#0a0a0c' },
+              { value: 'midnight', label: 'Midnight', bg: '#0d0d1a', secondary: '#12122a', preview: '#17173a' },
+              { value: 'slate',    label: 'Slate',    bg: '#0c0e12', secondary: '#141720', preview: '#1a1d26' },
+            ].map(th => {
+              const isActive = (userSettings.appearance.theme || 'dark') === th.value;
+              return (
+                <button key={th.value} onClick={() => onUpdateSetting('appearance', 'theme', th.value)}
+                  className={`relative rounded-2xl overflow-hidden border-2 transition-all ${
+                    isActive ? 'border-[var(--app-accent,#6366f1)] scale-[1.02]' : 'border-white/[0.06] hover:border-white/20'
+                  }`}>
+                  {/* Mini preview */}
+                  <div className="h-20" style={{ background: th.bg }}>
+                    <div className="h-5 w-full" style={{ background: th.secondary }} />
+                    <div className="flex gap-1.5 p-2">
+                      <div className="w-8 h-8 rounded-full flex-shrink-0" style={{ background: th.preview }} />
+                      <div className="flex-1 space-y-1 pt-1">
+                        <div className="h-2 rounded-full w-3/4" style={{ background: th.preview }} />
+                        <div className="h-1.5 rounded-full w-1/2" style={{ background: th.preview }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`px-3 py-2 flex items-center justify-between ${
+                    isActive ? 'bg-[var(--app-accent,#6366f1)]' : 'bg-white/[0.04]'
+                  }`}>
+                    <span className="text-xs font-medium text-white">{th.label}</span>
+                    {isActive && <div className="w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-[var(--app-accent,#6366f1)]" /></div>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Accent Color */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Accent Color</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] p-5">
+            <div className="grid grid-cols-8 gap-2.5 mb-4">
+              {[
+                '#6366f1','#8b5cf6','#ec4899','#f43f5e',
+                '#f97316','#eab308','#22c55e','#06b6d4',
+              ].map(color => {
+                const isActive = userSettings.appearance.accentColor === color;
+                return (
+                  <button key={color} onClick={() => onUpdateSetting('appearance', 'accentColor', color)}
+                    className={`w-8 h-8 rounded-full transition-all border-2 ${
+                      isActive ? 'scale-110 border-white shadow-lg' : 'border-transparent hover:scale-105'
+                    }`}
+                    style={{ background: color }}
+                    title={color}
+                  >
+                    {isActive && <div className="w-full h-full rounded-full flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-white/80" /></div>}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-zinc-500 flex-shrink-0">Custom</p>
+              <div className="flex items-center gap-2 flex-1 bg-white/[0.05] rounded-xl px-3 py-2 border border-white/[0.06]">
+                <input
+                  type="color"
+                  value={userSettings.appearance.accentColor || '#6366f1'}
+                  onChange={e => onUpdateSetting('appearance', 'accentColor', e.target.value)}
+                  className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0"
+                />
+                <span className="text-sm text-zinc-300 font-mono">{userSettings.appearance.accentColor || '#6366f1'}</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-[11px] text-zinc-600 mt-2 px-1">Used for buttons, toggles, and selected states throughout the app.</p>
+        </div>
+
+        {/* Font Size */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Text Size</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            {[
+              { value: 'small',  label: 'Small',  sample: 'text-[13px]', desc: 'Compact — fits more on screen' },
+              { value: 'medium', label: 'Medium', sample: 'text-[15px]', desc: 'Default — comfortable reading' },
+              { value: 'large',  label: 'Large',  sample: 'text-[17px]', desc: 'Larger — easier on the eyes' },
+            ].map(fs => (
+              <button key={fs.value} onClick={() => onUpdateSetting('appearance', 'fontSize', fs.value)}
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors">
+                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                  (userSettings.appearance.fontSize || 'medium') === fs.value ? 'border-[var(--app-accent,#6366f1)] bg-[var(--app-accent,#6366f1)]' : 'border-zinc-600'
+                }`}>
+                  {(userSettings.appearance.fontSize || 'medium') === fs.value && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+                <div className="flex-1 text-left">
+                  <span className={`font-medium text-white ${fs.sample}`}>{fs.label}</span>
+                  <p className="text-xs text-zinc-500 mt-0.5">{fs.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Bubble Style */}
+        <div>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Message Bubble Style</p>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+            {[
+              { value: 'default', label: 'Default', desc: 'Standard rounded chat bubbles', radius: 'rounded-2xl rounded-br-sm' },
+              { value: 'rounded', label: 'Rounded', desc: 'Fully rounded pill-shaped bubbles', radius: 'rounded-full' },
+              { value: 'minimal', label: 'Minimal', desc: 'Sharp corners, clean look', radius: 'rounded-lg' },
+            ].map(bs => (
+              <button key={bs.value} onClick={() => onUpdateSetting('appearance', 'bubbleStyle', bs.value)}
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors">
+                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                  (userSettings.appearance.bubbleStyle || 'default') === bs.value ? 'border-[var(--app-accent,#6366f1)] bg-[var(--app-accent,#6366f1)]' : 'border-zinc-600'
+                }`}>
+                  {(userSettings.appearance.bubbleStyle || 'default') === bs.value && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-white">{bs.label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{bs.desc}</p>
+                </div>
+                {/* Mini bubble preview */}
+                <div className={`px-3 py-1.5 text-[11px] text-white font-medium ${bs.radius}`}
+                  style={{ background: userSettings.appearance.accentColor || '#6366f1', opacity: 0.85 }}>
+                  Hello!
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Live preview bar */}
+        <div className="rounded-2xl border border-white/[0.05] p-4" style={{ background: 'var(--app-bg-secondary, #121214)' }}>
+          <p className="text-xs text-zinc-500 mb-3 font-medium">Preview</p>
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-start">
+              <div className={`px-3.5 py-2 text-sm text-white/90 max-w-[75%] ${
+                { default: 'rounded-2xl rounded-bl-sm', rounded: 'rounded-full', minimal: 'rounded-lg' }[userSettings.appearance.bubbleStyle || 'default']
+              }`} style={{ background: 'rgba(255,255,255,0.07)' }}>Hey! How's it going? 👋</div>
+            </div>
+            <div className="flex justify-end">
+              <div className={`px-3.5 py-2 text-sm text-white max-w-[75%] ${
+                { default: 'rounded-2xl rounded-br-sm', rounded: 'rounded-full', minimal: 'rounded-lg' }[userSettings.appearance.bubbleStyle || 'default']
+              }`} style={{ background: userSettings.appearance.accentColor || '#6366f1' }}>All good! 😊</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+
   // AI sub-screen
   if (subScreen === 'ai') return (
     <div className="flex flex-col h-full bg-[#0f0f13]">
@@ -5079,7 +5322,9 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">Preferences</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] overflow-hidden divide-y divide-white/[0.04]">
             <SettingsRow icon={<Bell size={17} />} title="Notifications" subtitle={userSettings.notifications.dnd?.enabled ? `🌙 DND ${userSettings.notifications.dnd.from}–${userSettings.notifications.dnd.to}` : `Sound: ${userSettings.notifications.sound !== false ? 'On' : 'Off'} · Previews: ${userSettings.notifications.preview !== false ? 'On' : 'Off'}`} onClick={() => setSubScreen('notifications')} />
-            <SettingsRow icon={<Palette size={17} />} title="Appearance" subtitle="Theme, font size, accent color ? coming soon" onClick={() => {}} />
+            <SettingsRow icon={<Palette size={17} />} title="Appearance"
+              subtitle={`${(userSettings.appearance.theme || 'dark')[0].toUpperCase() + (userSettings.appearance.theme || 'dark').slice(1)} theme · ${userSettings.appearance.fontSize || 'Medium'} text`}
+              onClick={() => setSubScreen('appearance')} />
           </div>
         </div>
 
@@ -5179,7 +5424,7 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium' }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -6055,7 +6300,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      <div ref={scrollContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:hidden p-6 space-y-6 relative" style={{ scrollBehavior: 'auto', ...(disappearingChat?.enabled ? { userSelect: 'none', WebkitUserSelect: 'none' } : {}) }} onClick={() => setActiveMsgId(null)}>
+      <div ref={scrollContainerRef} onScroll={handleChatScroll}
+        data-chat-messages
+        className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:hidden p-6 space-y-6 relative"
+        style={{ scrollBehavior: 'auto', ...(disappearingChat?.enabled ? { userSelect: 'none', WebkitUserSelect: 'none' } : {}) }}
+        onClick={() => setActiveMsgId(null)}>
         
         {messages.length === 0 && chat.isConnected === false && (
           <div className="flex flex-col items-center justify-center h-full text-zinc-500 pb-10">
@@ -6196,9 +6445,14 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     </div>
                   ) : (() => {
                     const hasMedia = msg.attachment || msg.voiceNote || msg.gif || msg.sticker || msg.meta?.poll;
+                    const bubbleRadius = {
+                      default: isMe ? 'rounded-2xl rounded-br-sm' : 'rounded-2xl rounded-bl-sm',
+                      rounded: 'rounded-[2rem]',
+                      minimal: 'rounded-lg',
+                    }[bubbleStyle] || (isMe ? 'rounded-2xl rounded-br-sm' : 'rounded-2xl rounded-bl-sm');
                     const bubbleClass = hasMedia
-                      ? `group/bubble rounded-2xl text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${msg.meta?.poll ? 'p-0' : 'p-1.5'} ${isMe ? 'bg-[#1a1a2e] border border-indigo-500/20 text-white rounded-br-sm' : 'bg-[#1a1a1c] text-zinc-100 rounded-bl-sm border border-white/[0.04]'}`
-                      : `group/bubble px-4 py-2.5 rounded-2xl text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-[#1e1e24] text-zinc-100 rounded-bl-sm border border-white/[0.02]'}`;
+                      ? `group/bubble ${bubbleRadius} text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${msg.meta?.poll ? 'p-0' : 'p-1.5'} ${isMe ? 'bg-[#1a1a2e] border border-indigo-500/20 text-white' : 'bg-[#1a1a1c] text-zinc-100 border border-white/[0.04]'}`
+                      : `group/bubble px-4 py-2.5 ${bubbleRadius} text-sm leading-relaxed relative flex flex-col transition-[background-color,box-shadow,transform] duration-500 ease-out ${isMe ? 'bg-indigo-600 text-white' : 'bg-[#1e1e24] text-zinc-100 border border-white/[0.02]'}`;
                     return (
                     <div id={`bubble-${msg.id}`} className={bubbleClass}>
                       
