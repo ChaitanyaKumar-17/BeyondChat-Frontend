@@ -5713,10 +5713,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
             <p className="text-sm text-zinc-400 truncate">{currentUser.handle}</p>
             <p className="text-xs text-zinc-600 mt-0.5 truncate">{currentUser.about || 'No bio set'}</p>
           </div>
-          <button onClick={() => { setProfileDraft({ ...currentUser }); navigateTo('profile'); }}
-            className="p-2.5 bg-white/[0.07] hover:bg-white/[0.12] text-zinc-300 rounded-full transition-colors flex-shrink-0" title="Edit Profile">
-            <Pencil size={16} />
-          </button>
+          
         </div>
       </div>
 
