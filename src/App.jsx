@@ -148,57 +148,57 @@ const STICKER_PACKS = [
   ]},
   { id: 'reactions', name: 'Reactions', builtin: true, stickers: [
     { id: 'r1', emoji: '👍', label: 'Thumbs up' }, { id: 'r2', emoji: '👏', label: 'Clap' },
-    { id: 'r3', emoji: '🔥', label: 'Fire' }, { id: 'r4', emoji: '?', label: '100' },
-    { id: 'r5', emoji: '?', label: 'Heart' }, { id: 'r6', emoji: '?', label: 'Dead' },
-    { id: 'r7', emoji: '?', label: 'Pray' }, { id: 'r8', emoji: '✨', label: 'Sparkle' },
-    { id: 'r9', emoji: '?', label: 'Strong' }, { id: 'r10', emoji: '?', label: 'Handshake' },
-    { id: 'r11', emoji: '?', label: 'Eyes' }, { id: 'r12', emoji: '?', label: 'Salute' },
+    { id: 'r3', emoji: '🔥', label: 'Fire' }, { id: 'r4', emoji: '?', label: '100' },
+    { id: 'r5', emoji: '?', label: 'Heart' }, { id: 'r6', emoji: '?', label: 'Dead' },
+    { id: 'r7', emoji: '?', label: 'Pray' }, { id: 'r8', emoji: '✨', label: 'Sparkle' },
+    { id: 'r9', emoji: '?', label: 'Strong' }, { id: 'r10', emoji: '?', label: 'Handshake' },
+    { id: 'r11', emoji: '?', label: 'Eyes' }, { id: 'r12', emoji: '?', label: 'Salute' },
   ]},
   { id: 'animals', name: 'Animals', builtin: true, stickers: [
-    { id: 'a1', emoji: '?', label: 'Dog' }, { id: 'a2', emoji: '?', label: 'Cat' },
-    { id: 'a3', emoji: '?', label: 'Bear' }, { id: 'a4', emoji: '?', label: 'Fox' },
-    { id: 'a5', emoji: '?', label: 'Panda' }, { id: 'a6', emoji: '?', label: 'Lion' },
-    { id: 'a7', emoji: '?', label: 'Frog' }, { id: 'a8', emoji: '?', label: 'Butterfly' },
-    { id: 'a9', emoji: '?', label: 'Penguin' }, { id: 'a10', emoji: '?', label: 'Unicorn' },
-    { id: 'a11', emoji: '?', label: 'Chick' }, { id: 'a12', emoji: '?', label: 'Octopus' },
+    { id: 'a1', emoji: '?', label: 'Dog' }, { id: 'a2', emoji: '?', label: 'Cat' },
+    { id: 'a3', emoji: '?', label: 'Bear' }, { id: 'a4', emoji: '?', label: 'Fox' },
+    { id: 'a5', emoji: '?', label: 'Panda' }, { id: 'a6', emoji: '?', label: 'Lion' },
+    { id: 'a7', emoji: '?', label: 'Frog' }, { id: 'a8', emoji: '?', label: 'Butterfly' },
+    { id: 'a9', emoji: '?', label: 'Penguin' }, { id: 'a10', emoji: '?', label: 'Unicorn' },
+    { id: 'a11', emoji: '?', label: 'Chick' }, { id: 'a12', emoji: '?', label: 'Octopus' },
   ]},
   { id: 'food', name: 'Food', builtin: true, stickers: [
-    { id: 'f1', emoji: '?', label: 'Pizza' }, { id: 'f2', emoji: '?', label: 'Burger' },
-    { id: 'f3', emoji: '☕', label: 'Coffee' }, { id: 'f4', emoji: '?', label: 'Cake' },
-    { id: 'f5', emoji: '?', label: 'Sushi' }, { id: 'f6', emoji: '?', label: 'Taco' },
-    { id: 'f7', emoji: '?', label: 'Donut' }, { id: 'f8', emoji: '?', label: 'Cupcake' },
-    { id: 'f9', emoji: '?', label: 'Popcorn' }, { id: 'f10', emoji: '?', label: 'Drink' },
-    { id: 'f11', emoji: '?', label: 'Ice cream' }, { id: 'f12', emoji: '?', label: 'Boba' },
+    { id: 'f1', emoji: '?', label: 'Pizza' }, { id: 'f2', emoji: '?', label: 'Burger' },
+    { id: 'f3', emoji: '☕', label: 'Coffee' }, { id: 'f4', emoji: '?', label: 'Cake' },
+    { id: 'f5', emoji: '?', label: 'Sushi' }, { id: 'f6', emoji: '?', label: 'Taco' },
+    { id: 'f7', emoji: '?', label: 'Donut' }, { id: 'f8', emoji: '?', label: 'Cupcake' },
+    { id: 'f9', emoji: '?', label: 'Popcorn' }, { id: 'f10', emoji: '?', label: 'Drink' },
+    { id: 'f11', emoji: '?', label: 'Ice cream' }, { id: 'f12', emoji: '?', label: 'Boba' },
   ]},
   { id: 'gestures', name: 'Gestures', builtin: true, stickers: [
-    { id: 'g1', emoji: '?', label: 'Peace' }, { id: 'g2', emoji: '?', label: 'Call me' },
-    { id: 'g3', emoji: '?', label: 'Heart hands' }, { id: 'g4', emoji: '?', label: 'Pinch' },
-    { id: 'g5', emoji: '?', label: 'Wave' }, { id: 'g6', emoji: '?', label: 'Peeking' },
-    { id: 'g7', emoji: '?', label: 'Shush' }, { id: 'g8', emoji: '?', label: 'Melting' },
-    { id: 'g9', emoji: '?', label: 'Dance' }, { id: 'g10', emoji: '?', label: 'Groove' },
-    { id: 'g11', emoji: '?', label: 'Celebration' }, { id: 'g12', emoji: '?', label: 'Shrug' },
+    { id: 'g1', emoji: '?', label: 'Peace' }, { id: 'g2', emoji: '?', label: 'Call me' },
+    { id: 'g3', emoji: '?', label: 'Heart hands' }, { id: 'g4', emoji: '?', label: 'Pinch' },
+    { id: 'g5', emoji: '?', label: 'Wave' }, { id: 'g6', emoji: '?', label: 'Peeking' },
+    { id: 'g7', emoji: '?', label: 'Shush' }, { id: 'g8', emoji: '?', label: 'Melting' },
+    { id: 'g9', emoji: '?', label: 'Dance' }, { id: 'g10', emoji: '?', label: 'Groove' },
+    { id: 'g11', emoji: '?', label: 'Celebration' }, { id: 'g12', emoji: '?', label: 'Shrug' },
   ]},
 ];
 
 // External sticker packs available in the store
 const STICKER_STORE_PACKS = [
-  { id: 'weather', name: 'Weather', preview: '☀?', description: 'Sun, rain, snow & more', stickers: [
-    { id: 'w1', emoji: '?', label: 'Sunny' }, { id: 'w2', emoji: '🌧?', label: 'Rainy' }, { id: 'w3', emoji: '?', label: 'Storm' }, { id: 'w4', emoji: '?', label: 'Snow' }, { id: 'w5', emoji: '?', label: 'Rainbow' }, { id: 'w6', emoji: '🌪?', label: 'Tornado' }, { id: 'w7', emoji: '?', label: 'Moon' }, { id: 'w8', emoji: '?', label: 'Star' }, { id: 'w9', emoji: '?', label: 'Wave' }, { id: 'w10', emoji: '?', label: 'Hot' }, { id: 'w11', emoji: '?', label: 'Cold' }, { id: 'w12', emoji: '?', label: 'Sunset' },
+  { id: 'weather', name: 'Weather', preview: '☀?', description: 'Sun, rain, snow & more', stickers: [
+    { id: 'w1', emoji: '?', label: 'Sunny' }, { id: 'w2', emoji: '🌧?', label: 'Rainy' }, { id: 'w3', emoji: '?', label: 'Storm' }, { id: 'w4', emoji: '?', label: 'Snow' }, { id: 'w5', emoji: '?', label: 'Rainbow' }, { id: 'w6', emoji: '🌪?', label: 'Tornado' }, { id: 'w7', emoji: '?', label: 'Moon' }, { id: 'w8', emoji: '?', label: 'Star' }, { id: 'w9', emoji: '?', label: 'Wave' }, { id: 'w10', emoji: '?', label: 'Hot' }, { id: 'w11', emoji: '?', label: 'Cold' }, { id: 'w12', emoji: '?', label: 'Sunset' },
   ]},
   { id: 'sports', name: 'Sports', preview: '⚽', description: 'Goals, hoops & touchdowns', stickers: [
-    { id: 's1', emoji: '⚽', label: 'Soccer' }, { id: 's2', emoji: '?', label: 'Basketball' }, { id: 's3', emoji: '?', label: 'Football' }, { id: 's4', emoji: '⚾', label: 'Baseball' }, { id: 's5', emoji: '?', label: 'Tennis' }, { id: 's6', emoji: '?', label: 'Volleyball' }, { id: 's7', emoji: '?', label: 'Boxing' }, { id: 's8', emoji: '?', label: 'Trophy' }, { id: 's9', emoji: '?', label: 'Gold medal' }, { id: 's10', emoji: '?', label: 'Bullseye' }, { id: 's11', emoji: '??', label: 'Weights' }, { id: 's12', emoji: '?', label: 'Cycling' },
+    { id: 's1', emoji: '⚽', label: 'Soccer' }, { id: 's2', emoji: '?', label: 'Basketball' }, { id: 's3', emoji: '?', label: 'Football' }, { id: 's4', emoji: '⚾', label: 'Baseball' }, { id: 's5', emoji: '?', label: 'Tennis' }, { id: 's6', emoji: '?', label: 'Volleyball' }, { id: 's7', emoji: '?', label: 'Boxing' }, { id: 's8', emoji: '?', label: 'Trophy' }, { id: 's9', emoji: '?', label: 'Gold medal' }, { id: 's10', emoji: '?', label: 'Bullseye' }, { id: 's11', emoji: '??', label: 'Weights' }, { id: 's12', emoji: '?', label: 'Cycling' },
   ]},
-  { id: 'travel', name: 'Travel', preview: '?', description: 'Planes, places & adventure', stickers: [
-    { id: 't1', emoji: '?', label: 'Plane' }, { id: 't2', emoji: '🗺?', label: 'Map' }, { id: 't3', emoji: '??', label: 'Beach' }, { id: 't4', emoji: '?', label: 'Mountain' }, { id: 't5', emoji: '?', label: 'Castle' }, { id: 't6', emoji: '?', label: 'Statue' }, { id: 't7', emoji: '?', label: 'Car' }, { id: 't8', emoji: '?', label: 'Train' }, { id: 't9', emoji: '⛵', label: 'Sailboat' }, { id: 't10', emoji: '?', label: 'Backpack' }, { id: 't11', emoji: '?', label: 'Camera' }, { id: 't12', emoji: '?', label: 'Luggage' },
+  { id: 'travel', name: 'Travel', preview: '?', description: 'Planes, places & adventure', stickers: [
+    { id: 't1', emoji: '?', label: 'Plane' }, { id: 't2', emoji: '🗺?', label: 'Map' }, { id: 't3', emoji: '??', label: 'Beach' }, { id: 't4', emoji: '?', label: 'Mountain' }, { id: 't5', emoji: '?', label: 'Castle' }, { id: 't6', emoji: '?', label: 'Statue' }, { id: 't7', emoji: '?', label: 'Car' }, { id: 't8', emoji: '?', label: 'Train' }, { id: 't9', emoji: '⛵', label: 'Sailboat' }, { id: 't10', emoji: '?', label: 'Backpack' }, { id: 't11', emoji: '?', label: 'Camera' }, { id: 't12', emoji: '?', label: 'Luggage' },
   ]},
-  { id: 'music', name: 'Music', preview: '?', description: 'Beats, notes & instruments', stickers: [
-    { id: 'm1', emoji: '?', label: 'Music' }, { id: 'm2', emoji: '?', label: 'Guitar' }, { id: 'm3', emoji: '?', label: 'Piano' }, { id: 'm4', emoji: '?', label: 'Drums' }, { id: 'm5', emoji: '?', label: 'Mic' }, { id: 'm6', emoji: '?', label: 'Headphones' }, { id: 'm7', emoji: '?', label: 'Trumpet' }, { id: 'm8', emoji: '?', label: 'Violin' }, { id: 'm9', emoji: '?', label: 'Notes' }, { id: 'm10', emoji: '?', label: 'Radio' }, { id: 'm11', emoji: '?', label: 'Speaker' }, { id: 'm12', emoji: '?', label: 'CD' },
+  { id: 'music', name: 'Music', preview: '?', description: 'Beats, notes & instruments', stickers: [
+    { id: 'm1', emoji: '?', label: 'Music' }, { id: 'm2', emoji: '?', label: 'Guitar' }, { id: 'm3', emoji: '?', label: 'Piano' }, { id: 'm4', emoji: '?', label: 'Drums' }, { id: 'm5', emoji: '?', label: 'Mic' }, { id: 'm6', emoji: '?', label: 'Headphones' }, { id: 'm7', emoji: '?', label: 'Trumpet' }, { id: 'm8', emoji: '?', label: 'Violin' }, { id: 'm9', emoji: '?', label: 'Notes' }, { id: 'm10', emoji: '?', label: 'Radio' }, { id: 'm11', emoji: '?', label: 'Speaker' }, { id: 'm12', emoji: '?', label: 'CD' },
   ]},
-  { id: 'tech', name: 'Tech', preview: '?', description: 'Gadgets, code & innovation', stickers: [
-    { id: 'tc1', emoji: '?', label: 'Laptop' }, { id: 'tc2', emoji: '?', label: 'Phone' }, { id: 'tc3', emoji: '?', label: 'Robot' }, { id: 'tc4', emoji: '?', label: 'Gaming' }, { id: 'tc5', emoji: '?', label: 'Keyboard' }, { id: 'tc6', emoji: '🖥?', label: 'Desktop' }, { id: 'tc7', emoji: '?', label: 'Satellite' }, { id: 'tc8', emoji: '?', label: 'Battery' }, { id: 'tc9', emoji: '?', label: 'Idea' }, { id: 'tc10', emoji: '⚡', label: 'Lightning' }, { id: 'tc11', emoji: '?', label: 'UFO' }, { id: 'tc12', emoji: '?', label: 'DNA' },
+  { id: 'tech', name: 'Tech', preview: '?', description: 'Gadgets, code & innovation', stickers: [
+    { id: 'tc1', emoji: '?', label: 'Laptop' }, { id: 'tc2', emoji: '?', label: 'Phone' }, { id: 'tc3', emoji: '?', label: 'Robot' }, { id: 'tc4', emoji: '?', label: 'Gaming' }, { id: 'tc5', emoji: '?', label: 'Keyboard' }, { id: 'tc6', emoji: '🖥?', label: 'Desktop' }, { id: 'tc7', emoji: '?', label: 'Satellite' }, { id: 'tc8', emoji: '?', label: 'Battery' }, { id: 'tc9', emoji: '?', label: 'Idea' }, { id: 'tc10', emoji: '⚡', label: 'Lightning' }, { id: 'tc11', emoji: '?', label: 'UFO' }, { id: 'tc12', emoji: '?', label: 'DNA' },
   ]},
-  { id: 'space', name: 'Space', preview: '?', description: 'Rockets, planets & galaxies', stickers: [
-    { id: 'sp1', emoji: '?', label: 'Rocket' }, { id: 'sp2', emoji: '?', label: 'Earth' }, { id: 'sp3', emoji: '?', label: 'Moon' }, { id: 'sp4', emoji: '?', label: 'Star' }, { id: 'sp5', emoji: '?', label: 'Comet' }, { id: 'sp6', emoji: '?', label: 'Saturn' }, { id: 'sp7', emoji: '?', label: 'Alien' }, { id: 'sp8', emoji: '🛸', label: 'Satellite' }, { id: 'sp9', emoji: '?', label: 'Galaxy' }, { id: 'sp10', emoji: '?', label: 'Telescope' }, { id: 'sp11', emoji: '👨?🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '?', label: 'Shooting star' },
+  { id: 'space', name: 'Space', preview: '?', description: 'Rockets, planets & galaxies', stickers: [
+    { id: 'sp1', emoji: '?', label: 'Rocket' }, { id: 'sp2', emoji: '?', label: 'Earth' }, { id: 'sp3', emoji: '?', label: 'Moon' }, { id: 'sp4', emoji: '?', label: 'Star' }, { id: 'sp5', emoji: '?', label: 'Comet' }, { id: 'sp6', emoji: '?', label: 'Saturn' }, { id: 'sp7', emoji: '?', label: 'Alien' }, { id: 'sp8', emoji: '🛸', label: 'Satellite' }, { id: 'sp9', emoji: '?', label: 'Galaxy' }, { id: 'sp10', emoji: '?', label: 'Telescope' }, { id: 'sp11', emoji: '👨?🚀', label: 'Astronaut' }, { id: 'sp12', emoji: '?', label: 'Shooting star' },
   ]},
 ];
 
@@ -223,7 +223,7 @@ const generateMagicReplies = (messages, currentUserId) => {
     } else if (text.includes('do you want') || text.includes('would you like') || text.includes('wanna')) {
       replies.push('Sure, I\'d love to! ?', 'Sounds great!', 'Maybe later?', 'Let me think about it');
     } else if (text.includes('can you') || text.includes('could you')) {
-      replies.push('Of course!', 'Sure thing! ?', 'I\'ll get right on it', 'Give me a moment');
+      replies.push('Of course!', 'Sure thing! ?', 'I\'ll get right on it', 'Give me a moment');
     } else if (text.includes('when') || text.includes('what time')) {
       replies.push('How about tomorrow?', 'Let me check my schedule', 'Anytime works for me!', 'I\'ll let you know soon');
     } else {
@@ -248,11 +248,11 @@ const generateMagicReplies = (messages, currentUserId) => {
   }
   // Compliment
   else if (/\b(nice|looks? good|well done|congrats|proud|impressed|talented)\b/i.test(text)) {
-    replies.push('Thanks so much! ?', 'That means a lot! 💙', 'You\'re too kind! 😊', 'Appreciate it!');
+    replies.push('Thanks so much! ?', 'That means a lot! 💙', 'You\'re too kind! 😊', 'Appreciate it!');
   }
   // Apology
   else if (/\b(sorry|apologize|my bad|forgive|mistake)\b/i.test(text)) {
-    replies.push('No worries at all! 😊', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! ?');
+    replies.push('No worries at all! 😊', 'It\'s totally fine!', 'Don\'t worry about it!', 'All good! ?');
   }
   // Help / request
   else if (/\b(help|need|urgent|asap|please|favor)\b/i.test(text)) {
@@ -270,11 +270,11 @@ const generateMagicReplies = (messages, currentUserId) => {
   else {
     const wordCount = text.split(/\s+/).length;
     if (wordCount <= 3) {
-      replies.push('Tell me more! 👀', 'Interesting!', '?', 'Got it!');
+      replies.push('Tell me more! 👀', 'Interesting!', '?', 'Got it!');
     } else if (wordCount <= 10) {
-      replies.push('That makes sense!', 'Totally agree ?', 'Nice! ✨', 'For sure!');
+      replies.push('That makes sense!', 'Totally agree ?', 'Nice! ✨', 'For sure!');
     } else {
-      replies.push('Well said! ?', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
+      replies.push('Well said! ?', 'Thanks for sharing!', 'Interesting perspective!', 'I see what you mean');
     }
   }
   return replies.slice(0, 4);
@@ -600,6 +600,7 @@ const DEFAULT_SETTINGS = {
   },
   ai: {
     smartReplies: true,
+    writingAssistant: true,
   },
   notifications: {
     inApp: true,
@@ -997,8 +998,8 @@ const initialChats = [
   }
 ];
 
-// ???? Notification tone generator (WAV in memory → Audio element) ??????????????
-// Generates real PCM audio data ? bypasses all AudioContext autoplay restrictions.
+// ???? Notification tone generator (WAV in memory → Audio element) ??????????????
+// Generates real PCM audio data ? bypasses all AudioContext autoplay restrictions.
 const playNotificationTone = (tone = 'ping') => {
   try {
     const SR = 44100; // sample rate
@@ -1049,7 +1050,7 @@ const playNotificationTone = (tone = 'ping') => {
 };
 
 
-// ???? DND window check ?????????????????????????????????????????????????????????
+// ???? DND window check ?????????????????????????????????????????????????????????
 const isInDndWindow = (dnd) => {
   if (!dnd?.enabled) return false;
   const now = new Date();
@@ -1124,7 +1125,7 @@ export default function App() {
     setUserSettings(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
   }, []);
 
-  // ?? Apply appearance ? CSS vars + global font scaling (no layout breakage) ??
+  // ?? Apply appearance ? CSS vars + global font scaling (no layout breakage) ??
   useEffect(() => {
     const a = userSettings.appearance;
     const themes = {
@@ -1133,7 +1134,7 @@ export default function App() {
       midnight: { bg: '#0d0d1a', sec: '#12122a', panel: '#0f0f20', border: 'rgba(100,100,255,0.08)' },
       slate:    { bg: '#0c0e12', sec: '#141720', panel: '#111318', border: 'rgba(255,255,255,0.06)' },
     };
-    // Font scale multiplier ? ONLY font-size is overridden, NOT padding/margin/width/icons.
+    // Font scale multiplier ? ONLY font-size is overridden, NOT padding/margin/width/icons.
     // This means layout never breaks. Text scales everywhere (chat, settings, calls, etc.).
     const fontScale = { small: 0.875, medium: 1.0, large: 1.125 }[a?.fontSize] || 1.0;
     const t   = themes[a?.theme] || themes.dark;
@@ -1161,7 +1162,7 @@ export default function App() {
       document.head.appendChild(el);
     }
     el.textContent = `
-      /* ??? Background overrides ??? */
+      /* ??? Background overrides ??? */
       [class*="bg-[#0a0a0c]"], [class*="bg-[#050507]"],
       [class*="bg-[#0d0d1a]"], [class*="bg-[#0c0e12]"] { background-color: ${t.bg}    !important; }
       [class*="bg-[#121214]"], [class*="bg-[#12122a]"],
@@ -1173,7 +1174,7 @@ export default function App() {
       [class*="bg-[#121214]/80"] { background-color: ${t.sec}cc   !important; }
       [class*="bg-[#0a0a0c]/80"] { background-color: ${t.bg}cc    !important; }
 
-      /* ??? Global font scaling ? all text classes, zero layout impact ???
+      /* ??? Global font scaling ? all text classes, zero layout impact ???
          Only font-size is overridden. Padding/margin/gap/icons (also rem) are untouched.
          Covers: chat, chat list, settings, calls, communities, requests, modals.
       */
@@ -1200,6 +1201,23 @@ export default function App() {
       .text-\\[24px\\] { font-size: ${(24 * fs).toFixed(2)}px !important; }
       .text-\\[28px\\] { font-size: ${(28 * fs).toFixed(2)}px !important; }
       .text-\\[32px\\] { font-size: ${(32 * fs).toFixed(2)}px !important; }
+
+            /* Settings navigation animations */
+      @keyframes ssSlideIn {
+        from { opacity: 0; transform: translateX(1.5rem); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes ssSlideOut {
+        from { opacity: 1; transform: translateX(0); }
+        to   { opacity: 0; transform: translateX(1.5rem); }
+      }
+      @keyframes ssMenuReturn {
+        from { opacity: 0; transform: translateX(-0.75rem); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      .settings-subscreen     { animation: ssSlideIn    300ms ease-in-out both; }
+      .settings-subscreen-out { animation: ssSlideOut   300ms ease-in-out both; pointer-events: none; }
+      .settings-menu-return   { animation: ssMenuReturn 300ms ease-in-out both; }
     `;
   }, [userSettings.appearance]);
 
@@ -1271,7 +1289,7 @@ export default function App() {
     if (!opts.force && notifs.inApp === false) return;
     // Respect DND window
     if (!opts.force && isInDndWindow(notifs.dnd)) return;
-    // Show toast ? optionally hide message content
+    // Show toast ? optionally hide message content
     const displayMsg = (notifs.preview === false && opts.isMessage)
       ? 'New message'
       : msg;
@@ -1534,7 +1552,7 @@ export default function App() {
   const handleCreateGroup = (name, memberIds) => {
     // Profanity filter for group name
     if (containsProfanity(name)) {
-      showGlobalToast('⚠? Group name contains inappropriate language. Please choose a different name.');
+      showGlobalToast('⚠? Group name contains inappropriate language. Please choose a different name.');
       return;
     }
     if (memberIds.length + 1 > 1024) {
@@ -1560,7 +1578,7 @@ export default function App() {
   const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
     // Profanity filter for group name & description
     if (containsProfanity(newName) || containsProfanity(newDesc)) {
-      showGlobalToast('⚠? Inappropriate language detected. Please revise.');
+      showGlobalToast('⚠? Inappropriate language detected. Please revise.');
       return;
     }
     const group = groups.find(g => g.id === groupId);
@@ -1972,6 +1990,8 @@ export default function App() {
               readReceipts={userSettings.privacy?.readReceipts !== false}
               bubbleStyle={userSettings.appearance?.bubbleStyle || 'default'}
               chatFontSize={userSettings.appearance?.fontSize || 'medium'}
+              aiSmartReplies={userSettings.ai?.smartReplies !== false}
+              aiWritingAssistant={userSettings.ai?.writingAssistant !== false}
             />
             </div>
           </div>
@@ -3603,7 +3623,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
       // Profanity filter for story replies
       if (containsProfanity(replyText)) {
         setReplyText('');
-        setToastMessage('🚫 Message blocked ? inappropriate language');
+        setToastMessage('🚫 Message blocked ? inappropriate language');
         setShowToast(true);
         setTimeout(() => setShowToast(false), 4500);
         return;
@@ -4040,7 +4060,7 @@ function VoiceReviewPlayer({ url, duration, onCancel, onSend }) {
 }
 
 // -----------------------------------------------------------
-// 🗳? CREATE POLL MODAL
+// 🗳? CREATE POLL MODAL
 // -----------------------------------------------------------
 function CreatePollModal({ onClose, onCreatePoll }) {
   const [question, setQuestion] = useState('');
@@ -4617,9 +4637,9 @@ function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditor
 
 
 
-// ??????????????????????????????????????????????????????????????
+// ??????????????????????????????????????????????????????????????
 // Shared settings UI primitives (used by StorageScreen + SettingsPage)
-// ??????????????????????????????????????????????????????????????
+// ??????????????????????????????????????????????????????????????
 function SubHeader({ title, onBack }) {
   return (
     <header className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.05] flex-shrink-0 bg-[#0f0f13]">
@@ -4673,10 +4693,10 @@ function FAQItem({ question, answer }) {
   );
 }
 
-// ??????????????????????????????????????????????????????????????
+// ??????????????????????????????????????????????????????????????
 
 // 📦 STORAGE SCREEN COMPONENT
-// ??????????????????????????????????????????????????????????????
+// ??????????????????????????????????????????????????????????????
 function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
   const canvasRef = useRef(null);
 
@@ -4712,44 +4732,55 @@ function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
     };
   }, [chatDetails]);
 
-  // Draw donut chart on canvas
+  // Draw donut chart — DPR-aware, proper arc paths, text centred in hole
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const size = canvas.width;
-    const cx = size / 2, cy = size / 2;
-    const R = size * 0.38, r = size * 0.22;
 
-    ctx.clearRect(0, 0, size, size);
+    // HiDPI fix: scale canvas buffer by devicePixelRatio
+    const dpr = window.devicePixelRatio || 1;
+    const displaySize = 160; // logical CSS px
+    canvas.width  = displaySize * dpr;
+    canvas.height = displaySize * dpr;
+    canvas.style.width  = displaySize + 'px';
+    canvas.style.height = displaySize + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const cx = displaySize / 2;
+    const cy = displaySize / 2;
+    const outerR = displaySize * 0.40;  // outer radius
+    const innerR = displaySize * 0.26;  // inner radius (donut hole)
+    const gap    = 0.012;               // gap between segments (radians)
+
+    ctx.clearRect(0, 0, displaySize, displaySize);
     let startAngle = -Math.PI / 2;
 
+    // Draw donut segments using proper arc paths (no moveTo center)
     storageData.categories.forEach(cat => {
-      const sweep = cat.pct * 2 * Math.PI;
+      if (cat.pct <= 0) return;
+      const sweep = cat.pct * 2 * Math.PI - gap;
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, R, startAngle, startAngle + sweep);
+      ctx.arc(cx, cy, outerR, startAngle, startAngle + sweep);          // outer arc
+      ctx.arc(cx, cy, innerR, startAngle + sweep, startAngle, true);    // inner arc (reverse)
       ctx.closePath();
       ctx.fillStyle = cat.color;
       ctx.fill();
-      startAngle += sweep;
+      startAngle += cat.pct * 2 * Math.PI;
     });
 
-    // Cut out donut hole
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-    ctx.fillStyle = '#0f0f13';
-    ctx.fill();
-
-    // Centre label
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `bold ${size * 0.12}px Inter, sans-serif`;
-    ctx.textAlign = 'center';
+    // Centre label (inside hole)
+    const mainLabel = storageData.total;
+    const fontSize  = Math.max(12, displaySize * 0.115);
+    ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(storageData.total, cx, cy - size * 0.04);
+    ctx.font         = `bold ${fontSize}px Inter, system-ui, sans-serif`;
+    ctx.fillStyle    = '#ffffff';
+    ctx.fillText(mainLabel, cx, cy - fontSize * 0.35);
+    ctx.font      = `${fontSize * 0.58}px Inter, system-ui, sans-serif`;
     ctx.fillStyle = '#71717a';
-    ctx.font = `${size * 0.07}px Inter, sans-serif`;
-    ctx.fillText('used', cx, cy + size * 0.08);
+    ctx.fillText('used', cx, cy + fontSize * 0.55);
   }, [storageData]);
 
   // Per-chat usage sorted by message count descending
@@ -4777,7 +4808,7 @@ function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
         {/* Donut chart + legend */}
         <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] p-5">
           <div className="flex items-center gap-6">
-            <canvas ref={canvasRef} width={140} height={140} className="flex-shrink-0 rounded-full" />
+            <canvas ref={canvasRef} className="flex-shrink-0" style={{width:160,height:160}} />
             <div className="flex-1 space-y-2.5">
               {storageData.categories.map(cat => (
                 <div key={cat.label} className="flex items-center gap-2.5">
@@ -4869,7 +4900,7 @@ function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
   );
 }
 
-// ⚙? SETTINGS PAGE COMPONENT
+// ⚙? SETTINGS PAGE COMPONENT
 // -----------------------------------------------------------
 function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock, chatDetails = [], setChatDetails, onToast }) {
 
@@ -4884,10 +4915,6 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     if (screen) {
       // Forward: mount new screen at offset, then animate it in via double-rAF
       setSubScreen(screen);
-      setIsEntering(true);
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => setIsEntering(false))
-      );
     } else {
       // Back: animate current screen out, then unmount
       setIsLeaving(true);
@@ -4963,8 +4990,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
   // Profile sub-screen
 
   if (subScreen === 'profile') return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[#0f0f13] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="Edit Profile" onBack={() => { setProfileDraft({ ...currentUser }); setProfileError(''); navigateTo(null); }} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-6 space-y-6">
@@ -5037,8 +5064,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
   // ─ Privacy & Security sub-screen ─
   if (subScreen === 'privacy') return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[#0f0f13] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="Privacy & Security" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
@@ -5162,7 +5189,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     </div>
   );
 
-  // ?? Storage sub-screen ??
+  // ?? Storage sub-screen ??
   if (subScreen === 'storage') return (
     <StorageScreen
       chatDetails={chatDetails}
@@ -5177,8 +5204,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
   // Content Filters sub-screen
   if (subScreen === 'safety') return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[#0f0f13] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="Content Filters" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
@@ -5241,8 +5268,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
   // Notifications sub-screen
   if (subScreen === 'notifications') return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[#0f0f13] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="Notifications" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
@@ -5401,10 +5428,10 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     </div>
   );
 
-  // ?? Appearance sub-screen ??
+  // ?? Appearance sub-screen ??
   if (subScreen === 'appearance') return (
-    <div className={`flex flex-col h-full bg-[var(--app-bg-panel,#0f0f13)] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[var(--app-bg-panel,#0f0f13)] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="Appearance" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
@@ -5492,9 +5519,9 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Text Size</p>
           <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
             {[
-              { value: 'small',  label: 'Small',  sample: 'text-[13px]', desc: 'Compact ? fits more on screen' },
-              { value: 'medium', label: 'Medium', sample: 'text-[15px]', desc: 'Default ? comfortable reading' },
-              { value: 'large',  label: 'Large',  sample: 'text-[17px]', desc: 'Larger ? easier on the eyes' },
+              { value: 'small',  label: 'Small',  sample: 'text-[13px]', desc: 'Compact ? fits more on screen' },
+              { value: 'medium', label: 'Medium', sample: 'text-[15px]', desc: 'Default ? comfortable reading' },
+              { value: 'large',  label: 'Large',  sample: 'text-[17px]', desc: 'Larger ? easier on the eyes' },
             ].map(fs => (
               <button key={fs.value} onClick={() => onUpdateSetting('appearance', 'fontSize', fs.value)}
                 className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors">
@@ -5575,8 +5602,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
   // AI sub-screen
   if (subScreen === 'ai') return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[#0f0f13] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="AI and Smart Replies" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-4">
@@ -5590,17 +5617,24 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
               </div>
               <Toggle checked={userSettings.ai.smartReplies !== false} onChange={v => onUpdateSetting('ai', 'smartReplies', v)} />
             </div>
+            <div className="flex items-center gap-4 px-5 py-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">AI Writing Assistant</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Improve, shorten, or rephrase your messages with AI</p>
+              </div>
+              <Toggle checked={userSettings.ai.writingAssistant !== false} onChange={v => onUpdateSetting('ai', 'writingAssistant', v)} />
+            </div>
           </div>
         </div>
-        <p className="text-xs text-zinc-600 px-1">More AI features coming soon.</p>
+        <p className="text-xs text-zinc-600 px-1">AI runs on-device. No messages are sent to external servers.</p>
       </div>
     </div>
   );
 
-  // ?? Help & About sub-screen ??
+  // ?? Help & About sub-screen ??
   if (subScreen === 'help') return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] transition-all duration-200 ease-out ${
-      isEntering ? 'translate-x-8 opacity-0' : isLeaving ? '-translate-x-4 opacity-0' : 'translate-x-0 opacity-100'
+    <div className={`flex flex-col h-full bg-[#0f0f13] ${
+      isLeaving ? 'settings-subscreen-out' : 'settings-subscreen'
     }`}>
       <SubHeader title="Help & About" onBack={() => navigateTo(null)} />
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden p-5 space-y-6">
@@ -5629,7 +5663,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           a: 'Tap the compose icon in the top-right of the Home screen, then search for a contact to start a conversation.'
         }, {
           q: 'Can I delete a message after sending?',
-          a: 'Yes ? long-press any message you sent, then tap "Delete". You can delete for yourself or for everyone in the chat.'
+          a: 'Yes, long-press any message you sent, then tap "Delete". You can delete for yourself or for everyone in the chat.'
         }, {
           q: 'What does disappearing messages do?',
           a: 'Disappearing messages automatically delete themselves after the configured timer. Once the session ends or the timer expires, messages are permanently removed.'
@@ -5651,7 +5685,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
               className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 resize-none outline-none focus:border-indigo-500/50 transition-colors"
             />
             <button
-              onClick={() => onToast?.('Feedback submitted ? thank you! ?')}
+              onClick={() => onToast?.('Feedback submitted ? thank you! ?')}
               className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors"
             >
               Submit Feedback
@@ -5659,17 +5693,15 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           </div>
         </div>
 
-        <p className="text-center text-[11px] text-zinc-700 pb-2">Made with ?? · BeyondChat © 2025</p>
+        <p className="text-center text-[11px] text-zinc-700 pb-2">Made with ?? · BeyondChat © 2025</p>
       </div>
     </div>
   );
 
-  // ?? Main settings menu ??
+  // ?? Main settings menu ??
   const statusOption = STATUS_OPTIONS.find(s => s.value === currentUser.status) || STATUS_OPTIONS[0];
   return (
-    <div className={`flex flex-col h-full bg-[#0f0f13] overflow-y-auto [&::-webkit-scrollbar]:hidden transition-all duration-200 ease-out ${
-      isLeaving ? 'translate-x-6 opacity-0' : 'translate-x-0 opacity-100'
-    }`}>
+    <div className="flex flex-col h-full bg-[#0f0f13] overflow-y-auto [&::-webkit-scrollbar]:hidden settings-menu-return">
       <div className="px-5 pt-8 pb-6 border-b border-white/[0.05]">
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0">
@@ -5808,7 +5840,7 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium' }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium', aiSmartReplies = true, aiWritingAssistant = true }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -6049,9 +6081,11 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   const messages = chat.messages || [];
 
   // Magic Reply ? on-device contextual suggestions
+  // Gated by AI Smart Replies setting
   const magicReplies = useMemo(() => {
+    if (!aiSmartReplies) return [];
     return generateMagicReplies(messages, currentUser.id);
-  }, [messages, currentUser.id]);
+  }, [messages, currentUser.id, aiSmartReplies]);
 
   // AI Writing Assistant handler
   const handleAiTool = (toolId) => {
@@ -7504,7 +7538,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                         <X size={10} />
                       </button>
                       <p className="text-[8px] text-zinc-500 truncate w-20 mt-1 text-center">{af.name}</p>
-                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? '?? View once' : formatFileSize(af.size)}</p>
+                      <p className="text-[7px] text-zinc-600 w-20 text-center">{viewOnceEnabled && isMedia ? '?? View once' : formatFileSize(af.size)}</p>
                     </div>
                   );
                 })}
@@ -7676,7 +7710,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                   className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none px-2 cursor-text"
                 />
                 
-                {/* AI Sparkle Button */}
+                {/* AI Writing Assistant button — only shown when enabled in settings */}
+                {aiWritingAssistant && (
                 <button 
                   type="button" 
                   onClick={() => setShowAiAssistant(!showAiAssistant)}
@@ -7688,6 +7723,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                   )}
                 </button>
+                )}
 
                 {inputText.trim() || replyingTo || attachedFiles.length > 0 ? (
                   <button type="submit" className="p-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full transition-colors shadow-lg shadow-indigo-500/20 active:scale-95">
@@ -8006,7 +8042,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         </div>
       )}
 
-      {/* 🗳? Create Poll Modal */}
+      {/* 🗳? Create Poll Modal */}
       {showCreatePoll && <CreatePollModal onClose={() => setShowCreatePoll(false)} onCreatePoll={handleCreatePoll} />}
 
       {/* 👥 Poll Voters Overlay */}
@@ -8078,9 +8114,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
               <p className="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider mb-3">Select Priority</p>
               <div className="space-y-2">
                 {[
-                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: '?' },
-                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: '?' },
-                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: '?' },
+                  { key: 'high', label: 'High', desc: 'Urgent & important', color: 'from-red-500 to-rose-600', ring: 'ring-red-400/40', icon: '?' },
+                  { key: 'medium', label: 'Medium', desc: 'Normal priority', color: 'from-amber-500 to-orange-600', ring: 'ring-amber-400/40', icon: '?' },
+                  { key: 'low', label: 'Low', desc: 'Can wait', color: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-400/40', icon: '?' },
                 ].map(p => (
                   <button
                     key={p.key}
@@ -8554,9 +8590,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <div className="flex flex-col gap-2">
               {[
                 { key: 'session', label: 'This Session', desc: 'Until you leave this chat', icon: '?' },
-                { key: '1day', label: '1 Day', desc: 'Expires after 24 hours', icon: '?' },
-                { key: '1week', label: '1 Week', desc: 'Expires after 7 days', icon: '?' },
-                { key: '1month', label: '1 Month', desc: 'Expires after 30 days', icon: '?' },
+                { key: '1day', label: '1 Day', desc: 'Expires after 24 hours', icon: '?' },
+                { key: '1week', label: '1 Week', desc: 'Expires after 7 days', icon: '?' },
+                { key: '1month', label: '1 Month', desc: 'Expires after 30 days', icon: '?' },
               ].map(opt => (
                 <button
                   key={opt.key}
