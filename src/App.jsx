@@ -437,10 +437,16 @@ const normalizeLeet = (str) => {
     .replace(/[_\-.*]+/g, ''); // Strip separators used to bypass filters
 };
 
-const containsProfanity = (text) => {
+const containsProfanity = (text, opts = {}) => {
   if (!text || typeof text !== 'string') return false;
-  const normalized = normalizeLeet(text.toLowerCase().trim());
-  // Check full phrases first
+  const { leetDetection = true, customBlocklist = [] } = opts;
+  const lower = text.toLowerCase().trim();
+  const normalized = leetDetection ? normalizeLeet(lower) : lower;
+  // Check custom blocklist (substring match)
+  for (const cw of customBlocklist) {
+    if (cw && normalized.includes(cw.toLowerCase())) return true;
+  }
+  // Check built-in list — full phrases first
   for (const word of PROFANITY_LIST) {
     if (word.includes(' ')) {
       if (normalized.includes(word)) return true;
@@ -456,10 +462,19 @@ const containsProfanity = (text) => {
   return false;
 };
 
-const sanitizeText = (text) => {
+const sanitizeText = (text, opts = {}) => {
   if (!text) return text;
+  const { leetDetection = true, customBlocklist = [] } = opts;
   let result = text;
-  const lower = text.toLowerCase();
+  const lower = leetDetection ? normalizeLeet(text.toLowerCase()) : text.toLowerCase();
+  // Mask custom blocked words
+  for (const cw of customBlocklist) {
+    if (!cw) continue;
+    const escaped = cw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const re = new RegExp(escaped, 'gi');
+    result = result.replace(re, m => '*'.repeat(m.length));
+  }
+  // Mask built-in profanity
   for (const word of PROFANITY_LIST) {
     const idx = lower.indexOf(word);
     if (idx !== -1) {
@@ -1406,8 +1421,11 @@ export default function App() {
   }, []);
 
   const handleSendMessageGlobal = useCallback((userId, text, replyTo = null, customPayload = null, storyReply = null, meta = null) => {
-    // On-device profanity filter ? block messages containing profane language
-    if (text && containsProfanity(text) && !meta?.poll) return 'profanity';
+    // On-device profanity filter — only hard-block when mode is 'block'
+    // Other modes (warn, sanitize, off) are handled in ChatView before this is called
+    const _safetyMode = userSettings.safety?.profanityFilter || 'block';
+    const _safetyOpts = { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] };
+    if (text && _safetyMode === 'block' && containsProfanity(text, _safetyOpts) && !meta?.poll) return 'profanity';
     const group = groups.find(g => g.id === userId);
     const newMessage = customPayload || {
       id: Date.now(),
@@ -1552,8 +1570,8 @@ export default function App() {
 
   const handleCreateGroup = (name, memberIds) => {
     // Profanity filter for group name
-    if (containsProfanity(name)) {
-      showGlobalToast('⚠? Group name contains inappropriate language. Please choose a different name.');
+    if (containsProfanity(name, { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] })) {
+      showGlobalToast('⚠️ Group name contains inappropriate language. Please choose a different name.');
       return;
     }
     if (memberIds.length + 1 > 1024) {
@@ -1578,8 +1596,9 @@ export default function App() {
 
   const handleUpdateGroupInfo = useCallback((groupId, newName, newDesc) => {
     // Profanity filter for group name & description
-    if (containsProfanity(newName) || containsProfanity(newDesc)) {
-      showGlobalToast('⚠? Inappropriate language detected. Please revise.');
+    const _groupFilterOpts = { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] };
+    if (containsProfanity(newName, _groupFilterOpts) || containsProfanity(newDesc, _groupFilterOpts)) {
+      showGlobalToast('⚠️ Inappropriate language detected. Please revise.');
       return;
     }
     const group = groups.find(g => g.id === groupId);
@@ -1994,6 +2013,7 @@ export default function App() {
               chatFontSize={userSettings.appearance?.fontSize || 'medium'}
               aiSmartReplies={userSettings.ai?.smartReplies !== false}
               aiWritingAssistant={userSettings.ai?.writingAssistant !== false}
+              filterSettings={userSettings.safety || {}}
             />
             </div>
           </div>
@@ -2180,7 +2200,7 @@ function NewChatModal({ isOpen, onClose, friends, onStartChat, onCreateGroup }) 
         {mode === 'name-group' && (
           <button 
             onClick={() => {
-              if (containsProfanity(groupName)) {
+              if (containsProfanity(groupName, { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] })) {
                 setGroupProfanity(true);
                 setTimeout(() => setGroupProfanity(false), 3000);
                 return;
@@ -2634,7 +2654,7 @@ function CreateStoryModal({ onClose, onPost, currentUser }) {
   const currentBg = gradients[bgIndex];
 
   const handlePost = () => {
-    if (containsProfanity(text)) {
+    if (containsProfanity(text, { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] })) {
       setStoryProfanity(true);
       return;
     }
@@ -3623,7 +3643,7 @@ function StoryViewer({ friend, onClose, onNextUser, onPrevUser, hasNextUser, has
     e?.preventDefault();
     if (replyText.trim()) {
       // Profanity filter for story replies
-      if (containsProfanity(replyText)) {
+      if (containsProfanity(replyText, { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] })) {
         setReplyText('');
         setToastMessage('🚫 Message blocked ? inappropriate language');
         setShowToast(true);
@@ -4961,7 +4981,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     const handle = profileDraft.handle.trim();
     const about = (profileDraft.about || '').trim();
     if (!name) { setProfileError('Name cannot be empty.'); return; }
-    if (containsProfanity(name) || containsProfanity(about)) {
+    const _profileFilterOpts = { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] };
+    if (containsProfanity(name, _profileFilterOpts) || containsProfanity(about, _profileFilterOpts) || containsProfanity(handle, _profileFilterOpts)) {
       setProfileError('Inappropriate language detected. Please revise.'); return;
     }
     setProfileError('');
@@ -5841,7 +5862,7 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium', aiSmartReplies = true, aiWritingAssistant = true }) {
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium', aiSmartReplies = true, aiWritingAssistant = true, filterSettings = {} }) {
   const [inputText, setInputText] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
@@ -6409,13 +6430,32 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     }
     
     if (inputText.trim()) {
-      // On-device profanity check
-      if (containsProfanity(inputText)) {
-        setProfanityWarning(true);
-        setTimeout(() => setProfanityWarning(false), 3000);
-        return;
+      const filterMode = filterSettings?.profanityFilter || 'block';
+      const filterOpts = {
+        leetDetection: filterSettings?.leetDetection !== false,
+        customBlocklist: filterSettings?.customBlocklist || [],
+      };
+      let textToSend = inputText;
+      if (filterMode === 'block') {
+        // Block: refuse to send if profanity detected
+        if (containsProfanity(inputText, filterOpts)) {
+          setProfanityWarning(true);
+          setTimeout(() => setProfanityWarning(false), 3000);
+          return;
+        }
+      } else if (filterMode === 'sanitize') {
+        // Sanitize: replace flagged words with *** and send
+        textToSend = sanitizeText(inputText, filterOpts);
+      } else if (filterMode === 'warn') {
+        // Warn: show toast notification but still send the message
+        if (containsProfanity(inputText, filterOpts)) {
+          setProfanityWarning(true);
+          setTimeout(() => setProfanityWarning(false), 3000);
+          // Fall through — message is sent anyway
+        }
       }
-      const result = onSendMessage(chat.id, inputText, replyingTo);
+      // 'off' mode: send as-is with no checks
+      const result = onSendMessage(chat.id, textToSend, replyingTo);
       if (result === 'profanity') {
         setProfanityWarning(true);
         setTimeout(() => setProfanityWarning(false), 3000);
@@ -6432,7 +6472,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
   const handleSaveName = () => {
     if (!editName.trim()) return;
-    if (containsProfanity(editName)) {
+    const _fOpts = { leetDetection: filterSettings?.leetDetection !== false, customBlocklist: filterSettings?.customBlocklist || [] };
+    if (containsProfanity(editName, _fOpts)) {
       setProfanityWarning(true);
       setTimeout(() => setProfanityWarning(false), 3000);
       return;
@@ -6442,7 +6483,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   };
 
   const handleSaveDesc = () => {
-    if (containsProfanity(editDesc)) {
+    if (containsProfanity(editDesc, { leetDetection: filterSettings?.leetDetection !== false, customBlocklist: filterSettings?.customBlocklist || [] })) {
       setProfanityWarning(true);
       setTimeout(() => setProfanityWarning(false), 3000);
       return;
@@ -8953,7 +8994,7 @@ function CommunityView({ communities, setCommunities, groups, onSelectGroup, act
   const handleCreateCommunity = () => {
     if (!newCommunityName.trim() || selectedGroupIds.length < 2) return;
     // Profanity filter for community name
-    if (containsProfanity(newCommunityName)) {
+    if (containsProfanity(newCommunityName, { leetDetection: userSettings.safety?.leetDetection !== false, customBlocklist: userSettings.safety?.customBlocklist || [] })) {
       setCommunityProfanity(true);
       setTimeout(() => setCommunityProfanity(false), 3000);
       return;
