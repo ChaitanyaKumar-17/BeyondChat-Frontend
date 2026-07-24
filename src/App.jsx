@@ -5252,18 +5252,30 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
           </div>
         </div>
 
-        <div>
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Detection</p>
-          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
-            <div className="flex items-center gap-4 px-5 py-4">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">Leet-speak Detection</p>
-                <p className="text-xs text-zinc-500 mt-0.5">Catches h3ll0, @ss, etc.</p>
+        {/* Detection — greyed out when filter is Off */}
+        {(() => {
+          const filterOff = userSettings.safety?.profanityFilter === 'off';
+          return (
+            <div className={filterOff ? 'opacity-40 pointer-events-none select-none' : ''}>
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">
+                Detection
+                {filterOff && <span className="ml-2 normal-case font-normal text-zinc-600">(disabled — filter is off)</span>}
+              </p>
+              <div className="bg-white/[0.03] rounded-2xl border border-white/[0.05] divide-y divide-white/[0.04]">
+                <div className="flex items-center gap-4 px-5 py-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Leet-speak Detection</p>
+                    <p className="text-xs text-zinc-500 mt-0.5">Catches h3ll0, @ss, etc.</p>
+                  </div>
+                  <Toggle
+                    checked={!filterOff && userSettings.safety.leetDetection !== false}
+                    onChange={v => { if (!filterOff) onUpdateSetting('safety', 'leetDetection', v); }}
+                  />
+                </div>
               </div>
-              <Toggle checked={userSettings.safety.leetDetection !== false} onChange={v => onUpdateSetting('safety', 'leetDetection', v)} />
             </div>
-          </div>
-        </div>
+          );
+        })()}
 
         <div>
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-1">Custom Blocked Words</p>
@@ -5914,7 +5926,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   // AI Features state
   const [showAiAssistant, setShowAiAssistant] = useState(false);
   const [aiProcessing, setAiProcessing] = useState(false);
-  const [profanityWarning, setProfanityWarning] = useState(false);
+  const [profanityWarning, setProfanityWarning] = useState(null); // null | 'block' | 'warn'
 
   // --- Polls, Tasks, Canvas state ---
   const [showCreatePoll, setShowCreatePoll] = useState(false);
@@ -6432,33 +6444,42 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     if (inputText.trim()) {
       const filterMode = filterSettings?.profanityFilter || 'block';
       const filterOpts = {
-        leetDetection: filterSettings?.leetDetection !== false,
-        customBlocklist: filterSettings?.customBlocklist || [],
+        leetDetection: filterMode !== 'off' && filterSettings?.leetDetection !== false,
+        customBlocklist: filterMode !== 'off' ? (filterSettings?.customBlocklist || []) : [],
       };
       let textToSend = inputText;
       if (filterMode === 'block') {
         // Block: refuse to send if profanity detected
         if (containsProfanity(inputText, filterOpts)) {
-          setProfanityWarning(true);
-          setTimeout(() => setProfanityWarning(false), 3000);
+          setProfanityWarning('block');
+          setTimeout(() => setProfanityWarning(null), 4000);
           return;
         }
       } else if (filterMode === 'sanitize') {
         // Sanitize: replace flagged words with *** and send
         textToSend = sanitizeText(inputText, filterOpts);
       } else if (filterMode === 'warn') {
-        // Warn: show toast notification but still send the message
+        // Warn: show amber toast for 2.5s, THEN send (so user can read it)
         if (containsProfanity(inputText, filterOpts)) {
-          setProfanityWarning(true);
-          setTimeout(() => setProfanityWarning(false), 3000);
-          // Fall through — message is sent anyway
+          setProfanityWarning('warn');
+          const _warnText = textToSend;
+          const _warnReply = replyingTo;
+          setTimeout(() => {
+            onSendMessage(chat.id, _warnText, _warnReply);
+            setInputText('');
+            setReplyingTo(null);
+            setShowEmojiPicker(false);
+            setProfanityWarning(null);
+            onTyping(chat.id, false);
+          }, 2500);
+          return; // exit — send handled in timeout
         }
       }
-      // 'off' mode: send as-is with no checks
+      // 'off' + clean text in other modes: send normally
       const result = onSendMessage(chat.id, textToSend, replyingTo);
       if (result === 'profanity') {
-        setProfanityWarning(true);
-        setTimeout(() => setProfanityWarning(false), 3000);
+        setProfanityWarning('block');
+        setTimeout(() => setProfanityWarning(null), 4000);
         return;
       }
       setInputText('');
@@ -6474,8 +6495,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
     if (!editName.trim()) return;
     const _fOpts = { leetDetection: filterSettings?.leetDetection !== false, customBlocklist: filterSettings?.customBlocklist || [] };
     if (containsProfanity(editName, _fOpts)) {
-      setProfanityWarning(true);
-      setTimeout(() => setProfanityWarning(false), 3000);
+      setProfanityWarning('block');
+      setTimeout(() => setProfanityWarning(null), 3000);
       return;
     }
     onUpdateGroupInfo(chat.id, editName, chat.description);
@@ -6484,8 +6505,8 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
 
   const handleSaveDesc = () => {
     if (containsProfanity(editDesc, { leetDetection: filterSettings?.leetDetection !== false, customBlocklist: filterSettings?.customBlocklist || [] })) {
-      setProfanityWarning(true);
-      setTimeout(() => setProfanityWarning(false), 3000);
+      setProfanityWarning('block');
+      setTimeout(() => setProfanityWarning(null), 3000);
       return;
     }
     onUpdateGroupInfo(chat.id, chat.name, editDesc);
@@ -7627,17 +7648,28 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
             <div className="relative">
               {/* 🚫 Profanity Warning Toast */}
               {profanityWarning && (
-                <div style={{ animation: 'slideUp 0.3s ease-out' }} className="flex items-center gap-3 mb-2 px-5 py-3 bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/30 rounded-2xl backdrop-blur-md shadow-lg shadow-red-500/5">
-                  <div className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                    <Shield size={14} className="text-red-400" />
+                <div style={{ animation: 'slideUp 0.3s ease-out' }} className={`flex items-center gap-3 mb-2 px-5 py-3 rounded-2xl backdrop-blur-md shadow-lg ${profanityWarning === 'warn' ? 'bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border border-amber-500/30 shadow-amber-500/5' : 'bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/30 shadow-red-500/5'}`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${profanityWarning === 'warn' ? 'bg-amber-500/20' : 'bg-red-500/20'}`}>
+                    <Shield size={14} className={profanityWarning === 'warn' ? 'text-amber-400' : 'text-red-400'} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-red-400">Message blocked</p>
-                    <p className="text-[10px] text-red-400/70">Inappropriate language detected ? please revise your message</p>
+                    {profanityWarning === 'warn' ? (
+                      <>
+                        <p className="text-xs font-semibold text-amber-400">Language warning</p>
+                        <p className="text-[10px] text-amber-400/70">Flagged content detected — message sending in a moment…</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs font-semibold text-red-400">Message blocked</p>
+                        <p className="text-[10px] text-red-400/70">Inappropriate language detected — please revise your message</p>
+                      </>
+                    )}
                   </div>
-                  <button type="button" onClick={() => setProfanityWarning(false)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors shrink-0">
-                    <X size={14} />
-                  </button>
+                  {profanityWarning === 'block' && (
+                    <button type="button" onClick={() => setProfanityWarning(null)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors shrink-0">
+                      <X size={14} />
+                    </button>
+                  )}
                 </div>
               )}
 
