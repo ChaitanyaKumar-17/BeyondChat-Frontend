@@ -1124,6 +1124,9 @@ export default function App() {
 
   const [activeNav, setActiveNav] = useState('home');
   const [settingsInSubScreen, setSettingsInSubScreen] = useState(false);
+  // In-memory draft store: { [chatId]: string } — cleared on logout/page close
+  const [drafts, setDrafts] = useState({});
+  const saveDraft = (chatId, text) => setDrafts(prev => ({ ...prev, [chatId]: text }));
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [appToast, setAppToast] = useState('');
   
@@ -1907,6 +1910,7 @@ export default function App() {
               onSendMessage={handleSendMessageGlobal}
               onOverlayChange={handleOverlayChange}
               currentUser={currentUser}
+              drafts={drafts}
             />
           </div>
           
@@ -2017,6 +2021,8 @@ export default function App() {
               aiSmartReplies={userSettings.ai?.smartReplies !== false}
               aiWritingAssistant={userSettings.ai?.writingAssistant !== false}
               filterSettings={userSettings.safety || {}}
+              draft={drafts[activeChat?.id] || ''}
+              onSaveDraft={saveDraft}
             />
             </div>
           </div>
@@ -2724,7 +2730,7 @@ function CreateStoryModal({ onClose, onPost, currentUser }) {
   );
 }
 
-function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithdrawReq, friends, setFriends, groups, receivedReqs, onAcceptReq, onRejectReq, myStories, setMyStories, recentConversations, typingIndicators, chatDetails, onSendMessage, onOverlayChange, currentUser }) {
+function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithdrawReq, friends, setFriends, groups, receivedReqs, onAcceptReq, onRejectReq, myStories, setMyStories, recentConversations, typingIndicators, chatDetails, onSendMessage, onOverlayChange, currentUser, drafts = {} }) {
   const [listTab, setListTab] = useState('conversations');
   const [expandedGroups, setExpandedGroups] = useState(false);
   const [expandedRecent, setExpandedRecent] = useState(false);
@@ -2957,9 +2963,14 @@ function HomeDashboard({ onSelectChat, globalUsers, sentReqs, onSendReq, onWithd
           )}
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-medium text-white mb-0.5 truncate">{chat.name}</h3>
-            <p className={`text-sm truncate ${chat.unread > 0 || isTyping ? 'text-zinc-200 font-medium' : 'text-zinc-500'}`}>
+            <p className={`text-sm truncate ${chat.unread > 0 || isTyping ? 'text-zinc-200 font-medium' : drafts[chat.id] ? 'text-zinc-400' : 'text-zinc-500'}`}>
               {isTyping ? (
                 <span className="text-emerald-400 font-medium">{typingText}</span>
+              ) : drafts[chat.id] ? (
+                <span className="truncate">
+                  <span className="text-amber-400/90 font-semibold text-xs mr-1">Draft:</span>
+                  <span className="text-zinc-400">{drafts[chat.id]}</span>
+                </span>
               ) : (
                 chat.lastMessage
               )}
@@ -5877,8 +5888,8 @@ function TaskPanel({ tasks, onClose, onUpdateTask, onDeleteTask, friends, canMan
   );
 }
 
-function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium', aiSmartReplies = true, aiWritingAssistant = true, filterSettings = {} }) {
-  const [inputText, setInputText] = useState('');
+function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedReqs, onAcceptReq, onRejectReq, onSendMessage, onReactToMessage, friends, typingIndicators, onTyping, onLeaveGroup, onBlock, onReport, onDisconnect, onUpdateGroupInfo, onRemoveMembers, onToggleAdmin, onAddMembers, onDeleteMessage, onStartChat, onPinMessage, onToggleAdminMessaging, onToggleStarMessage, onForwardMessage, groups, globalUsers, disappearingChat, onToggleDisappearing, onUpdateMessageStatus, currentUser, readReceipts = true, bubbleStyle = 'default', chatFontSize = 'medium', aiSmartReplies = true, aiWritingAssistant = true, filterSettings = {}, draft = '', onSaveDraft }) {
+  const [inputText, setInputText] = useState(draft); // restored from in-memory draft
   const [showDetails, setShowDetails] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
   const [showAllMutuals, setShowAllMutuals] = useState(false);
@@ -6263,7 +6274,9 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
   }, [messages.length, typingIndicators]);
 
   const handleInputChange = (e) => {
-    setInputText(e.target.value);
+    const val = e.target.value;
+    setInputText(val);
+    onSaveDraft?.(chat.id, val); // persist draft in memory
     
     if (chat.isConnected || chat.isGroup) {
       onTyping(chat.id, true);
@@ -6486,6 +6499,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
         return;
       }
       setInputText('');
+      onSaveDraft?.(chat.id, ''); // clear draft on successful send
       setReplyingTo(null);
       setShowEmojiPicker(false);
     }
