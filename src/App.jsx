@@ -897,6 +897,9 @@ const initialChats = [
       { id: 104, senderId: 1, text: 'The new design system looks incredible!', timestamp: nowMs - 2 * MIN },
       { id: 105, senderId: 1, timestamp: nowMs - 90000, attachment: { name: 'sunset.jpg', size: 2400000, type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600', viewOnce: true } },
       { id: 106, senderId: 0, timestamp: nowMs - 60000, status: 'read', attachment: { name: 'sketch_draft.png', size: 1800000, type: 'image/png', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600', viewOnce: true } },
+      { id: 107, senderId: 1, text: 'Ugh this damn build keeps failing, what the hell is wrong with it!', timestamp: nowMs - 8 * 60000 },
+      { id: 108, senderId: 1, text: 'I swear this bullshit CI pipeline is broken again', timestamp: nowMs - 6 * 60000 },
+      { id: 109, senderId: 1, text: 'Sorry about that — super frustrated. Anyway, can you check the PR?', timestamp: nowMs - 4 * 60000 },
     ]
   },
   {
@@ -6822,6 +6825,18 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
           const msg = item;
           const isMe = msg.senderId === currentUser.id;
           const hasReactions = msg.reactions && msg.reactions.length > 0;
+
+          // ── Incoming message receive-side filter ──────────────────────────
+          const _recvMode = filterSettings?.profanityFilter || 'block';
+          const _recvOpts = {
+            leetDetection: _recvMode !== 'off' && filterSettings?.leetDetection !== false,
+            customBlocklist: _recvMode !== 'off' ? (filterSettings?.customBlocklist || []) : [],
+          };
+          const _isFlaggedIncoming = !isMe && msg.text && _recvMode !== 'off' && containsProfanity(msg.text, _recvOpts);
+          // block/sanitize → mask text; warn → show raw with badge; off → raw
+          const displayText = (!isMe && msg.text && (_recvMode === 'block' || _recvMode === 'sanitize') && _isFlaggedIncoming)
+            ? sanitizeText(msg.text, _recvOpts)
+            : msg.text;
           const isNearBottom = idx >= groupedMessages.length - 3;
 
           return (
@@ -7178,7 +7193,7 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                             </div>
                           );
                         })()}
-                        {msg.text && !msg.meta?.poll && <span className="break-words leading-relaxed">{msg.text}</span>}
+                        {msg.text && !msg.meta?.poll && <span className="break-words leading-relaxed">{displayText}</span>}
                         {!msg.text && !msg.attachment && !msg.voiceNote && !msg.gif && !msg.sticker && !msg.meta?.poll && <span className="break-words leading-relaxed"></span>}
                         {msg.isStarred && <Star size={12} className="inline-block text-yellow-400 fill-current opacity-80 shrink-0 ml-1.5 mb-[2px]" />}
                       </div>
@@ -7207,6 +7222,22 @@ function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdrawReq, receivedRe
                     </div>
                     );
                   })()}
+
+                {/* Receive-side filter badge — beside bubble, outside it */}
+                {_isFlaggedIncoming && _recvMode === 'warn' && (
+                  <div className="flex items-end pb-[3px] ml-0.5 shrink-0">
+                    <span className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/20 text-[11px] font-bold text-amber-400 whitespace-nowrap tracking-wide">
+                      ⚠️ flagged
+                    </span>
+                  </div>
+                )}
+                {_isFlaggedIncoming && (_recvMode === 'block' || _recvMode === 'sanitize') && (
+                  <div className="flex items-end pb-[3px] ml-0.5 shrink-0">
+                    <span className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-red-500/15 border border-red-500/20 text-[11px] font-bold text-red-400 whitespace-nowrap tracking-wide">
+                      🚫 filtered
+                    </span>
+                  </div>
+                )}
 
                 </div>
                 <span className="text-[10px] text-zinc-500 mt-1 px-1 flex items-center gap-0.5">
