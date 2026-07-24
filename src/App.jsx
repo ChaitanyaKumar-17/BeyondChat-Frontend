@@ -4964,6 +4964,7 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
   }, [subScreen]);
 
   const [profileDraft, setProfileDraft] = useState({ ...currentUser });
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [profileError, setProfileError] = useState('');
   const [customWord, setCustomWord]      = useState('');
   const fileInputRef = useRef(null);
@@ -5752,7 +5753,8 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
   // ?? Main settings menu ??
   const statusOption = STATUS_OPTIONS.find(s => s.value === currentUser.status) || STATUS_OPTIONS[0];
   return (
-    <div className="flex flex-col h-full bg-[#0f0f13] overflow-y-auto [&::-webkit-scrollbar]:hidden settings-menu-return">
+    <div className="relative flex flex-col h-full">
+    <div className="flex flex-col flex-1 bg-[#0f0f13] overflow-y-auto [&::-webkit-scrollbar]:hidden settings-menu-return">
       <div className="px-5 pt-8 pb-6 border-b border-white/[0.05]">
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0">
@@ -5764,7 +5766,15 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
             <p className="text-sm text-zinc-400 truncate">{currentUser.handle}</p>
             <p className="text-xs text-zinc-600 mt-0.5 truncate">{currentUser.about || 'No bio set'}</p>
           </div>
-          
+
+          {/* Logout button — right side of header, opposite the avatar */}
+          <button
+            onClick={() => setShowLogoutConfirm(true)}
+            title="Log out"
+            className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
 
@@ -5816,7 +5826,39 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
 
         <p className="text-center text-[11px] text-zinc-700 pt-2">App v1.0.0</p>
       </div>
-    </div>
+    </div>{/* scroll div */}
+
+    {/* Logout Confirmation Modal — absolute relative to wrapper, not inside scroll */}
+    {showLogoutConfirm && (
+      <div className="absolute inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="w-[85vw] max-w-sm bg-[#1a1a1c] border border-white/[0.08] rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-red-500/15 border border-red-500/20 flex items-center justify-center">
+              <LogOut size={24} className="text-red-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white mb-1">Log out?</h2>
+              <p className="text-sm text-zinc-400 leading-relaxed">You will be returned to the login screen. Any unsaved drafts will be lost.</p>
+            </div>
+            <div className="flex gap-3 w-full mt-1">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] text-sm font-semibold text-zinc-300 hover:bg-white/[0.08] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-400 text-sm font-bold text-white transition-colors shadow-lg shadow-red-500/20"
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
   );
 }
 
