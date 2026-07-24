@@ -1105,6 +1105,7 @@ export default function App() {
   }, []);
 
   const [activeNav, setActiveNav] = useState('home');
+  const [settingsInSubScreen, setSettingsInSubScreen] = useState(false);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [appToast, setAppToast] = useState('');
   
@@ -1216,7 +1217,7 @@ export default function App() {
         to   { opacity: 1; transform: translateX(0); }
       }
       .settings-subscreen     { animation: ssSlideIn    300ms ease-in-out both; }
-      .settings-subscreen-out { animation: ssSlideOut   300ms ease-in-out both; pointer-events: none; }
+      .settings-subscreen-out { animation: ssSlideOut   200ms ease-in-out both; pointer-events: none; }
       .settings-menu-return   { animation: ssMenuReturn 300ms ease-in-out both; }
     `;
   }, [userSettings.appearance]);
@@ -1941,6 +1942,7 @@ export default function App() {
               chatDetails={chatDetails}
               setChatDetails={setChatDetails}
               onToast={showGlobalToast}
+              onSubScreenChange={setSettingsInSubScreen}
             />
           </div>
 
@@ -2058,7 +2060,7 @@ export default function App() {
       )}
 
       <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#121214]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-2 flex items-center shadow-2xl z-50 w-auto max-w-[95vw] overflow-x-auto ring-1 ring-white/[0.02] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-        ((selectedChatId && !isChatClosing) || isGlobalOverlayActive || showNewChatModal || forwardingMsg) 
+        ((selectedChatId && !isChatClosing) || isGlobalOverlayActive || showNewChatModal || forwardingMsg || (activeNav === 'settings' && settingsInSubScreen)) 
           ? 'opacity-0 pointer-events-none translate-y-4 scale-95' 
           : 'opacity-100  translate-y-0 scale-100'
       }`}>
@@ -4902,7 +4904,7 @@ function StorageScreen({ chatDetails, onClearChat, onClearCache, onBack }) {
 
 // ⚙? SETTINGS PAGE COMPONENT
 // -----------------------------------------------------------
-function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock, chatDetails = [], setChatDetails, onToast }) {
+function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock, chatDetails = [], setChatDetails, onToast, onSubScreenChange }) {
 
   const [subScreen, setSubScreen] = useState(null);
   const [isEntering, setIsEntering] = useState(false); // new screen slides in
@@ -4913,15 +4915,17 @@ function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting
     if (screen === subScreen) return;
 
     if (screen) {
-      // Forward: mount new screen at offset, then animate it in via double-rAF
+      // Forward: mount new screen (CSS animation plays on mount)
       setSubScreen(screen);
+      onSubScreenChange?.(true);
     } else {
       // Back: animate current screen out, then unmount
       setIsLeaving(true);
       setTimeout(() => {
         setSubScreen(null);
         setIsLeaving(false);
-      }, 180);
+        onSubScreenChange?.(false);
+      }, 200);
     }
   }, [subScreen]);
 
