@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* ── Global layout — single source of truth ─────────────
+   Tailwind's preflight handles box-sizing / margin / padding.
+   These rules handle full-height layout and scrollbar hiding
+   for both the auth pages and the chat app.
+   ─────────────────────────────────────────────────────── */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+html, body {
+  overflow: hidden;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none;                  /* Chrome / Safari / Webkit */
+}
+
+
 @keyframes voiceWave {
   0% { height: 4px; }
   50% { height: 18px; }

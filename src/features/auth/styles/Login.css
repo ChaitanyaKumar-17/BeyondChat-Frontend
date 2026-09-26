@@ -1,0 +1,44 @@
+/* Login page specific styles only */
+
+/* Fixed height container for caps lock warning to prevent layout shift */
+.caps-warning-container {
+  height: 0;
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  transition: height 0.15s ease;
+}
+
+.caps-warning-container:has(.caps-warning) {
+  height: 28px;
+}
+
+/* Caps lock warning */
+.caps-warning {
+  color: #ff5555;
+  font-size: 12px;
+  line-height: 20px;
+  margin: 4px 0;
+  padding: 0;
+  display: block;
+}
+
+/* Forgot password link */
+.forgot-register {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.forgot-link {
+  color: #00aaff;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}

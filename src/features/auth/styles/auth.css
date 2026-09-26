@@ -1,0 +1,341 @@
+/* ═══════════════════════════════════════════════════════════
+   Shared component styles for Login and Register pages
+   Theme: matches App.jsx (#0a0a0c / #121214 / indigo-500)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Note ───────────────────────────────────────────────────
+   Global resets (html, body, #root, scrollbar) live in
+   src/index.css — the single source of truth for the whole app.
+   All selectors below are scoped to auth-specific class names.
+   ────────────────────────────────────────────────────────── */
+
+/* ── Common Page Container ─────────────────────────────── */
+.login-root,
+.register-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
+    #0a0a0c;
+}
+
+.register-root {
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ── Top-left App Name ─────────────────────────────────── */
+.top-left-app-name {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  user-select: none;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.02em;
+  z-index: 10;
+}
+
+.app-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.15));
+}
+
+/* ── Common Wrapper ────────────────────────────────────── */
+.login-wrapper,
+.register-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ── Common Card Styles ────────────────────────────────── */
+.login-card,
+.register-card {
+  width: 380px;
+  max-width: 90vw;
+  background-color: #121214;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 24px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  margin-top: 60px;
+}
+
+.register-card {
+  width: 420px;
+  margin-top: 16px;
+  padding: 22px 28px 20px;
+}
+
+
+/* ── Logo & Tagline ────────────────────────────────────── */
+.logo {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+}
+
+.tagline {
+  font-size: 14px;
+  color: #71717a;
+  margin-top: 6px;
+  margin-bottom: 28px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Common Input Styles ───────────────────────────────── */
+.login-card input[type="text"],
+.login-card input[type="email"],
+.login-card input[type="tel"],
+.login-card input[type="date"],
+.register-card input[type="text"],
+.register-card input[type="email"],
+.register-card input[type="tel"],
+.register-card input[type="date"] {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 4px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #e4e4e7;
+  font-size: 15px;
+  outline: none;
+  height: 48px;
+  font-family: inherit;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.login-card input::placeholder,
+.register-card input::placeholder {
+  color: #52525b;
+}
+
+.login-card input:focus,
+.register-card input:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* Username input spacing */
+.login-card > input[type="text"],
+.register-card > input[type="text"]:first-of-type {
+  margin-bottom: 14px;
+}
+
+/* ── Password Wrapper ──────────────────────────────────── */
+.password-wrapper {
+  width: 100%;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.input-relative {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+.input-relative input {
+  width: 100%;
+  padding: 14px 48px 14px 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #e4e4e7;
+  font-size: 15px;
+  height: 48px;
+  font-family: inherit;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  box-sizing: border-box;
+  display: block;
+  margin: 0 !important;
+  line-height: 1.5;
+  letter-spacing: normal;
+  will-change: auto;
+  transition: all 0.2s ease;
+}
+
+.input-relative input:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.input-relative input[type="text"],
+.input-relative input[type="password"] {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Hide Edge/IE native password reveal ───────────────── */
+.password-input::-ms-reveal,
+.password-input::-ms-clear {
+  display: none;
+}
+
+/* ── Eye Button ────────────────────────────────────────── */
+.eye-btn {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.eye-btn:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.eye-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: #71717a;
+  transition: stroke 0.2s ease;
+}
+
+.eye-btn:hover svg {
+  stroke: #a5b4fc;
+}
+
+/* ── Primary Button (Connect/Continue/Create) ──────────── */
+.connect-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.connect-btn:hover {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+.connect-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Footer Text ───────────────────────────────────────── */
+.footer-text {
+  font-size: 12px;
+  color: #52525b;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+/* ── External Link Sections ────────────────────────────── */
+.register-outside,
+.login-link-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #71717a;
+}
+
+.register-outside .register-btn,
+.login-link-section .login-btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e4e4e7;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+.register-outside .register-btn:hover,
+.login-link-section .login-btn:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-color: transparent;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+/* ── Error Styling ─────────────────────────────────────── */
+.input-error {
+  border: 1px solid rgba(248, 113, 113, 0.6) !important;
+  background-color: rgba(239, 68, 68, 0.08) !important;
+}
+
+.error-message {
+  color: #f87171;
+  font-size: 12px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 450px) {
+  .login-card,
+  .register-card {
+    width: 92%;
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+  .top-left-app-name {
+    font-size: 20px;
+    top: 16px;
+    left: 16px;
+  }
+  .app-logo {
+    width: 100px;
+    height: 100px;
+  }
+}

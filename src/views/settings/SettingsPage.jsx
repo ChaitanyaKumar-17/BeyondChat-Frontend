@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Home, Users, Phone, Send, Smile, X, Play, Palette, Volume2, LogOut, Reply, Forward, Timer, Shield, Eye, AtSign, Sparkles, Circle, CheckCircle, UserCheck, AlertCircle, Camera, Bell, Moon, Database, HelpCircle, ShieldCheck, MessageSquare } from 'lucide-react';
 import { containsProfanity } from '@/utils/profanity';
 import { playNotificationTone } from '@/utils/audio';
@@ -10,6 +11,7 @@ import StorageScreen from '@/views/settings/StorageScreen';
 
 export default function SettingsPage({ currentUser, onUpdateUser, userSettings, onUpdateSetting, blockedUsers = [], onUnblock, chatDetails = [], setChatDetails, onToast, onSubScreenChange }) {
 
+  const navigate = useNavigate();
   const [subScreen, setSubScreen] = useState(null);
   const [isEntering, setIsEntering] = useState(false); // new screen slides in
   const [isLeaving,  setIsLeaving]  = useState(false); // current screen slides out
@@ -918,7 +920,7 @@ export default function SettingsPage({ currentUser, onUpdateUser, userSettings, 
                 Cancel
               </button>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => navigate('/login')}
                 className="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-400 text-sm font-bold text-white transition-colors shadow-lg shadow-red-500/20"
               >
                 Log Out
