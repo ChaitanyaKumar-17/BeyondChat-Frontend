@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Users, Plus, ArrowLeft, X, Trash2, Pencil, Eye, Paintbrush, Eraser, Undo2, Image } from 'lucide-react';
 
-export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditors, setCanvasEditors, friends, onClose }) {
-  // Multi-canvas support
-  const [boards, setBoards] = useState([{ id: 1, name: 'Board 1', bgColor: '#fafaf9', data: null }]);
-  const [activeBoardId, setActiveBoardId] = useState(1);
+export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUser, canvasEditors, setCanvasEditors, friends, onClose,
+  boards, setBoards, activeBoardId, setActiveBoardId }) {
+  // boards / activeBoardId are lifted to ChatView so they persist across open/close
   const activeBoard = boards.find(b => b.id === activeBoardId) || boards[0];
 
   const canvasRef = useRef(null);
@@ -60,7 +59,7 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
     ctxRef.current = ctx;
     // Restore saved data if any
     if (activeBoard.data) {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
       img.src = activeBoard.data;
     }
@@ -114,6 +113,10 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setActiveBoardId(newId);
     setHistory([]);
+    // Reset drawing tools to defaults for the new board
+    setTool('pen');
+    setColor('#1e1e2e');
+    setStrokeSize(4);
   };
 
   const deleteBoard = (id) => {
@@ -232,7 +235,7 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
     const dpr = window.devicePixelRatio || 1;
     const prev = history[history.length - 1];
     setHistory(h => h.slice(0, -1));
-    const img = new Image();
+    const img = new window.Image();
     img.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width / dpr, canvas.height / dpr);
@@ -262,11 +265,22 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
     </button>
   );
 
+  // Save the current board's canvas content before closing so it persists on re-entry
+  const handleClose = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const currentData = canvas.toDataURL();
+      const currentId = activeBoardId;
+      setBoards(prev => prev.map(b => b.id === currentId ? { ...b, data: currentData } : b));
+    }
+    onClose();
+  };
+
   return (
     <div className="absolute inset-0 z-[90] flex flex-col animate-in slide-in-from-right-8 duration-300" style={{ background: '#0f0f13' }}>
       {/* Header */}
       <header className="px-4 py-3 flex items-center gap-3 border-b border-white/[0.05] bg-[#0f0f13]/90 backdrop-blur-md z-10 flex-none">
-        <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors bg-white/[0.06] p-2 rounded-full">
+        <button onClick={handleClose} className="text-zinc-400 hover:text-white transition-colors bg-white/[0.06] p-2 rounded-full">
           <ArrowLeft size={17} />
         </button>
         <div className="flex items-center gap-2">

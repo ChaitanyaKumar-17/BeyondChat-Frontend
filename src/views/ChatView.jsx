@@ -73,6 +73,9 @@ export default function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdraw
   const [chatTasks, setChatTasks] = useState([]);
   const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [showCanvas, setShowCanvas] = useState(false);
+  // Whiteboard state lifted here so boards persist across open/close
+  const [wbBoards, setWbBoards] = useState([{ id: 1, name: 'Board 1', bgColor: '#fafaf9', data: null }]);
+  const [wbActiveBoardId, setWbActiveBoardId] = useState(1);
   const [canvasEditors, setCanvasEditors] = useState([]); // userIds allowed to draw; empty = all allowed
   const [createTaskFromMsg, setCreateTaskFromMsg] = useState(null); // msg object
   const [taskPriorityPrompt, setTaskPriorityPrompt] = useState(null); // msg object awaiting priority selection
@@ -2445,6 +2448,10 @@ export default function ChatView({ chat, onBack, sentReqs, onSendReq, onWithdraw
         canvasEditors={canvasEditors}
         setCanvasEditors={setCanvasEditors}
         friends={friends}
+        boards={wbBoards}
+        setBoards={setWbBoards}
+        activeBoardId={wbActiveBoardId}
+        setActiveBoardId={setWbActiveBoardId}
         onClose={() => setShowCanvas(false)}
       />}
 
