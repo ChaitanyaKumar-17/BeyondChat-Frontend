@@ -11,7 +11,7 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
   const ctxRef = useRef(null);
   const [tool, setTool] = useState('pen');
   const [color, setColor] = useState('#1e1e2e');
-  const [strokeSize, setStrokeSize] = useState(3);
+  const [strokeSize, setStrokeSize] = useState(4);
   const [isDrawing, setIsDrawing] = useState(false);
   const [history, setHistory] = useState([]); // per-board undo history
   const [showEditorMgr, setShowEditorMgr] = useState(false);
@@ -20,6 +20,8 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
   const renameInputRef = useRef(null);
   const lastPos = useRef(null);
   const switchingBoard = useRef(false);
+  const boardsRef = useRef(boards);
+  useEffect(() => { boardsRef.current = boards; }, [boards]);
 
   const PEN_COLORS = [
     { hex: '#1e1e2e', label: 'Dark' },
@@ -69,21 +71,31 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
     if (newId === activeBoardId) return;
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.width / dpr;
     const h = canvas.height / dpr;
-    // Save current board drawing
+    const currentId = activeBoardId; // capture before any setState
+
+    // Save current board's canvas content
     const currentData = canvas.toDataURL();
-    setBoards(prev => prev.map(b => b.id === activeBoardId ? { ...b, data: currentData } : b));
-    // Clear canvas
+    setBoards(prev => prev.map(b => b.id === currentId ? { ...b, data: currentData } : b));
+
+    // Clear canvas immediately
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Load new board drawing
-    const newBoard = boards.find(b => b.id === newId);
-    if (newBoard?.data) {
-      const img = new Image();
-      img.onload = () => ctx.drawImage(img, 0, 0, w, h);
-      img.src = newBoard.data;
+
+    // Use boardsRef (always up-to-date) instead of stale closure `boards`
+    const targetBoard = boardsRef.current.find(b => b.id === newId);
+    if (targetBoard?.data) {
+      const img = new window.Image();
+      img.onload = () => {
+        const c = ctxRef.current;
+        if (c) c.drawImage(img, 0, 0, w, h);
+      };
+      img.src = targetBoard.data;
     }
+
     setActiveBoardId(newId);
     setHistory([]);
   };
@@ -105,25 +117,50 @@ export default function WhiteboardPanel({ canUserEdit, isAdmin, chat, currentUse
   };
 
   const deleteBoard = (id) => {
-    if (boards.length === 1) return; // can't delete last
-    const remaining = boards.filter(b => b.id !== id);
-    const nextId = id === activeBoardId ? remaining[remaining.length - 1].id : activeBoardId;
-    setBoards(remaining);
+    const currentBoards = boardsRef.current;
+    if (currentBoards.length === 1) return; // can't delete last
+
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+
     if (id === activeBoardId) {
-      const ctx = ctxRef.current;
-      const canvas = canvasRef.current;
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const target = remaining.find(b => b.id === nextId);
-      if (target?.data) {
-        const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0, w, h);
-        img.src = target.data;
+      // Save the current canvas content into the board being deleted (not strictly needed,
+      // but keeps boardsRef state consistent). More importantly, we now pick the closest
+      // previous board to switch to — not just the last one.
+      const currentData = canvas ? canvas.toDataURL() : null;
+      const remaining = currentBoards.filter(b => b.id !== id);
+      const deletedIdx = currentBoards.findIndex(b => b.id === id);
+      // Prefer the board immediately before; fall back to the one after
+      const nextBoard = remaining[deletedIdx - 1] || remaining[0];
+      const nextId = nextBoard.id;
+
+      // Update boards state: remove deleted, save current data in it (for safety)
+      setBoards(currentBoards
+        .map(b => b.id === id && currentData ? { ...b, data: currentData } : b)
+        .filter(b => b.id !== id)
+      );
+
+      // Restore the next board's canvas content
+      if (ctx && canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.width / dpr;
+        const h = canvas.height / dpr;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (nextBoard.data) {
+          const img = new window.Image();
+          img.onload = () => {
+            const c = ctxRef.current;
+            if (c) c.drawImage(img, 0, 0, w, h);
+          };
+          img.src = nextBoard.data;
+        }
       }
+
       setActiveBoardId(nextId);
       setHistory([]);
+    } else {
+      // Deleting a non-active board — just remove it from state
+      setBoards(currentBoards.filter(b => b.id !== id));
     }
   };
 
