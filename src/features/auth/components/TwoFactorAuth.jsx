@@ -124,15 +124,12 @@ export default function TwoFactorAuth() {
     setIsVerifying(true);
     setInvalid(false);
 
-    // --- Stub: always reject until backend is wired ---
+    // No backend yet — accept any complete 6-digit code
     setTimeout(() => {
       setIsVerifying(false);
-      setInvalid(true);
-      setError("Invalid code. Please try again.");
-      // Reset OTP boxes after a short pause so user can retype
-      setTimeout(() => setOtp(["", "", "", "", "", ""]), 600);
-      // Future: replace with real API call
-      navigate("/app");
+      setVerified(true);
+      // Show success screen briefly then enter the app
+      setTimeout(() => navigate("/app"), 2000);
     }, 900);
   };
 

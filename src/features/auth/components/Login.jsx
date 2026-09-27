@@ -31,7 +31,7 @@ export default function Login() {
     }
     setLoginError("");
     // Stub: navigate to 2FA — replace with real API call once backend is ready
-    navigate("/app");
+    navigate("/2fa", { state: { username, method: "authenticator" } });
   };
 
   const handleKeyPress = (e) => {
